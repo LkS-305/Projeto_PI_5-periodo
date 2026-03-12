@@ -18,9 +18,9 @@ export class Carteira {
   public usuario_id?: string;
   public prestador_id?: string;
   public saldo: string;
-  public saldo_bloqueado: string;
-  public ultima_transacao_id: string;
-  public metodos_de_pagamento: PagamentosAceitados;
+  public saldo_bloqueado?: string;
+  public ultima_transacao_id?: string;
+  public metodos_de_pagamento?: PagamentosAceitados;
   public stauts: CarteiraStatus;
   public readonly created_at?: Date;
   public readonly updated_at?: Date;
@@ -29,8 +29,6 @@ export class Carteira {
     this.id = id;
     this.saldo = props.saldo;
     this.usuario_id = props.usuario_id;
-    this.saldo_bloqueado = props.saldo_bloqueado;
-    this.ultima_transacao_id = props.ultima_transacao_id;
     this.stauts = props.stauts;
     this.metodos_de_pagamento = props.metodos_de_pagamento;
   }

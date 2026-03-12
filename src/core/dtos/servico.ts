@@ -7,3 +7,5 @@ export interface CriarServicoDto {
   duracao: string,
   categoria: string,
 }
+
+export type ServicoStatus = 'emAndamento' | 'pendente' | 'aceito' | 'recusado' | 'cancelado' | 'finalizado';

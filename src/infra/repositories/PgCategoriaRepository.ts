@@ -12,7 +12,12 @@ export class PgCategoriaRepository implements ICategoriaRepository {
     return rows[0];
   }
 
-  async update(categoria: Categoria): Promise<Categoria> {
+  async delete(id: string): Promise<boolean> {
+    const { rows } = await pool.query('DELETE * FROM categorias WHERE id = $1', [id]);
+    return rows[0];
+  }
+
+  async update(id: string, categoria: Partial<Categoria>): Promise<Categoria | null> {
     const { rows } = await pool.query(
       'UPDATE categorias SET nome = $1 WHERE id = $2 RETURNING *',
       [categoria.nome, categoria.id]
@@ -25,7 +30,7 @@ export class PgCategoriaRepository implements ICategoriaRepository {
     return rows[0] || null;
   }
 
-  async findAll(): Promise<Categoria[]> {
+  async findAll(): Promise<Categoria[] | null> {
     const { rows } = await pool.query('SELECT * FROM categorias ORDER BY nome ASC');
     return rows;
   }

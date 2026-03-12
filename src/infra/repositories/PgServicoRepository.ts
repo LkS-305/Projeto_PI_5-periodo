@@ -25,6 +25,10 @@ export class PgServicoRepository implements IServicoRepository {
     return rows[0];
   }
 
+  async updateStatus(id: string, status: string): Promise<void> {
+    await pool.query('UPDATE servicos SET status = $1 WHERE id = $2', [status, id]);
+  }
+
   async findById(id: string): Promise<Servico | null> {
     const { rows } = await pool.query('SELECT * FROM servicos WHERE id = $1', [id]);
     return rows[0] || null;
@@ -40,9 +44,5 @@ export class PgServicoRepository implements IServicoRepository {
     const { rows } = await pool.query('SELECT * FROM servicos WHERE prestador_id = $1', [prestador_id]);
     return rows;
  
-  }
-
-  async updateStatus(id: string, status: string): Promise<void> {
-    await pool.query('UPDATE servicos SET status = $1 WHERE id = $2', [status, id]);
   }
 }

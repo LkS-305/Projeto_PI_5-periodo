@@ -24,6 +24,6 @@ servicoRouter.post('/criar-servico', (req,res) => servicoController.create(req,r
 servicoRouter.get('/acharPorId', (req,res) => servicoController.findById(req,res));
 servicoRouter.get('/acharPorUserId', (req,res) => servicoController.findByUserId(req,res));
 servicoRouter.get('/acharPorPretadorId', (req,res) => servicoController.findByPrestadorId(req,res));
-servicoRouter.patch('/atualizarServico', (req,res) => servicoController.updateServico(req,res));
+servicoRouter.patch('/atualizarServico', (req,res) => servicoController.updateStatus(req,res));
 
 export { servicoRouter };

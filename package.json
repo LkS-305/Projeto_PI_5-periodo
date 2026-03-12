@@ -1,20 +1,25 @@
 {
   "scripts": {
-    "db:setup": "ts-node src/infra/database/migrate.ts"
+    "db:setup": "ts-node src/infra/database/migrate.ts",
+    "test-user": "tsx --test tests/User.test.ts",
+    "test-categorias": "tsx --test tests/Categoria.test.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.3.0",
     "@types/pg": "^8.16.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.18.0"
   }
 }
