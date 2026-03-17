@@ -1,6 +1,6 @@
 export class Recibo {
   public readonly id?: string;
-  public transacao_id: string;
+  public transacao_id!: string;
   public servico_id!: string;
   public codigo_verificacao!: string;
   public dados_fiscais_cliente!: object;

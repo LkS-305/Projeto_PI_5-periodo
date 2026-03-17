@@ -1,15 +1,16 @@
 import { IPrestadorRepository } from '../../core/repositories/IPrestadorRepository';
 import { Prestador } from '../../core/entities/Prestador';
 import { pool } from '../database/postgres';
+import { CriarPrestadorDto } from '../../core/dtos/prestador';
 
 export class PgPrestadorRepository implements IPrestadorRepository {
-  async create(p: Prestador): Promise<Prestador> {
+  async create(p: CriarPrestadorDto): Promise<Prestador> {
     const query = `
-      INSERT INTO prestadores (id, user_id, bio, score, categories)
-      VALUES (gen_random_uuid(), $1, $2, $3, $4)
+      INSERT INTO prestadores (id, user_id)
+      VALUES (gen_random_uuid(), $1)
       RETURNING *;
     `;
-    const { rows } = await pool.query(query, [p.id, p.bio, p.score, p.categories]);
+    const { rows } = await pool.query(query, [p.user_id]);
     return rows[0];
   }
 

@@ -2,7 +2,7 @@ import { CriarServicoDto } from '../dtos/servico';
 import { Servico } from '../entities/Servico';
 
 export interface IServicoRepository {
-  create(servico: CriarServicoDto): Promise<Servico>;
+  create(servico: Servico, transaction?: any): Promise<Servico>;
   findById(id: string): Promise<Servico | null>;
   findByUserId(id: string): Promise<Servico[] | null>;
   findByPrestadorId(id: string): Promise<Servico[] | null>;
