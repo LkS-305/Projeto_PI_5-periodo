@@ -7,8 +7,11 @@ import { CriarServicoUseCase,  PesquisarServicoId, PesquisarServicoUserId, Pesqu
 const servicoRouter = Router();
 
 const servicoRepo = new PgServicoRepository();
+const agendamentoRepo = new PgAgendamentoRepository();
+const transacaoRepo = new PgTransacaoRepository();
 
-const criarServicoUseCase = new CriarServicoUseCase(servicoRepo);
+
+const criarServicoUseCase = new CriarServicoUseCase(servicoRepo, agendamentoRepo, transacaoRepo);
 const pesquisarServicoId = new PesquisarServicoId(servicoRepo);
 const pesquisarServicoUserId = new PesquisarServicoUserId(servicoRepo);
 const pesquisarServicoPrestadorId = new PesquisarServicoPrestadorId(servicoRepo);

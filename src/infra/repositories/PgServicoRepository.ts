@@ -4,27 +4,31 @@ import { CriarServicoDto } from '../../core/dtos/servico';
 import { pool } from '../database/postgres';
 
 export class PgServicoRepository implements IServicoRepository {
-  async create(servico: CriarServicoDto): Promise<Servico> {
-    const consulta = `
+  async create(servico: Servico, transaction?: any): Promise<Servico> {
+    
+    const executor = transaction || pool;
+
+    const consultaServico = `
       INSERT INTO servicos (
-        id, user_id, prestador_id, titulo, preco_acordado, 
-        data_acordada, duracao, categoria
-      ) VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7)
+        id, user_id, prestador_id, id_agendamento, id_transacao, titulo, categoria
+      ) VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6)
       RETURNING *;
-    `;
-    const valores = [
-      servico.user_id, 
-      servico.prestador_id, 
-      servico.titulo, 
-      servico.preco_acordado, 
-      servico.data_acordada, 
-      servico.duracao, 
+    `;   
+
+    const valoresServico = [
+      servico.user_id,
+      servico.prestador_id,
+      servico.id_agendamento,
+      servico.id_transacao,
+      servico.titulo,
       servico.categoria
-    ];
-    const { rows } = await pool.query(consulta, valores);
+    ]
+
+    const { rows } = await executor.query(consultaServico, valoresServico);
     return rows[0];
   }
 
+  
   async updateStatus(id: string, status: string): Promise<void> {
     await pool.query('UPDATE servicos SET status = $1 WHERE id = $2', [status, id]);
   }

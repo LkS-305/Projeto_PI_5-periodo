@@ -21,8 +21,22 @@ export class InMemoryUsuarioRepository implements IUserRepository {
     }
 
     async update(id: string, dados: Partial<User>): Promise<User | null> {
-        const user = this.items.find(u => u.id === id);
-        return user || null;
+     const index = this.items.findIndex(u => u.id === id);
+
+      if (index === -1) {
+        return null;
+      }
+
+     // Mescla o que já existia com as novas informações
+     const usuarioAtualizado = {
+       ...this.items[index],
+       ...dados,
+     };
+
+      // Atualiza a lista em memória
+      this.items[index] = usuarioAtualizado;
+
+      return usuarioAtualizado;
     }
    
     async findByEmail(email: string): Promise<User | null> {
