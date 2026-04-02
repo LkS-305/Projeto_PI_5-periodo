@@ -1,65 +1,634 @@
+"use client";
+
+import { useRef, useState } from "react";
 import Image from "next/image";
 
 export default function Home() {
+  // 1. O Estado (qual seção está visível)
+  const [activeSection, setActiveSection] = useState(0);
+
+  // 2. A trava invisível (único Ref que precisamos agora)
+  const isScrolling = useRef(false);
+  const TOTAL_SECTIONS = 5;
+
+  // 3. Função de Navegação
+  const goTo = (idx: number) => {
+    if (idx < 0 || idx >= TOTAL_SECTIONS || isScrolling.current) return;
+    
+    isScrolling.current = true;
+    setActiveSection(idx); // O estado atualiza, o CSS reage!
+
+    setTimeout(() => {
+      isScrolling.current = false;
+    }, 950);
+  };
+
+  // 4. Gatilho do Mouse
+  const handleWheel = (e: React.WheelEvent) => {
+    if (isScrolling.current) return;
+    if (e.deltaY > 0) {
+      goTo(activeSection + 1);
+    } else if (e.deltaY < 0) {
+      goTo(activeSection - 1);
+    }
+  };
+
+  // 5. Helper para checar seção ativa e disparar animações
+  const v = (s: number) => activeSection === s;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div
+      onWheel={handleWheel}
+      style={{
+        width: "100%",
+        height: "100vh",
+        overflow: "hidden", // Tranca a tela perfeitamente
+        position: "relative",
+      }}
+    >
+      {/* ── ESTILOS DAS ANIMAÇÕES EM CASCATA ── */}
+      <style>{`
+        .hero-title, .hero-sub, .search-row {
+          opacity: 0;
+          transform: translateY(32px);
+        }
+        
+        /* Quando a classe .v entra em cena, eles aparecem */
+        .hero-title.v, .hero-sub.v, .search-row.v {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        /* Os delays escalonados (a coreografia) */
+        .hero-title { transition: opacity .75s ease 0s, transform .75s ease 0s; }
+        .hero-sub   { transition: opacity .75s ease .15s, transform .75s ease .15s; }
+        .search-row { transition: opacity .75s ease .25s, transform .75s ease .25s; }
+      `}</style>
+
+      {/* ── DOT NAVIGATION (Movido para fora das seções, fica fixo na tela) ── */}
+      <div
+        style={{
+          position: "fixed",
+          right: "40px",
+          top: "50%",
+          transform: "translateY(-50%)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+          zIndex: 50,
+        }}
+      >
+        {Array.from({ length: TOTAL_SECTIONS }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => goTo(i)}
+            style={{
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              backgroundColor: activeSection === i ? "#E0C271" : "rgba(39, 39, 39, 0.2)",
+              transform: activeSection === i ? "scale(1.4)" : "scale(1)",
+              transition: "all 0.3s ease",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+            }}
+            aria-label={`Ir para seção ${i + 1}`}
+          />
+        ))}
+      </div>
+
+      {/* ── TRILHO DE ANIMAÇÃO (A mágica acontece aqui) ── */}
+      <div
+        style={{
+          // Move a tela inteira com base na seção ativa (0, -100vh, -200vh, etc)
+          transform: `translateY(-${activeSection * 100}vh)`,
+          transition: "transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1)",
+          width: "100%",
+        }}
+      >
+        {/* ─── SEÇÃO 1 ─── */}
+        <section
+          style={{
+            width: "100%",
+            height: "100vh", // Força exatamente 1 tela de altura
+            backgroundColor: "#FAF9F5",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {/* CABEÇALHO */}
+          <header
+            style={{
+              width: "100%",
+              height: "90px",
+              backgroundColor: "#E0C271",
+              display: "flex",
+              alignItems: "center",
+              flexShrink: 0,
+              position: "relative",
+              zIndex: 10,
+            }}
+          >
+            {/* ── LOGO IMAGEM ── */}
+            <div
+              style={{
+                position: "absolute",
+                top: "15px",
+                left: "40px",
+                zIndex: 20,
+              }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <Image
+                src="/images/logo_domi.png"
+                alt="Logo DOMI"
+                width={70}
+                height={60}
+                style={{ display: "block" }}
+              />
+            </div>
+
+            {/* Logo DOMI */}
+            <span
+              style={{
+                fontFamily: "'Clash Display', sans-serif",
+                fontWeight: 700,
+                fontSize: "70px",
+                color: "#272727",
+                lineHeight: 1,
+                marginLeft: "130px",
+                letterSpacing: "-1px",
+                userSelect: "none",
+              }}
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+              DOMI
+            </span>
+
+            {/* Nav links */}
+            <nav
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "80px",
+                marginLeft: "auto",
+                marginRight: "40px",
+              }}
+            >
+              {[
+                { label: "Como funciona", idx: 1 },
+                { label: "Recursos", idx: 2 },
+                { label: "Avaliações", idx: 3 },
+              ].map(({ label, idx }) => (
+                <button
+                  key={label}
+                  onClick={() => goTo(idx)}
+                  style={{
+                    fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                    fontWeight: 400,
+                    fontSize: "30px",
+                    color: "#272727",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 0,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </nav>
+
+            {/* ── SEPARADOR DECORATIVO ── */}
+            <span
+              style={{
+                fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                fontWeight: 100,
+                fontSize: "60px",
+                color: "#C3A85E",
+                marginRight: "40px",
+                marginTop: "-6px",
+                userSelect: "none",
+                lineHeight: 0.8,
+              }}
+            >
+              |
+            </span>
+
+            {/* Botões */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "40px",
+              }}
+            >
+              <a
+                href="/login"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "145px",
+                  height: "50px",
+                  borderRadius: "50px",
+                  backgroundColor: "transparent",
+                  border: "3px solid #C3A85E",
+                  textDecoration: "none",
+                  fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                  fontWeight: 400,
+                  fontSize: "30px",
+                  color: "#272727",
+                  flexShrink: 0,
+                }}
+              >
+                Entrar
+              </a>
+
+              <a
+                href="/cadastro"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "220px",
+                  height: "50px",
+                  borderRadius: "50px",
+                  marginRight: "40px",
+                  backgroundColor: "#FAF9F5",
+                  textDecoration: "none",
+                  fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                  fontWeight: 500,
+                  fontSize: "30px",
+                  color: "#E0C271",
+                  flexShrink: 0,
+                }}
+              >
+                Cadastrar-se
+              </a>
+            </div>
+          </header>
+
+          {/* ── PHONE ── */}
+          <div
+            style={{
+              position: "absolute",
+              top: "180px",
+              right: "40px",
+              zIndex: 0,
+              pointerEvents: "none",
+            }}
           >
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src="/images/phone.png"
+              alt="App DOMI no celular"
+              width={600}
+              height={900}
+              priority
+              style={{ display: "block" }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+
+          {/* ── CONTEÚDO HERO ── */}
+          <div
+            style={{
+              paddingLeft: "115px",
+              paddingTop: "80px",
+              position: "relative",
+              zIndex: 1,
+            }}
           >
-            Documentation
-          </a>
-        </div>
-      </main>
+            <h1
+              className={`hero-title${v(0) ? " v" : ""}`}
+              style={{
+                fontFamily: "'SF Pro Display', system-ui, sans-serif",
+                fontWeight: 700,
+                fontSize: "130px",
+                color: "#272727",
+                lineHeight: 1.0,
+                maxWidth: "1169px",
+                margin: 0,
+                marginLeft: "-70px",
+                letterSpacing: "-3px",
+              }}
+            >
+              Conecte-se com quem faz bem feito.
+            </h1>
+
+            <p
+              className={`hero-sub${v(0) ? " v" : ""}`}
+              style={{
+                fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                fontWeight: 500,
+                fontSize: "33px",
+                color: "#535353",
+                lineHeight: 1.4,
+                maxWidth: "1125px",
+                marginTop: "35px",
+                marginBottom: 0,
+                marginLeft: "-70px",
+              }}
+            >
+              Encontre profissionais de confiança ou ofereça seus serviços, tudo
+              em um só lugar com qualidade e segurança.
+            </p>
+          </div>
+
+          {/* ── FAKE SEARCH BAR ── */}
+          <div
+            className={`search-row${v(0) ? " v" : ""}`}
+            style={{
+              position: "relative",
+              zIndex: 1,
+              marginTop: "80px",
+              marginLeft: "40px",
+            }}
+          >
+            <div
+              style={{
+                width: "1310px",
+                height: "105px",
+                backgroundColor: "#EFEFEF",
+                boxShadow: "0px 20px 35px rgba(0, 0, 0, 0.25)",
+                borderRadius: "60px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingLeft: "60px",
+                paddingRight: "20px",
+              }}
+            >
+              <svg
+                width="45"
+                height="45"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#535353"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ flexShrink: 0, marginRight: "15px" }}
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+
+              <input
+                type="text"
+                placeholder="Que serviço você precisa hoje?"
+                style={{
+                  flex: 1,
+                  backgroundColor: "transparent",
+                  border: "none",
+                  outline: "none",
+                  fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                  fontWeight: 400,
+                  fontSize: "40px",
+                  color: "#535353",
+                  marginRight: "30px",
+                }}
+              />
+
+              <div
+                style={{
+                  width: "480px",
+                  height: "70px",
+                  borderRadius: "40px",
+                  backgroundColor: "#E0C271",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  cursor: "pointer",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                    fontWeight: 600,
+                    fontSize: "40px",
+                    color: "#272727",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Procurar profissionais
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── SEÇÃO 2 — Como funciona ─── */}
+        <section
+          style={{
+            width: "100%",
+            height: "100vh",
+            backgroundColor: "#FAF9F5",
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "'Clash Display', sans-serif",
+              fontWeight: 600,
+              fontSize: "90px",
+              color: "#E0C271",
+              marginTop: "80px",
+              marginLeft: "40px",
+              lineHeight: 1.0,
+              marginBottom: 0,
+            }}
+          >
+            Como funciona
+          </h2>
+
+          <h3
+            style={{
+              fontFamily: "'SF Pro Display', system-ui, sans-serif",
+              fontWeight: 600,
+              fontSize: "60px",
+              color: "#272727",
+              marginTop: "15px",
+              marginLeft: "40px",
+              lineHeight: 1.1,
+              marginBottom: 0,
+            }}
+          >
+            Simples para os dois lados da relação
+          </h3>
+
+          <p
+            style={{
+              fontFamily: "'SF Pro Text', system-ui, sans-serif",
+              fontWeight: 500,
+              fontSize: "40px",
+              color: "#535353",
+              marginTop: "30px",
+              marginLeft: "40px",
+              lineHeight: 1.3,
+              maxWidth: "1100px",
+            }}
+          >
+            Uma conta, dois modos de uso. Alterne entre contratar e trabalhar quando quiser.
+          </p>
+        </section>
+
+        {/* ─── SEÇÃO 3 — Recursos ─── */}
+        <section
+          style={{
+            width: "100%",
+            height: "100vh",
+            backgroundColor: "#FAF9F5",
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "'Clash Display', sans-serif",
+              fontWeight: 600,
+              fontSize: "90px",
+              color: "#E0C271",
+              marginTop: "80px",
+              marginLeft: "40px",
+              lineHeight: 1.0,
+              marginBottom: 0,
+            }}
+          >
+            Recursos
+          </h2>
+
+          <h3
+            style={{
+              fontFamily: "'SF Pro Display', system-ui, sans-serif",
+              fontWeight: 600,
+              fontSize: "60px",
+              color: "#272727",
+              marginTop: "15px",
+              marginLeft: "40px",
+              lineHeight: 1.1,
+              marginBottom: 0,
+            }}
+          >
+            Tudo o que você precisa em um só lugar
+          </h3>
+
+          <p
+            style={{
+              fontFamily: "'SF Pro Text', system-ui, sans-serif",
+              fontWeight: 500,
+              fontSize: "40px",
+              color: "#535353",
+              marginTop: "30px",
+              marginLeft: "40px",
+              lineHeight: 1.3,
+              maxWidth: "1100px",
+            }}
+          >
+            Uma variedade de profissionais e clientes na mesma plataforma.
+          </p>
+        </section>
+
+        {/* ─── SEÇÃO 4 — Avaliações ─── */}
+        <section
+          style={{
+            width: "100%",
+            height: "100vh",
+            backgroundColor: "#FAF9F5",
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "'Clash Display', sans-serif",
+              fontWeight: 600,
+              fontSize: "90px",
+              color: "#E0C271",
+              marginTop: "80px",
+              marginLeft: "40px",
+              lineHeight: 1.0,
+              marginBottom: 0,
+            }}
+          >
+            Avaliações
+          </h2>
+
+          <h3
+            style={{
+              fontFamily: "'SF Pro Display', system-ui, sans-serif",
+              fontWeight: 600,
+              fontSize: "60px",
+              color: "#272727",
+              marginTop: "15px",
+              marginLeft: "40px",
+              lineHeight: 1.1,
+              marginBottom: 0,
+            }}
+          >
+            Quem já usa, aprova
+          </h3>
+
+          <p
+            style={{
+              fontFamily: "'SF Pro Text', system-ui, sans-serif",
+              fontWeight: 500,
+              fontSize: "40px",
+              color: "#535353",
+              marginTop: "30px",
+              marginLeft: "40px",
+              lineHeight: 1.3,
+              maxWidth: "1100px",
+            }}
+          >
+            Uma conta, dois modos de uso. Alterne entre contratar e trabalhar quando quiser.
+          </p>
+        </section>
+
+        {/* ─── SEÇÃO 5 — Rodapé ─── */}
+        <section
+          style={{
+            width: "100%",
+            height: "100vh",
+            backgroundColor: "#FAF9F5",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <footer style={{ textAlign: "center" }}>
+            <span
+              style={{
+                fontFamily: "'Clash Display', sans-serif",
+                fontWeight: 700,
+                fontSize: "70px",
+                color: "#E0C271",
+                letterSpacing: "-1px",
+              }}
+            >
+              DOMI
+            </span>
+            <p
+              style={{
+                fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                fontWeight: 400,
+                fontSize: "24px",
+                color: "#FAF9F5",
+                marginTop: "16px",
+              }}
+            >
+              © {new Date().getFullYear()} DOMI. Todos os direitos reservados.
+            </p>
+          </footer>
+        </section>
+      </div>
     </div>
   );
 }
