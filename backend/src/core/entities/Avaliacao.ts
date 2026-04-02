@@ -7,7 +7,7 @@ export class Avaliacao {
   public prestador_id?: string;
   public listBy?: string;
   public avaliarBy?: string;
-  public nota: string; // Ex: 1 a 5
+  public nota: number; // Ex: 1 a 5
   public comentario?: string;
   public media?: string;
   public destinatario: AvaliarBy;

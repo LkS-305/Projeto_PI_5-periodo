@@ -9,8 +9,8 @@ export class User {
   public senha: string;
   public cpf?: string;
   public endereco?: string;
-  public score?: string;
-  public tipo_usuario?: UserType;
+  public score?: number;            //PONTUAÇÃO MÉDIA DO USUÁRIO, CALCULADA A PARTIR DAS AVALIAÇÕES RECEBIDAS
+  public tipo_usuario?: UserType;   // 'cliente' ou 'admin'
   public foto_url?: string;
   public created_at?: Date;
   public updated_at?: Date;
