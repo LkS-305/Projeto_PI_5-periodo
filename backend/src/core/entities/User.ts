@@ -7,7 +7,7 @@ export class User {
   public email: string;
   public senha: string;
   public cpf: string;
-  public score?: string;
+  public score?: number;
   public tipo_usuario: UserType;
   public foto_url?: string;
   public created_at?: Date;
