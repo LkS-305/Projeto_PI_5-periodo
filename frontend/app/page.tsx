@@ -513,80 +513,63 @@ export default function Home() {
                 Contratante
               </p>
 
-              {/* Passo 1 */}
-              <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", marginLeft: "35px", gap: "25px" }}>
-                <div style={{
-                  width: "40px", height: "40px", borderRadius: "10px",
-                  backgroundColor: "#E0C271", flexShrink: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>1</span>
-                </div>
-                <div>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>
-                    Descreva o que precisa
-                  </p>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>
-                    Crie uma demanda inteligente com suas preferências.
-                  </p>
-                </div>
-              </div>
+              {/* ── PASSOS com linha vertical ── */}
+              <div style={{ position: "relative", marginTop: "20px", marginLeft: "35px" }}>
 
-              {/* Passo 2 */}
-              <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", marginLeft: "35px", gap: "25px" }}>
                 <div style={{
-                  width: "40px", height: "40px", borderRadius: "10px",
-                  backgroundColor: "#E0C271", flexShrink: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>2</span>
-                </div>
-                <div>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>
-                    Receba sugestões filtradas
-                  </p>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>
-                    O sistema retorna profissionais por match, sem leilão público.
-                  </p>
-                </div>
-              </div>
+                  position: "absolute",
+                  left: "18px",
+                  top: "0px",
+                  width: "4px",
+                  height: "calc(100% - 90px)",
+                  backgroundColor: "#C3A85E",
+                  zIndex: 0,
+                }} />
 
-              {/* Passo 3 */}
-              <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", marginLeft: "35px", gap: "25px" }}>
-                <div style={{
-                  width: "40px", height: "40px", borderRadius: "10px",
-                  backgroundColor: "#E0C271", flexShrink: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>3</span>
+                {/* Passo 1 */}
+                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>1</span>
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Descreva o que precisa</p>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>Crie uma demanda inteligente com suas preferências.</p>
+                  </div>
                 </div>
-                <div>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>
-                    Converse e negocie
-                  </p>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>
-                    Toda comunicação dentro da plataforma, preços e prazos com segurança.
-                  </p>
-                </div>
-              </div>
 
-              {/* Passo 4 */}
-              <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", marginLeft: "35px", gap: "25px" }}>
-                <div style={{
-                  width: "40px", height: "40px", borderRadius: "10px",
-                  backgroundColor: "#E0C271", flexShrink: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>4</span>
+                {/* Passo 2 */}
+                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>2</span>
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Receba sugestões filtradas</p>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>O sistema retorna profissionais por match, sem leilão público.</p>
+                  </div>
                 </div>
-                <div>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>
-                    Pague com segurança
-                  </p>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>
-                    O valor fica retido e só é liberado com a confirmação do serviço.
-                  </p>
+
+                {/* Passo 3 */}
+                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>3</span>
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Converse e negocie</p>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>Toda comunicação dentro da plataforma, preços e prazos com segurança.</p>
+                  </div>
                 </div>
+
+                {/* Passo 4 */}
+                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>4</span>
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Pague com segurança</p>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>O valor fica retido e só é liberado com a confirmação do serviço.</p>
+                  </div>
+                </div>
+
               </div>
             </div>
 
@@ -618,80 +601,63 @@ export default function Home() {
                 Prestador
               </p>
 
-              {/* Passo 1 */}
-              <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", marginLeft: "35px", gap: "25px" }}>
-                <div style={{
-                  width: "40px", height: "40px", borderRadius: "10px",
-                  backgroundColor: "#E0C271", flexShrink: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>1</span>
-                </div>
-                <div>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>
-                    Monte seu perfil e portifólio
-                  </p>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>
-                    Adicione especialidades, projetos anteriores, configure sua região e disponibilidade.
-                  </p>
-                </div>
-              </div>
+              {/* ── PASSOS com linha vertical ── */}
+              <div style={{ position: "relative", marginTop: "20px", marginLeft: "35px" }}>
 
-              {/* Passo 2 */}
-              <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", marginLeft: "35px", gap: "25px" }}>
                 <div style={{
-                  width: "40px", height: "40px", borderRadius: "10px",
-                  backgroundColor: "#E0C271", flexShrink: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>2</span>
-                </div>
-                <div>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>
-                    Receba propostas personalizadas
-                  </p>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>
-                    Clientes chegam até você pelo match inteligente.
-                  </p>
-                </div>
-              </div>
+                  position: "absolute",
+                  left: "18px",
+                  top: "0px",
+                  width: "4px",
+                  height: "calc(100% - 90px)",
+                  backgroundColor: "#C3A85E",
+                  zIndex: 0,
+                }} />
 
-              {/* Passo 3 */}
-              <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", marginLeft: "35px", gap: "25px" }}>
-                <div style={{
-                  width: "40px", height: "40px", borderRadius: "10px",
-                  backgroundColor: "#E0C271", flexShrink: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>3</span>
+                {/* Passo 1 */}
+                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>1</span>
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Monte seu perfil e portifólio</p>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>Adicione especialidades, projetos anteriores, configure sua região e disponibilidade.</p>
+                  </div>
                 </div>
-                <div>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>
-                    Execute e envie o vídeo
-                  </p>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>
-                    Grave um vídeo do serviço concluído para validação e garanta segurança.
-                  </p>
-                </div>
-              </div>
 
-              {/* Passo 4 */}
-              <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", marginLeft: "35px", gap: "25px" }}>
-                <div style={{
-                  width: "40px", height: "40px", borderRadius: "10px",
-                  backgroundColor: "#E0C271", flexShrink: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>4</span>
+                {/* Passo 2 */}
+                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>2</span>
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Receba propostas personalizadas</p>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>Clientes chegam até você pelo match inteligente.</p>
+                  </div>
                 </div>
-                <div>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>
-                    Receba e construa reputação
-                  </p>
-                  <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>
-                    Pagamento liberado, avaliação recíproca e boa reputação que atrai clientes.
-                  </p>
+
+                {/* Passo 3 */}
+                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>3</span>
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Execute e envie o vídeo</p>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>Grave um vídeo do serviço concluído para validação e garanta segurança.</p>
+                  </div>
                 </div>
+
+                {/* Passo 4 */}
+                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
+                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>4</span>
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Receba e construa reputação</p>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>Pagamento liberado, avaliação recíproca e boa reputação que atrai clientes.</p>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
