@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { pool } from '../database/postgres';
 import { userRouter } from '../routes/user.routes';
-import { avaliacaoRouter } from '../routes/avaliacao.router'
+import { avaliacaoRouter } from '../routes/avaliacao.routes'
 import { errorHandler } from '../../middlewares/ErrorHandler';
 
 const app = express();
