@@ -13,7 +13,7 @@ export class PgCategoriaRepository implements ICategoriaRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const { rows } = await pool.query('DELETE * FROM categorias WHERE id = $1', [id]);
+    const { rows } = await pool.query('DELETE FROM categorias WHERE id = $1', [id]);
     return rows[0];
   }
 

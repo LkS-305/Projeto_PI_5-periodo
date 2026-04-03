@@ -16,7 +16,7 @@ export class PgUsuarioRepository implements IUserRepository {
   }
 
   async delete(id: string){
-    const { rows } = await pool.query(' DELETE * FROM usuarios WHERE id = $1 RETURNING *', [id]);
+    const { rows } = await pool.query('DELETE FROM usuarios WHERE id = $1 RETURNING *', [id]);
     return rows[0];
   }
 
