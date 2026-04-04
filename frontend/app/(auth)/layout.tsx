@@ -15,7 +15,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   }, [isAuthenticated, router]);
 
   return (
-    <div className="min-h-screen bg-slate-950/5 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-slate-950/5  px-4 py-12">
       {children}
     </div>
   );
