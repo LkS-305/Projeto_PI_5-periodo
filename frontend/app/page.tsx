@@ -14,7 +14,7 @@ export default function Home() {
   // 3. Função de Navegação
   const goTo = (idx: number) => {
     if (idx < 0 || idx >= TOTAL_SECTIONS || isScrolling.current) return;
-    
+
     isScrolling.current = true;
     setActiveSection(idx); // O estado atualiza, o CSS reage!
 
@@ -86,7 +86,8 @@ export default function Home() {
               width: "8px",
               height: "8px",
               borderRadius: "50%",
-              backgroundColor: activeSection === i ? "#E0C271" : "rgba(39, 39, 39, 0.2)",
+              backgroundColor:
+                activeSection === i ? "#E0C271" : "rgba(39, 39, 39, 0.2)",
               transform: activeSection === i ? "scale(1.4)" : "scale(1)",
               transition: "all 0.3s ease",
               border: "none",
@@ -473,7 +474,8 @@ export default function Home() {
               marginBottom: 0,
             }}
           >
-            Uma conta, dois modos de uso. Alterne entre contratar e trabalhar quando quiser.
+            Uma conta, dois modos de uso. Alterne entre contratar e trabalhar
+            quando quiser.
           </p>
 
           {/* ── CARDS GLASS ── */}
@@ -501,75 +503,294 @@ export default function Home() {
               }}
             >
               {/* Título do card */}
-              <p style={{
-                fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                fontWeight: 500,
-                fontSize: "40px",
-                color: "#FAF9F5",
-                marginTop: "15px",
-                marginLeft: "35px",
-                marginBottom: 0,
-              }}>
+              <p
+                style={{
+                  fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                  fontWeight: 500,
+                  fontSize: "40px",
+                  color: "#FAF9F5",
+                  marginTop: "15px",
+                  marginLeft: "35px",
+                  marginBottom: 0,
+                }}
+              >
                 Contratante
               </p>
 
               {/* ── PASSOS com linha vertical ── */}
-              <div style={{ position: "relative", marginTop: "20px", marginLeft: "35px" }}>
-
-                <div style={{
-                  position: "absolute",
-                  left: "18px",
-                  top: "0px",
-                  width: "4px",
-                  height: "calc(100% - 90px)",
-                  backgroundColor: "#C3A85E",
-                  zIndex: 0,
-                }} />
+              <div
+                style={{
+                  position: "relative",
+                  marginTop: "20px",
+                  marginLeft: "35px",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "18px",
+                    top: "0px",
+                    width: "4px",
+                    height: "calc(100% - 90px)",
+                    backgroundColor: "#C3A85E",
+                    zIndex: 0,
+                  }}
+                />
 
                 {/* Passo 1 */}
-                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>1</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    marginTop: "20px",
+                    gap: "25px",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "10px",
+                      backgroundColor: "#E0C271",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                      }}
+                    >
+                      1
+                    </span>
                   </div>
                   <div>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Descreva o que precisa</p>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>Crie uma demanda inteligente com suas preferências.</p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                      }}
+                    >
+                      Descreva o que precisa
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 300,
+                        fontSize: "25px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                        marginTop: "10px",
+                        maxWidth: "720px",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      Crie uma demanda inteligente com suas preferências.
+                    </p>
                   </div>
                 </div>
 
                 {/* Passo 2 */}
-                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>2</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    marginTop: "20px",
+                    gap: "25px",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "10px",
+                      backgroundColor: "#E0C271",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                      }}
+                    >
+                      2
+                    </span>
                   </div>
                   <div>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Receba sugestões filtradas</p>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>O sistema retorna profissionais por match, sem leilão público.</p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                      }}
+                    >
+                      Receba sugestões filtradas
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 300,
+                        fontSize: "25px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                        marginTop: "10px",
+                        maxWidth: "720px",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      O sistema retorna profissionais por match, sem leilão
+                      público.
+                    </p>
                   </div>
                 </div>
 
                 {/* Passo 3 */}
-                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>3</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    marginTop: "20px",
+                    gap: "25px",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "10px",
+                      backgroundColor: "#E0C271",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                      }}
+                    >
+                      3
+                    </span>
                   </div>
                   <div>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Converse e negocie</p>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>Toda comunicação dentro da plataforma, preços e prazos com segurança.</p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                      }}
+                    >
+                      Converse e negocie
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 300,
+                        fontSize: "25px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                        marginTop: "10px",
+                        maxWidth: "720px",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      Toda comunicação dentro da plataforma, preços e prazos com
+                      segurança.
+                    </p>
                   </div>
                 </div>
 
                 {/* Passo 4 */}
-                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>4</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    marginTop: "20px",
+                    gap: "25px",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "10px",
+                      backgroundColor: "#E0C271",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                      }}
+                    >
+                      4
+                    </span>
                   </div>
                   <div>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Pague com segurança</p>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>O valor fica retido e só é liberado com a confirmação do serviço.</p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                      }}
+                    >
+                      Pague com segurança
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 300,
+                        fontSize: "25px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                        marginTop: "10px",
+                        maxWidth: "720px",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      O valor fica retido e só é liberado com a confirmação do
+                      serviço.
+                    </p>
                   </div>
                 </div>
-
               </div>
             </div>
 
@@ -589,75 +810,294 @@ export default function Home() {
               }}
             >
               {/* Título do card */}
-              <p style={{
-                fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                fontWeight: 500,
-                fontSize: "40px",
-                color: "#FAF9F5",
-                marginTop: "15px",
-                marginLeft: "35px",
-                marginBottom: 0,
-              }}>
+              <p
+                style={{
+                  fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                  fontWeight: 500,
+                  fontSize: "40px",
+                  color: "#FAF9F5",
+                  marginTop: "15px",
+                  marginLeft: "35px",
+                  marginBottom: 0,
+                }}
+              >
                 Prestador
               </p>
 
               {/* ── PASSOS com linha vertical ── */}
-              <div style={{ position: "relative", marginTop: "20px", marginLeft: "35px" }}>
-
-                <div style={{
-                  position: "absolute",
-                  left: "18px",
-                  top: "0px",
-                  width: "4px",
-                  height: "calc(100% - 90px)",
-                  backgroundColor: "#C3A85E",
-                  zIndex: 0,
-                }} />
+              <div
+                style={{
+                  position: "relative",
+                  marginTop: "20px",
+                  marginLeft: "35px",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "18px",
+                    top: "0px",
+                    width: "4px",
+                    height: "calc(100% - 90px)",
+                    backgroundColor: "#C3A85E",
+                    zIndex: 0,
+                  }}
+                />
 
                 {/* Passo 1 */}
-                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>1</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    marginTop: "20px",
+                    gap: "25px",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "10px",
+                      backgroundColor: "#E0C271",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                      }}
+                    >
+                      1
+                    </span>
                   </div>
                   <div>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Monte seu perfil e portifólio</p>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>Adicione especialidades, projetos anteriores, configure sua região e disponibilidade.</p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                      }}
+                    >
+                      Monte seu perfil e portifólio
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 300,
+                        fontSize: "25px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                        marginTop: "10px",
+                        maxWidth: "720px",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      Adicione especialidades, projetos anteriores, configure
+                      sua região e disponibilidade.
+                    </p>
                   </div>
                 </div>
 
                 {/* Passo 2 */}
-                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>2</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    marginTop: "20px",
+                    gap: "25px",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "10px",
+                      backgroundColor: "#E0C271",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                      }}
+                    >
+                      2
+                    </span>
                   </div>
                   <div>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Receba propostas personalizadas</p>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>Clientes chegam até você pelo match inteligente.</p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                      }}
+                    >
+                      Receba propostas personalizadas
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 300,
+                        fontSize: "25px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                        marginTop: "10px",
+                        maxWidth: "720px",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      Clientes chegam até você pelo match inteligente.
+                    </p>
                   </div>
                 </div>
 
                 {/* Passo 3 */}
-                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>3</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    marginTop: "20px",
+                    gap: "25px",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "10px",
+                      backgroundColor: "#E0C271",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                      }}
+                    >
+                      3
+                    </span>
                   </div>
                   <div>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Execute e envie o vídeo</p>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>Grave um vídeo do serviço concluído para validação e garanta segurança.</p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                      }}
+                    >
+                      Execute e envie o vídeo
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 300,
+                        fontSize: "25px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                        marginTop: "10px",
+                        maxWidth: "720px",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      Grave um vídeo do serviço concluído para validação e
+                      garanta segurança.
+                    </p>
                   </div>
                 </div>
 
                 {/* Passo 4 */}
-                <div style={{ display: "flex", alignItems: "flex-start", marginTop: "20px", gap: "25px", position: "relative", zIndex: 1 }}>
-                  <div style={{ width: "40px", height: "40px", borderRadius: "10px", backgroundColor: "#E0C271", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5" }}>4</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    marginTop: "20px",
+                    gap: "25px",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "10px",
+                      backgroundColor: "#E0C271",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                      }}
+                    >
+                      4
+                    </span>
                   </div>
                   <div>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "30px", color: "#FAF9F5", margin: 0 }}>Receba e construa reputação</p>
-                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 300, fontSize: "25px", color: "#FAF9F5", margin: 0, marginTop: "10px", maxWidth: "720px", lineHeight: 1.35 }}>Pagamento liberado, avaliação recíproca e boa reputação que atrai clientes.</p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                      }}
+                    >
+                      Receba e construa reputação
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 300,
+                        fontSize: "25px",
+                        color: "#FAF9F5",
+                        margin: 0,
+                        marginTop: "10px",
+                        maxWidth: "720px",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      Pagamento liberado, avaliação recíproca e boa reputação
+                      que atrai clientes.
+                    </p>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
@@ -775,44 +1215,531 @@ export default function Home() {
               maxWidth: "900px",
             }}
           >
-            Uma conta, dois modos de uso. Alterne entre contratar e trabalhar quando quiser.
+            Uma conta, dois modos de uso. Alterne entre contratar e trabalhar
+            quando quiser.
           </p>
         </section>
 
-        {/* ─── SEÇÃO 5 — Rodapé ─── */}
+        {/* ─── SEÇÃO 5 — Call-to-Action e Rodapé ─── */}
         <section
           style={{
             width: "100%",
-            height: "100vh",
+            minHeight: "100vh",
             backgroundColor: "#FAF9F5",
             display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            flexDirection: "column",
+            position: "relative",
+            paddingBottom: 0,
+            margin: 0,
           }}
         >
-          <footer style={{ textAlign: "center" }}>
-            <span
+          {/* Card CTA */}
+          <div
+            style={{
+              width: "1100px",
+              borderRadius: "40px",
+              backgroundColor: "rgba(39, 39, 39, 0.82)",
+              border: "6px solid #E0C271",
+              padding: "80px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "40px",
+              flexShrink: 0,
+              margin: "auto 0",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            {/* Título */}
+            <h2
               style={{
-                fontFamily: "'Clash Display', sans-serif",
-                fontWeight: 700,
-                fontSize: "70px",
+                fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                fontWeight: 600,
+                fontSize: "60px",
                 color: "#E0C271",
-                letterSpacing: "-1px",
+                margin: 0,
+                textAlign: "center",
               }}
             >
-              DOMI
-            </span>
+              Pronto para começar?
+            </h2>
+
+            {/* Subtítulo com DOMI em Bold */}
             <p
               style={{
                 fontFamily: "'SF Pro Text', system-ui, sans-serif",
                 fontWeight: 400,
-                fontSize: "24px",
+                fontSize: "40px",
                 color: "#FAF9F5",
-                marginTop: "16px",
+                margin: 0,
+                textAlign: "center",
               }}
             >
-              © {new Date().getFullYear()} DOMI. Todos os direitos reservados.
+              Cadastre-se gratuitamente e escolha como quer usar a{" "}
+              <span
+                style={{
+                  fontWeight: 700,
+                  fontFamily: "'Clash Display', sans-serif",
+                }}
+              >
+                DOMI
+              </span>
+              .
             </p>
+
+            {/* Botões */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "20px",
+                alignItems: "center",
+              }}
+            >
+              {/* Botão Criar conta grátis */}
+              <a
+                href="/cadastro"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "390px",
+                  height: "75px",
+                  borderRadius: "50px",
+                  backgroundColor: "#E0C271",
+                  textDecoration: "none",
+                  fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                  fontWeight: 600,
+                  fontSize: "40px",
+                  color: "#FAF9F5",
+                  flexShrink: 0,
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = "0.9";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = "1";
+                }}
+              >
+                Criar conta grátis
+              </a>
+
+              {/* Botão Já tenho uma conta */}
+              <a
+                href="/login"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "240px",
+                  height: "50px",
+                  borderRadius: "50px",
+                  backgroundColor: "transparent",
+                  border: "2px solid #FAF9F5",
+                  textDecoration: "none",
+                  fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                  fontWeight: 400,
+                  fontSize: "30px",
+                  color: "#FAF9F5",
+                  flexShrink: 0,
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(250, 249, 245, 0.1)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }}
+              >
+                Já tenho conta
+              </a>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <footer
+            style={{
+              width: "100%",
+              height: "270px",
+              backgroundColor: "#E0C271",
+              color: "#1A1A1A",
+              borderTopLeftRadius: "40px",
+              borderTopRightRadius: "40px",
+              paddingTop: "60px",
+              paddingBottom: "30px",
+              paddingLeft: "60px",
+              paddingRight: "60px",
+              marginTop: "auto",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                maxWidth: "1920px",
+                margin: "0 auto",
+              }}
+            >
+              {/* Container Principal - Grade */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(12, 1fr)",
+                  gap: "40px",
+                  marginBottom: "30px",
+                  alignItems: "flex-start",
+                }}
+              >
+                {/* Coluna 1: Logo e Descrição */}
+                <div style={{ gridColumn: "span 4" }}>
+                  <h2
+                    style={{
+                      fontFamily: "'Clash Display', sans-serif",
+                      fontSize: "50px",
+                      fontWeight: 700,
+                      margin: 0,
+                      marginBottom: "16px",
+                      letterSpacing: "-1px",
+                      color: "#272727",
+                    }}
+                  >
+                    DOMI
+                  </h2>
+                  <p
+                    style={{
+                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      color: "#272727",
+                      maxWidth: "280px",
+                      lineHeight: 1.6,
+                      margin: 0,
+                    }}
+                  >
+                    Encontre profissionais de confiança ou ofereça seus
+                    serviços, tudo em um só lugar com qualidade e segurança.
+                  </p>
+                </div>
+
+                {/* Coluna 2: Redes Sociais */}
+                <div
+                  style={{
+                    gridColumn: "span 2",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "16px",
+                    transform: "translateX(-140px)",
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                      fontWeight: 600,
+                      fontSize: "16px",
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                      margin: 0,
+                      color: "#272727",
+                    }}
+                  >
+                    Redes Sociais
+                  </h3>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "24px",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginTop: "25px",
+                    }}
+                  >
+                    {[
+                      {
+                        name: "Instagram",
+                        src: "/images/Instagram.svg",
+                        width: 65,
+                        height: 65,
+                      },
+                      {
+                        name: "YouTube",
+                        src: "/images/Youtube.svg",
+                        width: 92,
+                        height: 65,
+                      },
+                      {
+                        name: "Twitter",
+                        src: "/images/Twitter.svg",
+                        width: 72,
+                        height: 65,
+                      },
+                      {
+                        name: "TikTok",
+                        src: "/images/TikTok.svg",
+                        width: 58,
+                        height: 65,
+                      },
+                    ].map((social) => (
+                      <a
+                        key={social.name}
+                        href="#"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          textDecoration: "none",
+                          opacity: 1,
+                          transition: "opacity 0.3s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.opacity = "0.7";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.opacity = "1";
+                        }}
+                      >
+                        <Image
+                          src={social.src}
+                          alt={social.name}
+                          width={social.width}
+                          height={social.height}
+                          style={{ display: "block" }}
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Coluna 3: Produto */}
+                <div style={{ gridColumn: "span 2" }}>
+                  <h3
+                    style={{
+                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                      fontWeight: 600,
+                      fontSize: "16px",
+                      marginBottom: "32px",
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                      margin: 0,
+                      color: "#272727",
+                    }}
+                  >
+                    Produto
+                  </h3>
+                  <ul
+                    style={{
+                      listStyle: "none",
+                      padding: 0,
+                      margin: 0,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px",
+                    }}
+                  >
+                    {[
+                      { label: "Como funciona", idx: 1 },
+                      { label: "Recursos", idx: 2 },
+                      { label: "Avaliações", idx: 3 },
+                      { label: "Cadastrar-se", href: "/cadastro" },
+                    ].map((item) => (
+                      <li key={item.label}>
+                        {item.idx !== undefined ? (
+                          <button
+                            onClick={() => goTo(item.idx)}
+                            style={{
+                              fontFamily:
+                                "'SF Pro Text', system-ui, sans-serif",
+                              fontSize: "14px",
+                              fontWeight: 300,
+                              color: "#272727",
+                              textDecoration: "none",
+                              background: "none",
+                              border: "none",
+                              cursor: "pointer",
+                              padding: 0,
+                              transition: "text-decoration 0.3s ease",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.textDecoration =
+                                "underline";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.textDecoration = "none";
+                            }}
+                          >
+                            {item.label}
+                          </button>
+                        ) : (
+                          <a
+                            href={item.href}
+                            style={{
+                              fontFamily:
+                                "'SF Pro Text', system-ui, sans-serif",
+                              fontSize: "14px",
+                              fontWeight: 300,
+                              color: "#272727",
+                              textDecoration: "none",
+                              transition: "text-decoration 0.3s ease",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.textDecoration =
+                                "underline";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.textDecoration = "none";
+                            }}
+                          >
+                            {item.label}
+                          </a>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Coluna 4: Empresa */}
+                <div style={{ gridColumn: "span 2" }}>
+                  <h3
+                    style={{
+                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                      fontWeight: 600,
+                      fontSize: "16px",
+                      marginBottom: "32px",
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                      margin: 0,
+                      color: "#272727",
+                    }}
+                  >
+                    Empresa
+                  </h3>
+                  <ul
+                    style={{
+                      listStyle: "none",
+                      padding: 0,
+                      margin: 0,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px",
+                    }}
+                  >
+                    {["Sobre nós", "Carreiras", "Blog", "Imprensa"].map(
+                      (item) => (
+                        <li key={item}>
+                          <a
+                            href="#"
+                            style={{
+                              fontFamily:
+                                "'SF Pro Text', system-ui, sans-serif",
+                              fontSize: "14px",
+                              fontWeight: 300,
+                              color: "#2d2d2d",
+                              textDecoration: "none",
+                              transition: "text-decoration 0.3s ease",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.textDecoration =
+                                "underline";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.textDecoration = "none";
+                            }}
+                          >
+                            {item}
+                          </a>
+                        </li>
+                      ),
+                    )}
+                  </ul>
+                </div>
+
+                {/* Coluna 5: Suporte */}
+                <div style={{ gridColumn: "span 2" }}>
+                  <h3
+                    style={{
+                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                      fontWeight: 600,
+                      fontSize: "16px",
+                      marginBottom: "32px",
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                      margin: 0,
+                      color: "#272727",
+                    }}
+                  >
+                    Suporte
+                  </h3>
+                  <ul
+                    style={{
+                      listStyle: "none",
+                      padding: 0,
+                      margin: 0,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px",
+                    }}
+                  >
+                    {[
+                      "Central de ajuda",
+                      "Termos de uso",
+                      "Privacidade",
+                      "Contato",
+                    ].map((item) => (
+                      <li key={item}>
+                        <a
+                          href="#"
+                          style={{
+                            fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                            fontSize: "14px",
+                            fontWeight: 300,
+                            color: "#272727",
+                            textDecoration: "none",
+                            transition: "text-decoration 0.3s ease",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.textDecoration = "underline";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.textDecoration = "none";
+                          }}
+                        >
+                          {item}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Linha Divisória e Copyright */}
+              <div
+                style={{
+                  borderTop: "1px solid rgba(26, 26, 26, 0.2)",
+                  paddingTop: "24px",
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    color: "#272727",
+                    margin: 0,
+                    marginBottom: "10px",
+                  }}
+                >
+                  © {new Date().getFullYear()} DOMI. Todos os direitos
+                  reservados.
+                </p>
+              </div>
+            </div>
           </footer>
         </section>
       </div>
