@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -12,34 +12,32 @@ export function Input({
   label,
   error,
   helperText,
-  className = '',
+  className = "",
   id,
   ...props
 }: InputProps) {
-  const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+  const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");
 
   return (
     <div className="w-full">
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700 mb-2"
+          className="block text-sm font-medium text-slate-700 mb-2"
         >
           {label}
         </label>
       )}
       <input
         id={inputId}
-        className={`
-          w-full px-4 py-2 border rounded-lg
-          focus:outline-none focus:ring-2 focus:ring-blue-500
-          ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}
-          ${className}
-        `}
+        className={`w-full rounded-3xl border border-slate-200 bg-white/90 px-5 py-3 text-slate-900 shadow-sm transition duration-200 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 ${error ? "border-rose-300 focus:ring-rose-100" : ""} ${className}`}
         {...props}
       />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-      {helperText && !error && <p className="text-gray-500 text-sm mt-1">{helperText}</p>}
+      {error ? (
+        <p className="mt-2 text-sm text-rose-600">{error}</p>
+      ) : helperText ? (
+        <p className="mt-2 text-sm text-slate-500">{helperText}</p>
+      ) : null}
     </div>
   );
 }
