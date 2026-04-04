@@ -9,7 +9,7 @@ export class User {
   public senha: string;
   public cpf: string;
   public score?: string;
-  public tipo_usuario?: UserType;
+  public tipo_usuario: UserType;
   public foto_url?: string;
   public recovery_token?: string;
   public recovery_token_expires?: Date;
@@ -23,5 +23,6 @@ export class User {
     this.email = props.email;
     this.senha = props.senha;
     this.cpf = props.cpf;
+    this.tipo_usuario = props.tipo_usuario;
   }
-} 
+}

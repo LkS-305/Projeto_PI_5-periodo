@@ -1,5 +1,8 @@
 {
   "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc",
+    "start": "node dist/main.js",
     "db:setup": "ts-node src/infra/database/migrate.ts",
     "test": "jest",
     "test-user": "tsx --test tests/User.test.ts",

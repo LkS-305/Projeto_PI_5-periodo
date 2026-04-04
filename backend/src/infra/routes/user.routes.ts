@@ -29,9 +29,9 @@ userRouter.post('/login', (req, res) => usuarioController.login(req, res));
 
 userRouter.post('/buscarPorId', (req, res) => usuarioController.findById(req, res));
 
-userRouter.post('/atualizar-usuario', (req, res) => usuarioController.deletar(req, res));
+userRouter.post('/atualizar-usuario', (req, res) => usuarioController.atualizar(req, res));
 
-userRouter.post('/buscarPorEmail', (req, res) => usuarioController.deletar(req, res));
+userRouter.post('/buscarPorEmail', (req, res) => usuarioController.findByName(req, res));
 
 userRouter.post('/deletarUsuario', (req, res) => usuarioController.deletar(req, res));
 

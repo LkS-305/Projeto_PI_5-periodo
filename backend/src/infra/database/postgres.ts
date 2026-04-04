@@ -1,12 +1,15 @@
 import { Pool } from 'pg';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Configuração baseada no seu Docker
 export const pool = new Pool({
-  user: 'admin',
-  host: 'localhost',
-  database: 'dataset',
-  password: 'admin',
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD,
+  port: parseInt(process.env.DB_PORT || '5432'),
 });
 
 // Log para confirmar que o banco está vivo
