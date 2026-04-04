@@ -1,19 +1,8 @@
 import { IUserRepository } from '../../core/repositories/IUserRepository';
 import { User } from '../../core/entities/User';
 import { pool } from '../database/postgres';
-import { CriarUsuarioDto } from '../../core/dtos/usuario';
 
 export class PgUsuarioRepository implements IUserRepository {
-  async create(usuario: CriarUsuarioDto): Promise<Partial<User>> {
-    const consulta = `
-      INSERT INTO usuarios (id, email, senha)
-      VALUES (gen_random_uuid(), $1, $2)
-      RETURNING *;
-    `;
-    const valores = [usuario.email, usuario.senha];
-    const { rows } = await pool.query(consulta, valores);
-    return rows[0];
-  }
 
   async delete(id: string){
     const { rows } = await pool.query(' DELETE * FROM usuarios WHERE id = $1 RETURNING *', [id]);
@@ -40,7 +29,6 @@ async update(id: string, dados: User): Promise<User | null> {
         dados.nome,
         dados.email,
         dados.senha,
-        dados.endereco,
         dados.cpf,
         dados.score,
         dados.foto_url,
@@ -51,11 +39,6 @@ async update(id: string, dados: User): Promise<User | null> {
     const { rows } = await pool.query(query, values);
     return rows[0] || null;
 }
-
-  async login(email: string, password: string): Promise<User | null> {
-  const { rows } = await pool.query('select * from usuarios where email = $1 and password = $2', [email, password]);
-  return rows[0] || null;
-  }
 
   async findByEmail(email: string): Promise<User | null> {
     const { rows } = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);

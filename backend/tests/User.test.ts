@@ -1,7 +1,7 @@
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert';
 import { InMemoryUsuarioRepository } from './repositories/InMemoryUsuarioRepository';
-import { CriarUsuarioUseCase, DeletarUsuarioUseCase, AtualizarUsuarioUseCase, PesquisarPorId, PesquisarPorEmail } from '../src/core/use-cases/usuario/UsuarioUseCase';
+import {  DeletarUsuarioUseCase, AtualizarUsuarioUseCase, PesquisarPorId, PesquisarPorEmail } from '../src/core/use-cases/usuario/UsuarioUseCase';
 
 
 
@@ -13,32 +13,6 @@ describe('Suíte de Testes: Usuário', () => {
   beforeEach(() => {
     repo = new InMemoryUsuarioRepository();
   });
-
-  describe('Cenário: Cadastro de Usuário', () => {
-    test('Deve cadastrar um novo usuário com sucesso', async () => {
-      const sut = new CriarUsuarioUseCase(repo);
-      const user = await sut.executar({
-        email: 'guigui@teste.com',
-        senha: '123',
-      });
-
-      assert.strictEqual(user.email, 'guigui@teste.com');
-      assert.ok(user.id);
-    });
-
-    test('Não deve permitir e-mails duplicados', async () => {
-      const sut = new CriarUsuarioUseCase(repo);
-      const dados = { email: 'guigui2@teste.com', senha: '1' };
-      
-      await sut.executar(dados);
-
-      await assert.rejects(
-        async () => { await sut.executar(dados) },
-        /Este email ja existe/ // Verifica se a mensagem de erro contém esse texto
-      );
-    });
-  });
-
 
   describe('Cenário: Deleção', () => {
     test('Deve deletar um usuário existente', async () => {
