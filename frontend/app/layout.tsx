@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/lib/contexts/AuthContext";
+import { NotificationProvider } from "@/lib/contexts/NotificationContext";
+import { SessionProvider } from "@/lib/contexts/AuthContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
+import { NotificationCenter } from "@/components/NotificationCenter";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,18 +25,23 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground dark:bg-gray-900 dark:text-white">
-        <ErrorBoundary>
-          <AuthProvider>{children}</AuthProvider>
-        </ErrorBoundary>
+      <body className="min-h-full bg-slate-50 text-slate-900 selection:bg-slate-300 selection:text-slate-950">
+        <NotificationProvider>
+          <SessionProvider>
+            <ErrorBoundary>
+              <Navbar />
+              <div className="min-h-[calc(100vh-120px)]">{children}</div>
+              <Footer />
+              <NotificationCenter />
+            </ErrorBoundary>
+          </SessionProvider>
+        </NotificationProvider>
       </body>
     </html>
   );

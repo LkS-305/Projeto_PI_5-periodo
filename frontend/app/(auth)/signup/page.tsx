@@ -1,122 +1,132 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/Button';
-import { Input } from '@/components/Input';
-import { Container } from '@/components/Layout';
-import Link from 'next/link';
-import client from '@/lib/api/client';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/Button";
+import { Input } from "@/components/Input";
+import { Container } from "@/components/Layout";
+import { PageHeader } from "@/components/PageHeader";
+import { useSession } from "@/lib/contexts/AuthContext";
 
 export default function SignupPage() {
-  const [formData, setFormData] = useState({
-    nome: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    telefone: '',
-  });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { signup, isAuthenticated, loading, error } = useSession();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [localError, setLocalError] = useState("");
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError('');
+    setLocalError("");
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('As senhas não correspondem');
+    if (password !== confirmPassword) {
+      setLocalError("As senhas não coincidem.");
       return;
     }
 
-    setLoading(true);
-
-    try {
-      await client.post('/auth/signup', {
-        nome: formData.nome,
-        email: formData.email,
-        password: formData.password,
-        telefone: formData.telefone,
-      });
-
-      router.push('/login?registered=true');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Erro ao criar conta');
+    const user = await signup({ nome: name, email, password, telefone: phone });
+    if (user) {
+      router.push("/dashboard");
+      return;
     }
 
-    setLoading(false);
+    setLocalError(
+      "Falha ao criar conta. Verifique os dados e tente novamente.",
+    );
   }
 
   return (
-    <Container className="w-full max-w-md">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6 dark:text-white">Cadastro</h1>
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-10 px-4 py-16">
+      <PageHeader
+        title="Comece agora"
+        description="Crie sua conta no ServiçoHub para gerenciar seus serviços e clientes em um único painel inteligente."
+      />
 
-      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+      <Container className="mx-auto w-full max-w-md">
+        <div className="mb-8">
+          <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
+            Registro rápido
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold text-slate-900">
+            Abra sua conta
+          </h2>
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Nome completo"
-          type="text"
-          name="nome"
-          value={formData.nome}
-          onChange={handleChange}
-          required
-        />
+        {(localError || error) && (
+          <div className="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 mb-6">
+            {localError || error}
+          </div>
+        )}
 
-        <Input
-          label="Email"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="Nome completo"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Ex: Maria Silva"
+            required
+          />
 
-        <Input
-          label="Telefone"
-          type="tel"
-          name="telefone"
-          value={formData.telefone}
-          onChange={handleChange}
-          placeholder="(11) 99999-9999"
-        />
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="voce@exemplo.com"
+            required
+          />
 
-        <Input
-          label="Senha"
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
+          <Input
+            label="Telefone"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="(11) 99999-9999"
+          />
 
-        <Input
-          label="Confirmar senha"
-          type="password"
-          name="confirmPassword"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          required
-        />
+          <Input
+            label="Senha"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+          />
 
-        <Button type="submit" loading={loading} className="w-full">
-          Cadastrar
-        </Button>
-      </form>
+          <Input
+            label="Confirmar senha"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+          />
 
-      <p className="text-center text-gray-600 dark:text-gray-400 mt-4">
-        Já tem conta?{' '}
-        <Link href="/login" className="text-blue-600 hover:underline">
-          Faça login
-        </Link>
-      </p>
-    </Container>
+          <Button type="submit" loading={loading} className="w-full">
+            Criar conta
+          </Button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-slate-600">
+          Já possui uma conta?{" "}
+          <a
+            href="/login"
+            className="font-medium text-slate-900 hover:text-slate-700"
+          >
+            Entrar
+          </a>
+        </p>
+      </Container>
+    </div>
   );
 }

@@ -6,7 +6,6 @@ export class Prestador extends User {
   public user_id: string;
   public bio: string;
   public scorePrestador?: number;
-  public status_verificacao?: string;
 
   constructor(props: Omit<Prestador, "id" | "created_at">, id?: string) {
     // Para criar um Prestador, passamos as propriedades do User + propriedades específicas
