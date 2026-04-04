@@ -1,27 +1,5 @@
-import { CriarUsuarioDto } from '../../dtos/usuario';
 import { User } from '../../entities/User';
 import { IUserRepository } from '../../repositories/IUserRepository';
-import bcrypt from 'bcrypt';
-
-export class CriarUsuarioUseCase {
-  constructor(private usuarioRepository: IUserRepository){}
-
-  async executar(dados: CriarUsuarioDto){
-    const usuarioExiste = await this.usuarioRepository.findByEmail(dados.email);
-    if (usuarioExiste){
-        throw new Error('Este email ja existe');
-    }
-
-    const senhaCriptografada = await bcrypt.hash(dados.senha, 10);
-    
-    const novoUsuario = new User({...dados, senha: senhaCriptografada});
-
-    const usuarioSalvo = await this.usuarioRepository.create(novoUsuario);
-
-    const { senha, ...usuarioSemSenha } = usuarioSalvo;
-    return usuarioSemSenha;
-  }
-}
 
 
 export class DeletarUsuarioUseCase {

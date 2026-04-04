@@ -48,9 +48,4 @@ export class InMemoryUsuarioRepository implements IUserRepository {
         const user = this.items.find(u => u.id === id);
         return user || null;
     }
-
-    async login(email: string, password: string): Promise<User | null> {
-        const user = this.items.find(u => u.email === email && u.senha === password);
-        return user || null;
-    }
 }
