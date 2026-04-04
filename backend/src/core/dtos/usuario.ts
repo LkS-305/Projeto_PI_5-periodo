@@ -1,9 +1,7 @@
-export interface CriarUsuarioDto {
-  email: string,
-  senha: string
+export type UserType = 'cliente' | 'prestador' | 'admin';
+
+export interface AtualizarUsuarioDto {
+  nome: string,
+  foto_url: string,
 }
 
-export interface LoginDto {
-  email: string,
-  senha: string
-}
