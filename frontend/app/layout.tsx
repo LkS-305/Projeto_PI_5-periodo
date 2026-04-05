@@ -4,8 +4,6 @@ import "./globals.css";
 import { NotificationProvider } from "@/lib/contexts/NotificationContext";
 import { SessionProvider } from "@/lib/contexts/AuthContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { NotificationCenter } from "@/components/NotificationCenter";
 
 const geistSans = Geist({
@@ -31,13 +29,11 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-slate-50 text-slate-900 selection:bg-slate-300 selection:text-slate-950">
+      <body className="min-h-full">
         <NotificationProvider>
           <SessionProvider>
             <ErrorBoundary>
-              <Navbar />
-              <div className="min-h-[calc(100vh-120px)]">{children}</div>
-              <Footer />
+              {children}
               <NotificationCenter />
             </ErrorBoundary>
           </SessionProvider>
