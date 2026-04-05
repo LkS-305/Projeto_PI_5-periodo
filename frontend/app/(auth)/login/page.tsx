@@ -256,11 +256,14 @@ export default function Login() {
             type="submit"
             disabled={loading}
             style={{
+              display: "flex",
               backgroundColor: "#E0C271",
               color: "#FFF",
               border: "none",
               borderRadius: "50px",
               width: "400px",
+              justifyContent: "center",
+              alignItems: "center",
               height: "65px",
               fontSize: "28px",
               fontWeight: 600,
@@ -318,8 +321,15 @@ export default function Login() {
             fontWeight: 600,
             cursor: "pointer",
             margin: "0 auto",
+            gap: "12px",
           }}
         >
+          <Image
+            src="/images/GoogleIcon.svg"
+            alt="Google"
+            width={24}
+            height={24}
+          />
           Entrar com Google
         </button>
 
@@ -333,7 +343,7 @@ export default function Login() {
         >
           Não tem conta?{" "}
           <a
-            href="/cadastro"
+            href="/register"
             style={{
               color: "#555",
               fontWeight: 600,
