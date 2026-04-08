@@ -7,6 +7,7 @@ import { IUserRepository } from '../../repositories/IUserRepository';
 import { IMailProvider } from '../../dtos/mail';
 
 import { User } from '../../entities/User';
+import { UserType } from '../../dtos/usuario';
 
 
 export class RegisterUseCase {
@@ -23,7 +24,8 @@ export class RegisterUseCase {
 
     const senhaCriptografada = await bcrypt.hash(dados.senha, 10);
     
-    const novoUsuario = new User({...dados, senha: senhaCriptografada});
+    const dadosSafe = {...dados, tipo_usuario: 'Usuario' as UserType, senha: senhaCriptografada}
+    const novoUsuario = new User(dadosSafe);
 
     const usuarioSalvo = await this.autenticacaoRepository.register(novoUsuario);
 

@@ -1,40 +1,29 @@
 import { User } from '../../entities/User';
-import { IUserRepository } from '../../repositories/IUserRepository';
+import { Usuario } from '../../entities/Usuario';
+import { IUsuarioRepository } from '../../repositories/IUsuarioRepository';
 
 
 export class DeletarUsuarioUseCase {
-  constructor(private usuarioRepository: IUserRepository){}
+  constructor(private usuarioRepository: IUsuarioRepository){}
 
-  async executar(id: string): Promise<boolean>{
-    const usuarioDeletado = await this.usuarioRepository.delete(id);
-
-    if (!usuarioDeletado){
-      return false;
-      //throw new Error('Usuario nao deletado');
-    }
-
-    return true;
+  async executar(id: string): Promise<void>{
+    await this.usuarioRepository.delete(id);
   }
 }
 
 export class AtualizarUsuarioUseCase {
-  constructor(private usuarioRepository: IUserRepository){}
+  constructor(private usuarioRepository: IUsuarioRepository){}
 
-  async executar(id: string, usuario: Partial<User>): Promise<User | null>{
-    const usuarioAtualizado = await this.usuarioRepository.update(id, usuario);
-
-    if (!usuarioAtualizado){
-      throw new Error('Usuario nao atualizado');
-    }
-
-    return usuarioAtualizado;
+  async executar(id: string, usuario: Partial<Usuario>): Promise<void>{
+    await this.usuarioRepository.update(id, usuario);
   }
 }
 
+
 export class PesquisarPorId {
-  constructor(private usuarioRepository: IUserRepository) {}
+  constructor(private usuarioRepository: IUsuarioRepository) {}
   
-  async executar(id: string): Promise<User | null>{
+  async executar(id: string): Promise<Usuario | null>{
     const usuario = await this.usuarioRepository.findById(id);
 
     if (!usuario) {
@@ -46,9 +35,9 @@ export class PesquisarPorId {
 }
 
 export class PesquisarPorEmail {
-  constructor(private usuarioRepository: IUserRepository) {}
+  constructor(private usuarioRepository: IUsuarioRepository) {}
   
-  async executar(id: string): Promise<User | null>{
+  async executar(id: string): Promise<Usuario | null>{
     const usuario = await this.usuarioRepository.findByEmail(id);
 
     if (!usuario) {

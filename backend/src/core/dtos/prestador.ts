@@ -1,7 +1,10 @@
+import { UserType } from "./usuario";
+
 export interface CriarPrestadorDto {
   user_id: string,
+  nome: string,
   bio: string,
-  categories: string,
+  score: number
 }
 
 
@@ -14,11 +17,15 @@ export interface CriarPrestadorResponseDto {
   
 }
 
+export interface TornarsePrestadorDto {
+  id: string,
+}
+
 export interface AtualizarPrestadorDto {
+  user_id: string,
+  nome?: string,
   bio?: string,
-  scorePrestador?: string,
-  categories?: string,
-  status_verificacao?: string
+  foto_url?: string
 }
 
 

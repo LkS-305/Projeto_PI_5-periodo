@@ -1,53 +1,38 @@
-import { User } from "./User";
-import { v4 as uuid } from "uuid";
+import { AtualizarPrestadorDto, CriarPrestadorDto } from "../dtos/prestador";
 
-export class Prestador extends User {
-  public id: string;
+export class Prestador {
   public user_id: string;
+  public nome: string;
   public bio: string;
-  public scorePrestador?: number;
+  public score: number;
+  public foto_url?: string;
   public status_verificacao?: string;
+  public readonly created_at: Date;
+  public updated_at: Date;
 
-  constructor(props: Omit<Prestador, "id" | "created_at">, id?: string) {
-    // Para criar um Prestador, passamos as propriedades do User + propriedades específicas
-    super({
-      nome: props.nome,
-      email: props.email,
-      senha: props.senha,
-      cpf: props.cpf,
-      tipo_usuario: props.tipo_usuario,
-      score: props.score,
-      foto_url: props.foto_url,
-      updated_at: props.updated_at,
-      last_access: props.last_access,
-    });
-
-    this.id = id || uuid();
+  constructor(props: CriarPrestadorDto) {
     this.user_id = props.user_id;
+    this.nome = props.nome
     this.bio = props.bio;
+    this.score = 0;
+    this.created_at = new Date();
+    this.updated_at = new Date();
+  }
+ 
+  public atualizarScore(novoScore: number): void{
+    this.score = novoScore;
   }
 
-  // Método estático para criar Prestador a partir de um User existente
-  static fromUser(
-    user: User,
-    prestadorProps: {
-      bio: string;
-    },
-  ): Prestador {
-    return new Prestador({
-      // Propriedades do User
-      nome: user.nome,
-      email: user.email,
-      senha: user.senha,
-      cpf: user.cpf,
-      tipo_usuario: user.tipo_usuario,
-      score: user.score,
-      foto_url: user.foto_url,
-      updated_at: user.updated_at,
-      last_access: user.last_access,
-      // Propriedades específicas do Prestador
-      user_id: user.id!,
-      bio: prestadorProps.bio,
-    });
+  public atualizarStatusVerificacao(novoStatus: string): void{
+    this.status_verificacao = novoStatus;
   }
+  
+
+  public atualizarPerfil(novoPrestador: AtualizarPrestadorDto): void {
+    this.nome = novoPrestador.nome ?? this.nome;
+    this.bio = novoPrestador.bio ?? this.bio;
+    this.foto_url = novoPrestador.foto_url ?? this.foto_url;
+    this.updated_at = new Date();
+}
+
 }
