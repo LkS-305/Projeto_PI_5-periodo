@@ -16,7 +16,8 @@ describe('Fluxo de Autenticação e Recuperação de Senha', () => {
       nome: 'Guillermo',
       email: 'guillermo@teste.com',
       senha: senhaHashed,
-      cpf: '12345678900'
+      cpf: '12345678900',
+      role: 'Usuario'
     }, 'id-uuid-1');
 
     const resultado = await repo.register(usuario);
@@ -30,7 +31,8 @@ describe('Fluxo de Autenticação e Recuperação de Senha', () => {
       nome: 'Teste',
       email: 'login@teste.com',
       senha: 'hash',
-      cpf: '000'
+      cpf: '000',
+      role: 'Usuario'
     });
     await repo.register(usuario);
     const props = {email: 'login@teste.com', senha: 'hash'}
@@ -42,7 +44,7 @@ describe('Fluxo de Autenticação e Recuperação de Senha', () => {
 
   it('deve atualizar o token de recuperação (forgotPassword)', async () => {
     const email = 'forgot@teste.com';
-    const usuario = new User({ nome: 'User', email, senha: '123', cpf: '1' });
+    const usuario = new User({ nome: 'User', email, senha: '123', cpf: '1', role: 'Usuario' });
     await repo.register(usuario);
 
     const codigo = '123456';
@@ -58,7 +60,7 @@ describe('Fluxo de Autenticação e Recuperação de Senha', () => {
   });
 
   it('deve alterar a senha do usuário com sucesso', async () => {
-    const usuario = new User({ nome: 'User', email: 'change@test.com', senha: 'antiga_hash', cpf: '2' });
+    const usuario = new User({ nome: 'User', email: 'change@test.com', senha: 'antiga_hash', cpf: '2', role: 'Usuario' });
     await repo.register(usuario);
 
     const novaSenhaHash = await bcrypt.hash('nova_senha_123', 10);
@@ -70,7 +72,7 @@ describe('Fluxo de Autenticação e Recuperação de Senha', () => {
   });
 
   it('deve limpar o token de recuperação após o uso', async () => {
-    const usuario = new User({ nome: 'User', email: 'clear@test.com', senha: '123', cpf: '3' });
+    const usuario = new User({ nome: 'User', email: 'clear@test.com', senha: '123', cpf: '3', role: 'Usuario' });
     await repo.register(usuario);
     
     // Simula que já havia um token

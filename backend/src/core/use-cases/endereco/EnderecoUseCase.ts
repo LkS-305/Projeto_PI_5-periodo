@@ -1,20 +1,30 @@
 import { Request, Response } from 'express';
 import { Endereco } from '../../entities/Endereco';
 import { IEnderecoRepository } from '../../repositories/IEnderecoRepository';
-import { CriarEnderecoDto } from '../../dtos/endereco';
+import { AtualizarEnderecoDto, CriarEnderecoDto } from '../../dtos/endereco';
+import { IUserRepository } from '../../repositories/IUserRepository';
 
 export class CriarEnderecoUseCase {
-    constructor(private enderecoRepository: IEnderecoRepository){}
+    constructor(private enderecoRepository: IEnderecoRepository, private usuarioRepository: IUserRepository){}
 
-    async executar(endereco: CriarEnderecoDto): Promise<void>{
-     const endereco2 = await this.enderecoRepository.add(endereco);
+    async executar(dados: CriarEnderecoDto): Promise<Endereco>{
+      const usuario = await this.usuarioRepository.findById(dados.user_id);
+
+      if (!usuario) {
+        throw new Error('Erro ao criar endereco, usuario inexistente');
+    }
+     const endereco = new Endereco(dados);
 
      if (!endereco) {
-      throw new Error('Erro ao criar endereco');
-
+      throw new Error('Erro ao instanciar endereco');
     }
- 
-
+    
+     const enderecoCriado = await this.enderecoRepository.create(endereco);
+     
+    if (!enderecoCriado) {
+      throw new Error('Erro ao criar endereco');
+    }
+    return enderecoCriado
   }
 }
 
@@ -31,8 +41,17 @@ export class DeletarEnderecoUseCase {
 export class AtualizarEnderecoUseCase {
     constructor(private enderecoRepository: IEnderecoRepository){}
 
-    async executar(id: string, endereco: Partial<Endereco>): Promise<Endereco>{
-     const enderecoAtualizado = await this.enderecoRepository.update(id, endereco);
+    async executar(dados: AtualizarEnderecoDto): Promise<Endereco>{
+
+     const endereco = await this.enderecoRepository.findById(dados.id);
+
+      if(!endereco) {
+      throw new Error('Este endereco nao existe.');
+    }
+
+     endereco.editEndereco(dados);
+     const enderecoAtualizado = await this.enderecoRepository.update(endereco);
+
 
      if (!enderecoAtualizado) {
       throw new Error('Erro ao atualizar endereco');

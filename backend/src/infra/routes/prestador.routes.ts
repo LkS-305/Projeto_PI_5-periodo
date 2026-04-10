@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { PgPrestadorRepository } from '../repositories/PgPrestadorRepository';
-import { CriarPrestadorUseCase, AcharPorUserId, AcharPorId, ListarPorCategoria } from '../../core/use-cases/prestador/PrestadorUseCase';
-
+import { CriarPrestadorUseCase, DeletarPrestadorUseCase, AtualizarPrestadorUseCase, TornarsePrestadorUseCase, AcharPorUserId, AcharPorId, ListarPorCategoria } from '../../core/use-cases/prestador/PrestadorUseCase
 import { PrestadorController } from '../controllers/PrestadorController';
 
 const prestadorRouter = Router();
@@ -9,14 +8,23 @@ const prestadorRouter = Router();
 const prestadorRepo = new PgPrestadorRepository();
 
 const criarPrestadorUC = new CriarPrestadorUseCase(prestadorRepo)
+const deletarPrestadorUC = new DeletarPrestadorUseCase(prestadorRepo);
+const atualizarPrestadorUC = new AtualizarPrestadorUseCase(prestadorRepo);
+const tornarsePrestadorUC = new TornarsePrestadorUseCase(prestadorRepo);
 const pesquisarPorIdUC = new AcharPorId(prestadorRepo);
 const pesquisarPorUserIdUC = new AcharPorUserId(prestadorRepo);
 const listarPorCategoriaUC = new ListarPorCategoria(prestadorRepo);
 
-const prestadorController = new PrestadorController(criarPrestadorUC, listarPorCategoriaUC, pesquisarPorIdUC, pesquisarPorUserIdUC);
+const prestadorController = new PrestadorController(criarPrestadorUC, deletarPrestadorUC, atualizarPrestadorUC, tornarsePrestadorUC, listarPorCategoriaUC, pesquisarPorIdUC, pesquisarPorUserIdUC);
 
 
 prestadorRouter.post('/criarPrestador', (req, res) => prestadorController.criar(req, res));
+
+prestadorRouter.post('/deletarPrestador', (req, res) => prestadorController.deletar(req, res));
+
+prestadorRouter.patch('/atualizarPrestador', (req, res) => prestadorController.atualizar(req, res));
+
+prestadorRouter.post('/tornarsePrestador', (req, res) => prestadorController.becomePrestador(req,res));
 
 prestadorRouter.get('/buscarPorUserId', (req, res) => prestadorController.findByUserId(req, res));
 
