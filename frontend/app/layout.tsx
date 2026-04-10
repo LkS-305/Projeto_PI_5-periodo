@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/lib/contexts/AuthContext";
+import { NotificationProvider } from "@/lib/contexts/NotificationContext";
+import { SessionProvider } from "@/lib/contexts/AuthContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { NotificationCenter } from "@/components/NotificationCenter";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,18 +23,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground dark:bg-gray-900 dark:text-white">
-        <ErrorBoundary>
-          <AuthProvider>{children}</AuthProvider>
-        </ErrorBoundary>
+      <body className="min-h-full">
+        <NotificationProvider>
+          <SessionProvider>
+            <ErrorBoundary>
+              {children}
+              <NotificationCenter />
+            </ErrorBoundary>
+          </SessionProvider>
+        </NotificationProvider>
       </body>
     </html>
   );
