@@ -4,13 +4,13 @@ import { pool } from "../database/postgres";
 import { CriarPrestadorDto } from "../../core/dtos/prestador";
 
 export class PgPrestadorRepository implements IPrestadorRepository {
-  async create(p: CriarPrestadorDto): Promise<Prestador> {
+  async create(prestador: Prestador): Promise<Prestador> {
     const query = `
-      INSERT INTO prestadores (id, user_id)
-      VALUES (gen_random_uuid(), $1)
+      INSERT INTO prestadores (id, user_id, bio)
+      VALUES (gen_random_uuid(), $1, $2)
       RETURNING *;
     `;
-    const { rows } = await pool.query(query, [p.user_id]);
+    const { rows } = await pool.query(query, [prestador.user_id, prestador.bio]);
     return rows[0];
   }
 

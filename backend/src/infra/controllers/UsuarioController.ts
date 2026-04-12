@@ -1,28 +1,14 @@
 import { Response, Request } from 'express';
-import { CriarUsuarioUseCase, DeletarUsuarioUseCase, AtualizarUsuarioUseCase, PesquisarPorId, PesquisarPorEmail} from '../../core/use-cases/usuario/UsuarioUseCase';
-import { LoginUseCase } from '../../core/use-cases/autenticacao/LoginUsuarioUseCase';
-
-
+import { DeletarUsuarioUseCase, AtualizarUsuarioUseCase, PesquisarPorId, PesquisarPorEmail} from '../../core/use-cases/usuario/UsuarioUseCase';
 
 
 export class UsuarioController {
   constructor(
-    private criarUsuario: CriarUsuarioUseCase,
     private deletarUsuario: DeletarUsuarioUseCase,
     private atualizarUsuario: AtualizarUsuarioUseCase,
     private pesquisarPorId: PesquisarPorId,
     private pesquisarPorNome: PesquisarPorEmail,
-    private loginUsuario: LoginUseCase
   ){}
-
-  async criar(req: Request, res: Response){
-    try {
-        const resultado = await this.criarUsuario.executar(req.body);
-      return res.status(201).json(resultado);
-    } catch (erro: any) {
-      return res.status(400).json({ erro: erro.message });
-    }
-  }
 
   async deletar(req: Request, res: Response) {
     try {
@@ -41,17 +27,6 @@ export class UsuarioController {
       return res.status(400).json({erro: erro.message})
     }
   }
-
-  async login(req: Request, res: Response){
-    try {
-      const resultado = await this.loginUsuario.executar(req.body);
-      return res.status(201).json(resultado);
-
-    } catch (erro: any) {
-      return res.status(400).json({ erro: erro.message });
-    }
-}
-
 
   async findById(req: Request, res: Response) {
     try {

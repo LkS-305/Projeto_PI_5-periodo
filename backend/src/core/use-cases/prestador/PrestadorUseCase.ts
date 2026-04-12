@@ -1,16 +1,32 @@
 import { IPrestadorRepository } from "../../repositories/IPrestadorRepository";
 import { Prestador } from "../../entities/Prestador";
-import { CriarPrestadorDto } from "../../dtos/prestador";
+import { AtualizarPrestadorDto, CriarPrestadorDto } from "../../dtos/prestador";
+import { IUserRepository } from "../../repositories/IUserRepository";
 
 export class CriarPrestadorUseCase {
-  constructor(private prestadorRepository: IPrestadorRepository) {}
+  constructor(
+    private userRepository: IUserRepository,
+    private prestadorRepository: IPrestadorRepository,
+  ) {}
 
-  async executar(prestador: CriarPrestadorDto) {
+  async executar(dados: CriarPrestadorDto) {
+    // 1. Tenta buscar um usuário com esse e-mail
+      const usuarioExistente = await this.userRepository.findById(dados.user_id);
+
+
+    if (!usuarioExistente) {
+        throw new Error("Este User nao existe.");
+      }
+      let prestador: Prestador;
+
+      prestador = new Prestador({
+        user_id: dados.user_id,
+        nome: dados.nome,
+        bio: dados.bio,
+        score: 0,
+      }); 
+
     const prestadorCriado = await this.prestadorRepository.create(prestador);
-
-    if (!prestadorCriado) {
-      throw new Error("Erro ao criar prestador");
-    }
 
     return prestadorCriado;
   }
@@ -19,31 +35,29 @@ export class CriarPrestadorUseCase {
 export class DeletarPrestadorUseCase {
   constructor(private prestadorRepository: IPrestadorRepository) {}
 
-  async executar(id: string) {
-    const prestador = await this.prestadorRepository.findById(id);
+  async executar(user_id: string) {
+    const prestador = await this.prestadorRepository.findByUserId(user_id);
 
     if (!prestador) {
       throw new Error("Prestador não encontrado");
     }
 
-    return await this.prestadorRepository.delete(id);
+    return await this.prestadorRepository.delete(user_id);
   }
 }
 
 export class AtualizarPrestadorUseCase {
   constructor(private prestadorRepository: IPrestadorRepository) {}
 
-  async executar(id: string, prestador: Partial<Prestador>) {
-    const prestadorExistente = await this.prestadorRepository.findById(id);
+  async executar(prestador: AtualizarPrestadorDto) {
+    const prestadorExistente = await this.prestadorRepository.findByUserId(prestador.user_id);
 
     if (!prestadorExistente) {
       throw new Error("Prestador não encontrado");
     }
 
-    const prestadorAtualizado = await this.prestadorRepository.update(
-      id,
-      prestador,
-    );
+    prestadorExistente.atualizarPerfil(prestador);
+    const prestadorAtualizado = await this.prestadorRepository.update(prestadorExistente);
 
     if (!prestadorAtualizado) {
       throw new Error("Erro ao atualizar prestador");
@@ -53,25 +67,11 @@ export class AtualizarPrestadorUseCase {
   }
 }
 
-export class AcharPorId {
-  constructor(private prestadorRepository: IPrestadorRepository) {}
-
-  async executar(id: string) {
-    const prestador = await this.prestadorRepository.findById(id);
-
-    if (!prestador) {
-      throw new Error("Nenhum prestador pertence a essa categoria");
-    }
-
-    return prestador;
-  }
-}
-
 export class AcharPorUserId {
   constructor(private prestadorRepository: IPrestadorRepository) {}
 
-  async executar(userId: string) {
-    const prestador = await this.prestadorRepository.findById(userId);
+  async executar(user_id: string) {
+    const prestador = await this.prestadorRepository.findByUserId(user_id);
 
     if (!prestador) {
       throw new Error("Nenhum prestador pertence a essa categoria");
@@ -81,17 +81,4 @@ export class AcharPorUserId {
   }
 }
 
-export class ListarPorCategoria {
-  constructor(private prestadorRepository: IPrestadorRepository) {}
 
-  async executar(categoria: string) {
-    const prestadores =
-      await this.prestadorRepository.listByCategory(categoria);
-
-    if (!prestadores) {
-      throw new Error("Nenhum prestador pertence a essa categoria");
-    }
-
-    return prestadores;
-  }
-}
