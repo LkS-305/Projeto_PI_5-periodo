@@ -1,8 +1,8 @@
 import { v4 as uuid } from 'uuid';
-import { AtualizarEnderecoDto } from '../dtos/endereco';
+import { AtualizarEnderecoDto, CriarEnderecoDto } from '../dtos/endereco';
 
 export class Endereco {
-  public readonly id?: string;
+  public readonly id: string;
   public user_id: string;
   public rotulo: string; // Ex: "Casa", "Trabalho", "Local do Evento"
   public logradouro: string;
@@ -12,11 +12,9 @@ export class Endereco {
   public cidade: string;
   public estado: string; // UF
   public cep: string;
-  public latitude?: number;
-  public longitude?: number;
   public is_principal: boolean = false;
 
-  constructor(props: Omit<Endereco, 'id'>, id?: string) {
+  constructor(props: CriarEnderecoDto, id?: string) {
     this.id = id ?? uuid();
     this.user_id = props.user_id;
     this.rotulo = props.rotulo;
@@ -38,5 +36,9 @@ export class Endereco {
     this.estado = dados.estado ?? this.estado;
     this.cep = dados.cep ?? this.cep;
     this.is_principal = dados.is_principal ?? this.is_principal;
+  }
+
+  public setPrincipal(is_principal: boolean): void{
+    this.is_principal = is_principal;
   }
 }

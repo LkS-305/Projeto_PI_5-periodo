@@ -1,4 +1,4 @@
-import { CriarUsuarioDto } from "../dtos/usuario";
+import { AtualizarUsuarioDto, CriarUsuarioDto } from "../dtos/usuario";
 
 export class Usuario  {
   public user_id: string;
@@ -21,9 +21,9 @@ export class Usuario  {
     this.updated_at = new Date();
   }
 
-  public atualizarPerfil(nome: string, email: string, foto_url: string): void {
-    this.nome = nome ?? this.nome;
-    this.foto_url = foto_url ?? this.foto_url;
+  public atualizarPerfil(dados: AtualizarUsuarioDto): void {
+    this.nome = dados.nome ?? this.nome;
+    this.foto_url = dados.foto_url ?? this.foto_url;
     this.updated_at = new Date();
 }
 

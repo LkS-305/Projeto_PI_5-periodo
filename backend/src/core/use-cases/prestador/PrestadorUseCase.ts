@@ -11,10 +11,10 @@ export class CriarPrestadorUseCase {
 
   async executar(dados: CriarPrestadorDto) {
     // 1. Tenta buscar um usuário com esse e-mail
-      const usuarioExistente = await this.userRepository.findById(dados.user_id);
+      const userExistente = await this.userRepository.findById(dados.user_id);
 
 
-    if (!usuarioExistente) {
+    if (!userExistente) {
         throw new Error("Este User nao existe.");
       }
       let prestador: Prestador;
@@ -35,14 +35,14 @@ export class CriarPrestadorUseCase {
 export class DeletarPrestadorUseCase {
   constructor(private prestadorRepository: IPrestadorRepository) {}
 
-  async executar(user_id: string) {
+  async executar(user_id: string): Promise<void> {
     const prestador = await this.prestadorRepository.findByUserId(user_id);
 
     if (!prestador) {
       throw new Error("Prestador não encontrado");
     }
 
-    return await this.prestadorRepository.delete(user_id);
+    await this.prestadorRepository.delete(user_id);
   }
 }
 
@@ -57,13 +57,7 @@ export class AtualizarPrestadorUseCase {
     }
 
     prestadorExistente.atualizarPerfil(prestador);
-    const prestadorAtualizado = await this.prestadorRepository.update(prestadorExistente);
-
-    if (!prestadorAtualizado) {
-      throw new Error("Erro ao atualizar prestador");
-    }
-
-    return prestadorAtualizado;
+    await this.prestadorRepository.update(prestadorExistente);
   }
 }
 
