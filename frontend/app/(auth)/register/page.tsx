@@ -96,7 +96,7 @@ export default function Cadastro() {
     dateString: string,
   ): { valid: boolean; message: string } => {
     const date = new Date(dateString);
-    const minDate = new Date("1920-01-01");
+    const minDate = new Date("1910-01-01");
     const maxDate = new Date();
     maxDate.setFullYear(maxDate.getFullYear() - 18);
 
@@ -104,7 +104,7 @@ export default function Cadastro() {
       return {
         valid: false,
         message:
-          "Data de nascimento inválida. Você deve ter nascido após 1920.",
+          "Data de nascimento inválida. Você deve ter nascido após 1910.",
       };
     }
 
@@ -201,7 +201,7 @@ export default function Cadastro() {
 
     setLocalError(
       authError ||
-        "Falha ao criar conta. Verifique os dados e tente novamente.",
+      "Falha ao criar conta. Verifique os dados e tente novamente.",
     );
   }
 
@@ -211,11 +211,11 @@ export default function Cadastro() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
+        paddingTop: "0px",
         minHeight: "100vh",
         backgroundColor: "#FAF9F5",
         fontFamily: "'SF Pro Text', system-ui, sans-serif",
-        padding: "20px",
         position: "relative",
         overflow: "hidden",
       }}
@@ -224,7 +224,7 @@ export default function Cadastro() {
       <div
         style={{
           position: "absolute",
-          top: "100px",
+          top: "30px",
           right: "150px",
           opacity: 0.05,
           pointerEvents: "none",
@@ -245,8 +245,8 @@ export default function Cadastro() {
       <div
         style={{
           position: "absolute",
-          bottom: "50px",
-          left: "150px",
+          bottom: "40px",
+          left: "40px",
           opacity: 0.05,
           pointerEvents: "none",
           zIndex: 0,
@@ -264,7 +264,7 @@ export default function Cadastro() {
       <div
         style={{
           width: "100%",
-          maxWidth: "1300px",
+          maxWidth: "1600px",
           display: "flex",
           flexDirection: "column",
           position: "relative",
@@ -275,12 +275,12 @@ export default function Cadastro() {
         <h1
           style={{
             fontFamily: "'Clash Display', sans-serif",
-            fontSize: "40px",
+            fontSize: "60px",
             fontWeight: 900,
             textAlign: "center",
-            margin: 0,
+            marginTop: "25px",
+            marginBottom: "-30px",
             color: "#272727",
-            letterSpacing: "-1px",
           }}
         >
           DOMI
@@ -290,13 +290,11 @@ export default function Cadastro() {
         <h2
           style={{
             fontFamily: "'SF Pro Text', system-ui, sans-serif",
-            fontSize: "100px",
+            fontSize: "130px",
             fontWeight: 700,
             textAlign: "center",
-            marginTop: "10px",
-            marginBottom: "40px",
+            marginBottom: "5px",
             color: "#272727",
-            letterSpacing: "-2px",
           }}
         >
           Cadastrar-se
@@ -310,17 +308,17 @@ export default function Cadastro() {
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
-                columnGap: "250px",
-                rowGap: "30px",
-                marginBottom: "30px",
+                columnGap: "200px",
+                rowGap: "25px",
+                marginBottom: "65px", //GAP QUE EU QUERO
               }}
             >
               {/* Nome */}
               <div style={{ gridColumn: "1 / 2" }}>
                 <label
                   style={{
-                    fontSize: "28px",
-                    fontWeight: 500,
+                    fontSize: "40px",
+                    fontWeight: 510,
                     color: "#272727",
                     marginBottom: "10px",
                     display: "block",
@@ -332,22 +330,22 @@ export default function Cadastro() {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    backgroundColor: "#EBEBEB",
-                    borderRadius: "50px",
-                    padding: "0 20px",
-                    width: "550px",
-                    height: "60px",
+                    backgroundColor: "#EAEAEA",
+                    borderRadius: "60px",
+                    padding: "0 40px",
+                    width: "700px",
+                    height: "80px",
                   }}
                 >
                   <Image
                     src="/images/name.svg"
                     alt="nome"
-                    width={20}
-                    height={20}
+                    width={42}
+                    height={30}
                   />
                   <input
                     type="text"
-                    placeholder="insira seu nome"
+                    placeholder="insira seu nome completo"
                     value={formData.nome}
                     onChange={(e) => handleInputChange("nome", e.target.value)}
                     style={{
@@ -356,8 +354,9 @@ export default function Cadastro() {
                       backgroundColor: "transparent",
                       outline: "none",
                       marginLeft: "15px",
-                      fontSize: "18px",
-                      color: "#333",
+                      fontWeight: 400,
+                      fontSize: "30px",
+                      color: "#535353",
                     }}
                   />
                 </div>
@@ -367,8 +366,8 @@ export default function Cadastro() {
               <div style={{ gridColumn: "2 / 3" }}>
                 <label
                   style={{
-                    fontSize: "28px",
-                    fontWeight: 500,
+                    fontSize: "40px",
+                    fontWeight: 510,
                     color: "#272727",
                     marginBottom: "10px",
                     display: "block",
@@ -380,18 +379,18 @@ export default function Cadastro() {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    backgroundColor: "#EBEBEB",
-                    borderRadius: "50px",
-                    padding: "0 20px",
-                    width: "550px",
-                    height: "60px",
+                    backgroundColor: "#EAEAEA",
+                    borderRadius: "60px",
+                    padding: "0 40px",
+                    width: "700px",
+                    height: "80px",
                   }}
                 >
                   <Image
                     src="/images/cellphone.svg"
                     alt="celular"
-                    width={20}
-                    height={20}
+                    width={35}
+                    height={35}
                   />
                   <input
                     type="tel"
@@ -407,8 +406,8 @@ export default function Cadastro() {
                       backgroundColor: "transparent",
                       outline: "none",
                       marginLeft: "15px",
-                      fontSize: "18px",
-                      color: "#333",
+                      fontSize: "30px",
+                      color: "#535353",
                     }}
                   />
                 </div>
@@ -418,8 +417,8 @@ export default function Cadastro() {
               <div style={{ gridColumn: "1 / 2" }}>
                 <label
                   style={{
-                    fontSize: "28px",
-                    fontWeight: 500,
+                    fontSize: "40px",
+                    fontWeight: 510,
                     color: "#272727",
                     marginBottom: "10px",
                     display: "block",
@@ -431,18 +430,18 @@ export default function Cadastro() {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    backgroundColor: "#EBEBEB",
-                    borderRadius: "50px",
-                    padding: "0 20px",
-                    width: "550px",
-                    height: "60px",
+                    backgroundColor: "#EAEAEA",
+                    borderRadius: "60px",
+                    padding: "0 40px",
+                    width: "700px",
+                    height: "80px",
                   }}
                 >
                   <Image
                     src="/images/email.svg"
                     alt="email"
-                    width={20}
-                    height={20}
+                    width={37}
+                    height={30}
                   />
                   <input
                     type="email"
@@ -456,8 +455,8 @@ export default function Cadastro() {
                       backgroundColor: "transparent",
                       outline: "none",
                       marginLeft: "15px",
-                      fontSize: "18px",
-                      color: "#333",
+                      fontSize: "30px",
+                      color: "#535353",
                     }}
                   />
                 </div>
@@ -467,8 +466,8 @@ export default function Cadastro() {
               <div style={{ gridColumn: "2 / 3" }}>
                 <label
                   style={{
-                    fontSize: "28px",
-                    fontWeight: 500,
+                    fontSize: "40px",
+                    fontWeight: 510,
                     color: "#272727",
                     marginBottom: "10px",
                     display: "block",
@@ -480,18 +479,18 @@ export default function Cadastro() {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    backgroundColor: "#EBEBEB",
-                    borderRadius: "50px",
-                    padding: "0 20px",
-                    width: "550px",
-                    height: "60px",
+                    backgroundColor: "#EAEAEA",
+                    borderRadius: "60px",
+                    padding: "0 40px",
+                    width: "700px",
+                    height: "80px",
                   }}
                 >
                   <Image
                     src="/images/calendar.svg"
                     alt="data"
-                    width={20}
-                    height={20}
+                    width={35}
+                    height={35}
                   />
                   <input
                     type="date"
@@ -515,8 +514,8 @@ export default function Cadastro() {
                       backgroundColor: "transparent",
                       outline: "none",
                       marginLeft: "15px",
-                      fontSize: "18px",
-                      color: "#333",
+                      fontSize: "30px",
+                      color: "#535353",
                     }}
                   />
                 </div>
@@ -529,7 +528,6 @@ export default function Cadastro() {
                 style={{
                   color: "#FF0000",
                   fontSize: "16px",
-                  marginBottom: "20px",
                   textAlign: "center",
                   fontWeight: 500,
                 }}
@@ -539,58 +537,30 @@ export default function Cadastro() {
             )}
 
             {/* Botão Seguir */}
-            <button
-              onClick={goToNextSection}
-              style={{
-                backgroundColor: "#FAF9F5",
-                color: "#272727",
-                border: "2px solid #272727",
-                borderRadius: "50px",
-                width: "400px",
-                height: "65px",
-                fontSize: "28px",
-                fontWeight: 600,
-                cursor: "pointer",
-                marginBottom: "20px",
-                transition: "all 0.3s ease",
-                margin: "0 auto 20px auto",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#E0C271";
-                e.currentTarget.style.color = "#FAF9F5";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#FAF9F5";
-                e.currentTarget.style.color = "#272727";
-              }}
-            >
-              Seguir
-            </button>
-
-            {/* Barra de Progresso - Seção 1 */}
-            <div
-              style={{
-                display: "flex",
-                marginBottom: "30px",
-                margin: "0 auto 30px auto",
-                borderRadius: "10px",
-                overflow: "hidden",
-              }}
-            >
-              <div
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}> {/* LINHA ADICIONADA */}
+              <button
+                onClick={goToNextSection}
                 style={{
-                  width: "200px",
-                  height: "15px",
-                  backgroundColor: "#E0C271",
-                }}
-              />
-              <div
-                style={{
+                  backgroundColor: "#FAF9F5",
+                  color: "#272727",
+                  border: "4px solid #272727",
+                  borderRadius: "60px",
                   width: "400px",
-                  height: "15px",
-                  backgroundColor: "#979797",
-                }}
-              />
+                  height: "80px",
+                  fontSize: "60px",
+                  fontWeight: 450,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "10px",
+                  transition: "transform 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              >
+                Seguir
+              </button>
             </div>
 
             {/* Divisor "ou" */}
@@ -598,37 +568,21 @@ export default function Cadastro() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                margin: "10px auto 30px auto",
-                width: "600px",
+                width: "1000px",
+                margin: "0 auto 24px auto",
               }}
             >
-              <div
-                style={{
-                  width: "300px",
-                  height: "2px",
-                  backgroundColor: "#E0C271",
-                  flexShrink: 0,
-                }}
-              />
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
               <span
                 style={{
                   margin: "0 15px",
-                  color: "#555",
-                  fontSize: "18px",
-                  flexShrink: 0,
+                  color: "#535353",
+                  fontSize: "25px",
                 }}
               >
                 ou
               </span>
-              <div
-                style={{
-                  width: "300px",
-                  height: "2px",
-                  backgroundColor: "#E0C271",
-                  flexShrink: 0,
-                }}
-              />
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
             </div>
 
             {/* Botão Google */}
@@ -637,54 +591,74 @@ export default function Cadastro() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "#1A1A1A",
-                color: "#FFF",
+                backgroundColor: "#272727",
+                color: "#FAF9F5",
                 border: "none",
                 borderRadius: "50px",
+                width: "470px",
                 height: "60px",
-                fontSize: "18px",
-                fontWeight: 500,
+                fontSize: "30px",
+                fontWeight: 400,
                 cursor: "pointer",
-                marginBottom: "30px",
-                width: "400px",
-                margin: "0 auto 30px auto",
-                transition: "opacity 0.3s ease",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                margin: "0 auto",
+                gap: "12px",
+                transition: "transform 0.2s ease",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
               <Image
                 src="/images/GoogleIcon.svg"
                 alt="Google"
-                width={24}
-                height={24}
-                style={{ marginRight: "10px" }}
+                width={35}
+                height={35}
               />
-              Continue with Google
+              Cadastrar-se com Google
             </button>
 
-            {/* Link para login */}
-            <div
+            <p
               style={{
+                marginTop: "30px",
                 textAlign: "center",
-                fontSize: "16px",
-                color: "#555",
+                color: "#535353",
+                fontWeight: 500,
+                fontSize: "25px",
               }}
             >
               Já tem uma conta?{" "}
               <a
                 href="/login"
                 style={{
-                  color: "#555",
-                  fontWeight: 600,
+                  color: "#535353",
+                  fontWeight: 500,
                   textDecoration: "underline",
                 }}
               >
                 Entrar
               </a>
-            </div>
+            </p>
           </>
         )}
+
+            {/* Botão voltar */}
+            <div
+              onClick={section === 1 ? () => router.push("/") : goToPreviousSection}
+              style={{
+                position: "fixed",
+                top: "46px",
+                left: "51px",
+                fontSize: "30px",
+                fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                fontWeight: 500,
+                color: "#272727",
+                cursor: "pointer",
+                userSelect: "none",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+            >
+              ← Voltar
+            </div>
 
         {/* SEÇÃO 2 */}
         {section === 2 && (
@@ -694,17 +668,17 @@ export default function Cadastro() {
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
-                columnGap: "250px",
-                rowGap: "30px",
-                marginBottom: "30px",
+                columnGap: "200px",
+                rowGap: "25px",
+                marginBottom: "65px",
               }}
             >
               {/* CEP */}
               <div style={{ gridColumn: "1 / 2" }}>
                 <label
                   style={{
-                    fontSize: "28px",
-                    fontWeight: 500,
+                    fontSize: "40px",
+                    fontWeight: 510,
                     color: "#272727",
                     marginBottom: "10px",
                     display: "block",
@@ -717,17 +691,17 @@ export default function Cadastro() {
                     display: "flex",
                     alignItems: "center",
                     backgroundColor: "#EBEBEB",
-                    borderRadius: "50px",
-                    padding: "0 20px",
-                    width: "550px",
-                    height: "60px",
+                    borderRadius: "60px",
+                    padding: "0 40px",
+                    width: "700px",
+                    height: "80px",
                   }}
                 >
                   <Image
                     src="/images/cep.svg"
                     alt="cep"
-                    width={20}
-                    height={20}
+                    width={35}
+                    height={36}
                   />
                   <input
                     type="text"
@@ -743,8 +717,8 @@ export default function Cadastro() {
                       backgroundColor: "transparent",
                       outline: "none",
                       marginLeft: "15px",
-                      fontSize: "18px",
-                      color: "#333",
+                      fontSize: "30px",
+                      color: "#535353",
                     }}
                   />
                 </div>
@@ -754,8 +728,8 @@ export default function Cadastro() {
               <div style={{ gridColumn: "2 / 3" }}>
                 <label
                   style={{
-                    fontSize: "28px",
-                    fontWeight: 500,
+                    fontSize: "40px",
+                    fontWeight: 510,
                     color: "#272727",
                     marginBottom: "10px",
                     display: "block",
@@ -768,17 +742,17 @@ export default function Cadastro() {
                     display: "flex",
                     alignItems: "center",
                     backgroundColor: "#EBEBEB",
-                    borderRadius: "50px",
-                    padding: "0 20px",
-                    width: "550px",
-                    height: "60px",
+                    borderRadius: "60px",
+                    padding: "0 40px",
+                    width: "700px",
+                    height: "80px",
                   }}
                 >
                   <Image
                     src="/images/PasswordLock.svg"
                     alt="lock"
-                    width={20}
-                    height={20}
+                    width={35}
+                    height={36}
                   />
                   <input
                     type="password"
@@ -791,8 +765,8 @@ export default function Cadastro() {
                       backgroundColor: "transparent",
                       outline: "none",
                       marginLeft: "15px",
-                      fontSize: "18px",
-                      color: "#333",
+                      fontSize: "30px",
+                      color: "#535353",
                     }}
                   />
                 </div>
@@ -802,8 +776,8 @@ export default function Cadastro() {
               <div style={{ gridColumn: "1 / 2" }}>
                 <label
                   style={{
-                    fontSize: "28px",
-                    fontWeight: 500,
+                    fontSize: "40px",
+                    fontWeight: 510,
                     color: "#272727",
                     marginBottom: "10px",
                     display: "block",
@@ -816,17 +790,17 @@ export default function Cadastro() {
                     display: "flex",
                     alignItems: "center",
                     backgroundColor: "#EBEBEB",
-                    borderRadius: "50px",
-                    padding: "0 20px",
-                    width: "550px",
-                    height: "60px",
+                    borderRadius: "60px",
+                    padding: "0 40px",
+                    width: "700px",
+                    height: "80px",
                   }}
                 >
                   <Image
                     src="/images/cep.svg"
                     alt="endereço"
-                    width={20}
-                    height={20}
+                    width={35}
+                    height={36}
                   />
                   <input
                     type="text"
@@ -842,8 +816,8 @@ export default function Cadastro() {
                       backgroundColor: "transparent",
                       outline: "none",
                       marginLeft: "15px",
-                      fontSize: "18px",
-                      color: "#333",
+                      fontSize: "30px",
+                      color: "#535353",
                     }}
                   />
                 </div>
@@ -853,8 +827,8 @@ export default function Cadastro() {
               <div style={{ gridColumn: "2 / 3" }}>
                 <label
                   style={{
-                    fontSize: "28px",
-                    fontWeight: 500,
+                    fontSize: "40px",
+                    fontWeight: 510,
                     color: "#272727",
                     marginBottom: "10px",
                     display: "block",
@@ -867,17 +841,17 @@ export default function Cadastro() {
                     display: "flex",
                     alignItems: "center",
                     backgroundColor: "#EBEBEB",
-                    borderRadius: "50px",
-                    padding: "0 20px",
-                    width: "550px",
-                    height: "60px",
+                    borderRadius: "60px",
+                    padding: "0 40px",
+                    width: "700px",
+                    height: "80px",
                   }}
                 >
                   <Image
                     src="/images/PasswordLock.svg"
                     alt="lock"
-                    width={20}
-                    height={20}
+                    width={35}
+                    height={36}
                   />
                   <input
                     type="password"
@@ -892,8 +866,8 @@ export default function Cadastro() {
                       backgroundColor: "transparent",
                       outline: "none",
                       marginLeft: "15px",
-                      fontSize: "18px",
-                      color: "#333",
+                      fontSize: "30px",
+                      color: "#535353",
                     }}
                   />
                 </div>
@@ -916,96 +890,55 @@ export default function Cadastro() {
             )}
 
             {/* Botão Enviar */}
-            <button
-              onClick={goToNextSection}
-              style={{
-                backgroundColor: "#FAF9F5",
-                color: "#272727",
-                border: "2px solid #272727",
-                borderRadius: "50px",
-                width: "400px",
-                height: "65px",
-                fontSize: "28px",
-                fontWeight: 600,
-                cursor: "pointer",
-                marginBottom: "20px",
-                transition: "all 0.3s ease",
-                margin: "0 auto 20px auto",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#E0C271";
-                e.currentTarget.style.color = "#FAF9F5";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#FAF9F5";
-                e.currentTarget.style.color = "#272727";
-              }}
-            >
-              Enviar
-            </button>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}> {/* LINHA ADICIONADA */}
+              <button
+                onClick={goToNextSection}
+                style={{
+                  backgroundColor: "#FAF9F5",
+                  color: "#272727",
+                  border: "4px solid #272727",
+                  borderRadius: "60px",
+                  width: "400px",
+                  height: "80px",
+                  fontSize: "60px",
+                  fontWeight: 450,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "10px",
+                  transition: "transform 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              >
+                Enviar
+              </button>
+            </div>
 
             {/* Barra de Progresso - Seção 2 */}
-            <div
-              style={{
-                display: "flex",
-                marginBottom: "30px",
-                margin: "0 auto 30px auto",
-                borderRadius: "10px",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  width: "400px",
-                  height: "15px",
-                  backgroundColor: "#E0C271",
-                }}
-              />
-              <div
-                style={{
-                  width: "200px",
-                  height: "15px",
-                  backgroundColor: "#979797",
-                }}
-              />
-            </div>
+
 
             {/* Divisor "ou" */}
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                margin: "10px auto 30px auto",
-                width: "600px",
+                width: "1000px",
+                margin: "0 auto 25px auto",
               }}
             >
-              <div
-                style={{
-                  width: "300px",
-                  height: "2px",
-                  backgroundColor: "#E0C271",
-                  flexShrink: 0,
-                }}
-              />
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
               <span
                 style={{
                   margin: "0 15px",
-                  color: "#555",
-                  fontSize: "18px",
-                  flexShrink: 0,
+                  color: "#535353",
+                  fontSize: "25px",
                 }}
               >
                 ou
               </span>
-              <div
-                style={{
-                  width: "300px",
-                  height: "2px",
-                  backgroundColor: "#E0C271",
-                  flexShrink: 0,
-                }}
-              />
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
             </div>
 
             {/* Botão Google */}
@@ -1014,48 +947,73 @@ export default function Cadastro() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "#1A1A1A",
-                color: "#FFF",
+                backgroundColor: "#272727",
+                color: "#FAF9F5",
                 border: "none",
                 borderRadius: "50px",
+                width: "470px",
                 height: "60px",
-                fontSize: "18px",
-                fontWeight: 500,
+                fontSize: "30px",
+                fontWeight: 400,
                 cursor: "pointer",
-                marginBottom: "30px",
-                width: "400px",
-                margin: "0 auto 30px auto",
-                transition: "opacity 0.3s ease",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                margin: "0 auto",
+                gap: "12px",
+                transition: "transform 0.2s ease",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
               <Image
                 src="/images/GoogleIcon.svg"
                 alt="Google"
-                width={24}
-                height={24}
-                style={{ marginRight: "10px" }}
+                width={35}
+                height={35}
               />
-              Continue with Google
+              Cadastrar-se com Google
             </button>
 
-            {/* Botão voltar */}
-            <div style={{ textAlign: "center" }}>
-              <button
-                onClick={goToPreviousSection}
+            <p
+              style={{
+                marginTop: "30px",
+                textAlign: "center",
+                color: "#535353",
+                fontWeight: 500,
+                fontSize: "25px",
+              }}
+            >
+              Já tem uma conta?{" "}
+              <a
+                href="/login"
                 style={{
-                  fontSize: "16px",
-                  color: "#555",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
+                  color: "#535353",
+                  fontWeight: 500,
                   textDecoration: "underline",
                 }}
               >
-                Voltar
-              </button>
+                Entrar
+              </a>
+            </p>
+
+            {/* Botão voltar */}
+            <div
+              onClick={goToPreviousSection}
+              style={{
+                position: "fixed",
+                top: "46px",
+                left: "51px",
+                fontSize: "30px",
+                fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                fontWeight: 500,
+                color: "#272727",
+                cursor: "pointer",
+                userSelect: "none",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+            >
+              ← Voltar
             </div>
+
           </>
         )}
 
@@ -1065,11 +1023,12 @@ export default function Cadastro() {
             {/* Texto Celular */}
             <p
               style={{
-                fontSize: "26px",
-                fontWeight: 500,
+                fontSize: "35px",
+                fontWeight: 510,
                 color: "#272727",
                 textAlign: "center",
-                margin: "0 auto 20px auto",
+                marginTop: "5px",
+                marginBottom: "15px",
               }}
             >
               verifique sua conta pelo código enviado pelo celular
@@ -1080,45 +1039,31 @@ export default function Cadastro() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 20px auto",
-                width: "600px",
+                width: "800px",
+                margin: "0 auto 15px auto",
               }}
             >
-              <div
-                style={{
-                  flex: 1,
-                  height: "2px",
-                  backgroundColor: "#E0C271",
-                }}
-              />
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
               <span
                 style={{
                   margin: "0 15px",
-                  color: "#555",
-                  fontSize: "18px",
-                  flexShrink: 0,
+                  color: "#535353",
+                  fontSize: "25px",
                 }}
               >
                 ou
               </span>
-              <div
-                style={{
-                  flex: 1,
-                  height: "2px",
-                  backgroundColor: "#E0C271",
-                }}
-              />
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
             </div>
 
             {/* Texto E-mail */}
             <p
               style={{
-                fontSize: "26px",
-                fontWeight: 500,
+                fontSize: "35px",
+                fontWeight: 510,
                 color: "#272727",
                 textAlign: "center",
-                margin: "0 auto 40px auto",
+                margin: "0 auto 30px auto",
               }}
             >
               verifique sua conta pelo código enviado pelo e-mail
@@ -1130,7 +1075,7 @@ export default function Cadastro() {
                 display: "flex",
                 justifyContent: "center",
                 gap: "24px",
-                marginBottom: "50px",
+                marginBottom: "60px",
               }}
             >
               {[0, 1, 2, 3].map((index) => (
@@ -1147,12 +1092,12 @@ export default function Cadastro() {
                   }
                   onKeyDown={(e) => handleVerificationKeyDown(index, e)}
                   style={{
-                    width: "110px",
-                    height: "110px",
-                    border: "3px solid #E0C271",
-                    borderRadius: "15px",
+                    width: "200px",
+                    height: "200px",
+                    border: "5px solid #E0C271",
+                    borderRadius: "30px",
                     backgroundColor: "transparent",
-                    fontSize: "48px",
+                    fontSize: "60px",
                     fontWeight: 600,
                     textAlign: "center",
                     color: "#272727",
@@ -1183,31 +1128,49 @@ export default function Cadastro() {
               </div>
             )}
 
+            {/* Botão voltar */}
+            <div
+              onClick={goToPreviousSection}
+              style={{
+                position: "fixed",
+                top: "46px",
+                left: "51px",
+                fontSize: "30px",
+                fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                fontWeight: 500,
+                color: "#272727",
+                cursor: "pointer",
+                userSelect: "none",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+            >
+              ← Voltar
+            </div>
+
             {/* Botão Cadastrar-se */}
             <button
               type="button"
               disabled={loading}
               style={{
-                display: "block",
+                display: "flex",
                 backgroundColor: "#E0C271",
-                color: "#FFF",
+                color: "#FAF9F5",
                 border: "none",
-                borderRadius: "50px",
-                width: "400px",
-                height: "65px",
-                fontSize: "28px",
+                borderRadius: "60px",
+                width: "440px",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "80px",
+                fontSize: "60px",
                 fontWeight: 600,
                 cursor: loading ? "not-allowed" : "pointer",
-                transition: "opacity 0.3s ease",
-                margin: "0 auto 30px auto",
+                transition: "transform 0.2s ease",
+                margin: "0 auto 40px auto",
                 opacity: loading ? 0.7 : 1,
               }}
-              onMouseEnter={(e) => {
-                if (!loading) e.currentTarget.style.opacity = "0.8";
-              }}
-              onMouseLeave={(e) => {
-                if (!loading) e.currentTarget.style.opacity = "1";
-              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
               onClick={handleSubmit}
             >
               {loading ? "Cadastrando..." : "Cadastrar-se"}
@@ -1235,18 +1198,19 @@ export default function Cadastro() {
             {/* Link para Entrar */}
             <div
               style={{
+                marginTop: "20px",
                 textAlign: "center",
-                fontSize: "16px",
-                color: "#555",
-                marginBottom: "15px",
+                color: "#535353",
+                fontWeight: 500,
+                fontSize: "25px",
               }}
             >
               Já tem uma conta?{" "}
               <a
                 href="/login"
                 style={{
-                  color: "#555",
-                  fontWeight: 600,
+                  color: "#535353",
+                  fontWeight: 500,
                   textDecoration: "underline",
                 }}
               >
@@ -1256,6 +1220,6 @@ export default function Cadastro() {
           </>
         )}
       </div>
-    </div>
+    </div >
   );
 }

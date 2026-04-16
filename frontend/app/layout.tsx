@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ServiçoHub",
+  title: "DOMI",
   description: "Plataforma de serviços e agendamentos",
 };
 
