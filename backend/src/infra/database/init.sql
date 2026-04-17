@@ -56,13 +56,11 @@ CREATE TABLE IF NOT EXISTS agendamentos (
 -- 5. Tabela de Avaliações
 CREATE TABLE IF NOT EXISTS avaliacoes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    servico_id: REFERENCES servico_id(),
-    prestador_id: NOT NULL REFERENCES prestador_id(),
-    usuario_id: NOT NULL REFERENCES usuario_id(),
+    servico_id UUID REFERENCES servicos(id) ON DELETE SET NULL,
+    prestador_id UUID NOT NULL REFERENCES prestadores(id) ON DELETE CASCADE,
+    usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
     nota INTEGER CHECK (nota >= 1 AND nota <= 5),
-    media TEXT,
     comentario TEXT,
-    destinatario TEXT,    
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
