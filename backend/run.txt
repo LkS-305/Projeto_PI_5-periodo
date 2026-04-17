@@ -1,0 +1,4 @@
+npm install
+docker-compose up --build
+npm run db:setup
+npm run dev
