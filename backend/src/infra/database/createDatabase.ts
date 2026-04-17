@@ -4,10 +4,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export async function createDatabaseIfNotExists() {
-  const dbName = process.env.DB_NAME;
+  const dbName = process.env.DB_DATABASE;
 
   if (!dbName) {
-    throw new Error('DB_NAME não definido no .env');
+    throw new Error('DB_DATABASE não definido no .env');
   }
 
   // Conecta no banco padrão "postgres" para poder criar o banco do projeto

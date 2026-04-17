@@ -11,9 +11,9 @@ export async function runMigrations() {
     const sql = fs.readFileSync(sqlPath, 'utf8');
 
     await pool.query(sql);
-    console.log("🚀 Tabelas criadas/verificadas com sucesso!");
+    console.log("Tabelas criadas/verificadas com sucesso!");
   } catch (err) {
-    console.error("❌ Erro ao rodar migrações:", err);
+    console.error("Erro ao rodar migrações:", err);
     process.exit(1);
   }
 }
