@@ -1,10 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("contratante"); // "contratante" | "profissional"
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("contratante");
+  const [visibleTab, setVisibleTab] = useState("contratante");
+  const [tabVisible, setTabVisible] = useState(true);
+
+  const handleTabChange = (tab: string) => {
+    if (tab === activeTab) return;
+    // 1. Fade out
+    setTabVisible(false);
+    // 2. Após a transição, troca o conteúdo e faz fade in
+    setTimeout(() => {
+      setActiveTab(tab);
+      setVisibleTab(tab);
+      setTabVisible(true);
+    }, 300);
+  };
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
@@ -14,10 +30,45 @@ export default function Dashboard() {
         width: "100%",
         minHeight: "100vh",
         overflow: "hidden",
+        position: "relative",
         backgroundColor: "#FAF9F5",
         fontFamily: "'SF Pro Text', system-ui, sans-serif",
       }}
     >
+      {/* ── ESTILOS DE TRANSIÇÃO DE TAB ── */}
+      <style>{`
+        .tab-content {
+          opacity: 0;
+          transform: translateY(4px);
+          transition: opacity 0.85s ease, transform 0.85s ease;
+        }
+        .tab-content.visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        .menu-panel {
+          position: absolute;
+          top: 90px;
+          right: 0px;
+          width: 520px;
+          height: calc(100vh - 90px);
+          border-radius: 40px 0 0 40px;
+          background-color: rgba(39, 39, 39, 0.82);
+          backdrop-filter: blur(18px);
+          -webkit-backdrop-filter: blur(18px);
+          box-shadow: 0 8px 40px rgba(0,0,0,0.28);
+          z-index: 99;
+          overflow: hidden;
+          flex-shrink: 0;
+          transform: translateX(100%);
+          transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+        .menu-panel.open {
+          transform: translateX(0);
+        }
+      `}</style>
+
       {/* ── CABEÇALHO ── */}
       <header
         style={{
@@ -99,7 +150,7 @@ export default function Dashboard() {
 
           {/* Botão Contratante */}
           <button
-            onClick={() => setActiveTab("contratante")}
+            onClick={() => handleTabChange("contratante")}
             style={{
               flex: 1,
               height: "100%",
@@ -121,7 +172,7 @@ export default function Dashboard() {
 
           {/* Botão Profissional */}
           <button
-            onClick={() => setActiveTab("profissional")}
+            onClick={() => handleTabChange("profissional")}
             style={{
               flex: 1,
               height: "100%",
@@ -151,7 +202,8 @@ export default function Dashboard() {
           alt="Perfil"
           width={52}
           height={53}
-          style={{ display: "block", marginLeft: "0px" }}
+          onClick={() => router.push("/profile")}
+          style={{ display: "block", marginLeft: "0px", cursor: "pointer" }}
         />
 
         {/* navy.svg — abre/fecha menu */}
@@ -171,36 +223,20 @@ export default function Dashboard() {
       </header>
 
       {/* ── GLASS MENU PANEL ── */}
+      {/* Overlay para fechar ao clicar fora — só ativo quando aberto */}
       {menuOpen && (
-        <>
-          {/* Overlay para fechar ao clicar fora */}
-          <div
-            onClick={() => setMenuOpen(false)}
-            style={{
-              position: "fixed",
-              inset: 0,
-              zIndex: 98,
-            }}
-          />
+        <div
+          onClick={() => setMenuOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 98,
+          }}
+        />
+      )}
 
-          {/* Glass box 520×990 — alinhada à direita do cabeçalho (debaixo do navy.svg) */}
-          <div
-            style={{
-              position: "absolute",
-              top: "90px", // imediatamente abaixo do cabeçalho (height=90px)
-              right: "0px",
-              width: "520px",
-              height: "990px",
-              borderRadius: "0 0 0 40px", // apenas cantos esquerdos arredondados
-              backgroundColor: "rgba(39, 39, 39, 0.82)",
-              backdropFilter: "blur(18px)",
-              WebkitBackdropFilter: "blur(18px)",
-              boxShadow: "0 8px 40px rgba(0,0,0,0.28)",
-              zIndex: 99,
-              overflow: "hidden",
-              flexShrink: 0,
-            }}
-          >
+      {/* Painel — sempre no DOM, entra/sai via translateX */}
+      <div className={`menu-panel${menuOpen ? " open" : ""}`}>
             {/* Olá <usuário>! */}
             <p
               style={{
@@ -239,11 +275,11 @@ export default function Dashboard() {
               const rowHeight = 90;
 
               const menuItems = [
-                { icon: "message.svg", iconW: 42, iconH: 40, label: "Mensagens", hasSwitch: false },
-                { icon: "settings.svg", iconW: 40, iconH: 40, label: "Configurações", hasSwitch: false },
-                { icon: "mode.svg",    iconW: 40, iconH: 40, label: "Modo escuro",   hasSwitch: true  },
-                { icon: "help.svg",    iconW: 40, iconH: 40, label: "Ajuda",         hasSwitch: false },
-                { icon: "logout.svg",  iconW: 40, iconH: 40, label: "Sair da conta", hasSwitch: false },
+                { icon: "message.svg",  iconW: 42, iconH: 40, label: "Mensagens",    hasSwitch: false, href: "/messages" },
+                { icon: "settings.svg", iconW: 40, iconH: 40, label: "Configurações", hasSwitch: false, href: null },
+                { icon: "mode.svg",     iconW: 40, iconH: 40, label: "Modo escuro",   hasSwitch: true,  href: null },
+                { icon: "help.svg",     iconW: 40, iconH: 40, label: "Ajuda",         hasSwitch: false, href: null },
+                { icon: "logout.svg",   iconW: 40, iconH: 40, label: "Sair da conta", hasSwitch: false, href: null },
               ];
 
               return (
@@ -263,6 +299,7 @@ export default function Dashboard() {
                     return (
                       <div
                         key={item.label}
+                        onClick={() => { if (item.href) router.push(item.href); }}
                         style={{
                           position: "absolute",
                           top: `${centerY}px`,
@@ -271,7 +308,7 @@ export default function Dashboard() {
                           display: "flex",
                           alignItems: "center",
                           gap: "15px",
-                          cursor: "pointer",
+                          cursor: item.hasSwitch ? "default" : "pointer",
                         }}
                       >
                         {/* Ícone */}
@@ -293,12 +330,12 @@ export default function Dashboard() {
                             userSelect: "none",
                             transition: "text-decoration 0.15s",
                           }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.textDecoration = "underline")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.textDecoration = "none")
-                          }
+                          onMouseEnter={(e) => {
+                            if (!item.hasSwitch) e.currentTarget.style.textDecoration = "underline";
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!item.hasSwitch) e.currentTarget.style.textDecoration = "none";
+                          }}
                         >
                           {item.label}
                         </span>
@@ -346,8 +383,6 @@ export default function Dashboard() {
               );
             })()}
           </div>
-        </>
-      )}
 
       {/* ── BARRA DE PESQUISA ── */}
       <div
@@ -389,6 +424,9 @@ export default function Dashboard() {
           }}
         />
       </div>
+
+      {/* ── WRAPPER ANIMADO DAS SEÇÕES ── */}
+      <div className={`tab-content${tabVisible ? " visible" : ""}`}>
 
       {/* ════ SEÇÃO CONTRATANTE ════ */}
       {activeTab === "contratante" && (
@@ -580,6 +618,8 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      </div>{/* fim tab-content */}
     </div>
   );
 }

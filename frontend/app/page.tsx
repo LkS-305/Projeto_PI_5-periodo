@@ -63,6 +63,30 @@ export default function Home() {
         .hero-title { transition: opacity .75s ease 0s, transform .75s ease 0s; }
         .hero-sub   { transition: opacity .75s ease .15s, transform .75s ease .15s; }
         .search-row { transition: opacity .75s ease .25s, transform .75s ease .25s; }
+
+        /* ── CARROSSEL DE REVIEWS ── */
+        /* Cada faixa tem 6 cards × (590px + 20px gap) = 3660px por set */
+        @keyframes scroll-ltr {
+          0%   { transform: translateX(-3660px); }
+          100% { transform: translateX(0); }
+        }
+        @keyframes scroll-rtl {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-3660px); }
+        }
+
+        .carousel-track-ltr {
+          display: flex;
+          gap: 20px;
+          width: max-content;
+          animation: scroll-ltr 90s linear infinite;
+        }
+        .carousel-track-rtl {
+          display: flex;
+          gap: 20px;
+          width: max-content;
+          animation: scroll-rtl 90s linear infinite;
+        }
       `}</style>
 
       {/* ── DOT NAVIGATION (Movido para fora das seções, fica fixo na tela) ── */}
@@ -513,7 +537,7 @@ export default function Home() {
               backgroundColor: "rgba(39, 39, 39, 0.82)",
               backdropFilter: "blur(18px)",
               WebkitBackdropFilter: "blur(18px)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
+              border: "4px solid #C3A85E",
               boxShadow: "0 8px 40px rgba(0,0,0,0.28)",
               paddingBottom: "32px",
               flexShrink: 0,
@@ -601,7 +625,7 @@ export default function Home() {
               backgroundColor: "rgba(39, 39, 39, 0.82)",
               backdropFilter: "blur(18px)",
               WebkitBackdropFilter: "blur(18px)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
+              border: "4px solid #C3A85E",
               boxShadow: "0 8px 40px rgba(0,0,0,0.28)",
               paddingBottom: "32px",
               flexShrink: 0,
@@ -807,31 +831,37 @@ export default function Home() {
                 icon: "puzzle.svg",
                 title: "Match inteligente",
                 desc: "Algoritmo analisa distância, especialidade, avaliação e disponibilidade para sugerir o profissional certo.",
+                iconSize: 35,
               },
               {
                 icon: "lock.svg",
                 title: "Pagamento seguro",
                 desc: "Seu dinheiro fica retido pela plataforma e só é liberado após a confirmação do serviço concluído.",
+                iconSize: 30,
               },
               {
                 icon: "film.svg",
                 title: "Validação por vídeo",
                 desc: "O profissional e o contratante enviam um vídeo do serviço finalizado. Transparência mútua.",
+                iconSize: 35,
               },
               {
                 icon: "stars.svg",
                 title: "Reputação",
                 desc: "Avaliações recíprocas e contestações verificadas após cada serviço. Portifólio com datas e projetos reais.",
+                iconSize: 35,
               },
               {
                 icon: "chat.svg",
                 title: "Chat integrado",
                 desc: "Toda negociação dentro da plataforma, vinculada ao contrato. Histórico seguro e protegido.",
+                iconSize: 35,
               },
               {
                 icon: "double.svg",
                 title: "Demanda inteligente",
                 desc: "Uma conta, dois modos. Alterne entre Contratante e Profissional quando precisar.",
+                iconSize: 35,
               },
             ].map((item, i) => (
               <div
@@ -861,8 +891,8 @@ export default function Home() {
                   <Image
                     src={`/images/${item.icon}`}
                     alt={item.title}
-                    width={35}
-                    height={35}
+                    width={item.iconSize}
+                    height={item.iconSize}
                   />
                 </div>
 
@@ -962,158 +992,83 @@ export default function Home() {
           Uma conta, dois modos de uso. Alterne entre contratar e trabalhar quando quiser.
         </p>
 
-        {/* ── GRID DE REVIEWS ── */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 590px)",
-            gridTemplateRows: "repeat(2, 300px)",
-            columnGap: "20px",
-            rowGap: "30px",
-            marginLeft: "40px",
-          }}
-        >
-          {[
-            {
-              stars: 5,
-              quote: "Encontrei um eletricista excelente em menos de 2 horas. O match foi perfeito e o pagamento super seguro. Recomendo demais!",
-              name: "Matheus S.",
-              role: "Eletricista • São Paulo, SP",
-            },
-            {
-              stars: 5,
-              quote: "Como prestadora, recebi propostas alinhadas com meu perfil desde o primeiro dia. A plataforma entende o que você oferece.",
-              name: "Carla M.",
-              role: "Pintora • Rio de Janeiro, RJ",
-            },
-            {
-              stars: 4,
-              quote: "O sistema de vídeo de validação me deu muita segurança. Sabia exatamente o que estava contratando antes de liberar o pagamento.",
-              name: "Ricardo T.",
-              role: "Contratante • Curitiba, PR",
-            },
-            {
-              stars: 5,
-              quote: "Nunca foi tão fácil fechar serviços. O chat integrado e o histórico de negociações deixam tudo muito mais organizado.",
-              name: "Ana P.",
-              role: "Designer de Interiores • Contagem, MG",
-            },
-            {
-              stars: 5,
-              quote: "Minha reputação cresceu rápido com as avaliações recíprocas. Os clientes chegam até mim, não preciso mais correr atrás.",
-              name: "João V.",
-              role: "Encanador • Porto Alegre, RS",
-            },
-            {
-              stars: 4,
-              quote: "Alternei entre contratar e trabalhar na mesma semana. Flexibilidade total com uma conta só. Isso faz toda a diferença.",
-              name: "Fernanda L.",
-              role: "Contratante • Brasília, DF",
-            },
-          ].map((review, i) => (
-            <div
-              key={i}
-              style={{
-                width: "590px",
-                height: "300px",
-                borderRadius: "40px",
-                backgroundColor: "rgba(39, 39, 39, 0.82)",
-                backdropFilter: "blur(18px)",
-                WebkitBackdropFilter: "blur(18px)",
-                border: "4px solid #C3A85E",
-                boxShadow: "0 8px 40px rgba(0,0,0,0.18)",
-                display: "flex",
-                flexDirection: "column",
-                paddingLeft: "30px",
-                paddingRight: "30px",
-                boxSizing: "border-box",
-                flexShrink: 0,
-              }}
-            >
-              {/* Estrelas */}
-              <div
-                style={{
-                  display: "flex",
-                  gap: "10px",
-                  marginTop: "30px",
-                  marginBottom: "10px",
-                }}
-              >
+        {/* ── CARROSSEL DE REVIEWS ── */}
+        {(() => {
+          const rowTop = [
+            { stars: 5, quote: "Encontrei um eletricista excelente em menos de 2 horas. O match foi perfeito e o pagamento super seguro. Recomendo demais!", name: "Matheus S.", role: "Eletricista • São Paulo, SP" },
+            { stars: 5, quote: "Como prestadora, recebi propostas alinhadas com meu perfil desde o primeiro dia. A plataforma entende o que você oferece.", name: "Carla M.", role: "Pintora • Rio de Janeiro, RJ" },
+            { stars: 4, quote: "O sistema de vídeo de validação me deu muita segurança. Sabia exatamente o que estava contratando antes de liberar o pagamento.", name: "Ricardo T.", role: "Contratante • Curitiba, PR" },
+            { stars: 5, quote: "Nunca foi tão fácil fechar serviços. O chat integrado e o histórico de negociações deixam tudo muito mais organizado.", name: "Ana P.", role: "Designer de Interiores • Contagem, MG" },
+            { stars: 5, quote: "Minha reputação cresceu rápido com as avaliações recíprocas. Os clientes chegam até mim, não preciso mais correr atrás.", name: "João V.", role: "Encanador • Porto Alegre, RS" },
+            { stars: 4, quote: "Alternei entre contratar e trabalhar na mesma semana. Flexibilidade total com uma conta só. Isso faz toda a diferença.", name: "Fernanda L.", role: "Contratante • Brasília, DF" },
+          ];
+          const rowBottom = [
+            { stars: 5, quote: "Uma plataforma que não transforma trabalho em leilão. Os clientes chegam até mim pelo portfólio, não pelo menor preço.", name: "Lucas S.", role: "Marceneiro • São Paulo, SP" },
+            { stars: 5, quote: "Tenho conseguido muito mais trabalho graças à plataforma, muito boa!", name: "Miguel A.", role: "Pintor • Manaus, AM" },
+            { stars: 5, quote: "Melhor site para fazer reformas, muito prático.", name: "Jorge L.", role: "Contratante • Campinas, SP" },
+            { stars: 5, quote: "Finalmente encontrei uma forma de mostrar meu trabalho de verdade. Os clientes chegam qualificados e sabem o que querem.", name: "Mariana C.", role: "Arquiteta • Florianópolis, SC" },
+            { stars: 4, quote: "A validação por vídeo me deu coragem de contratar alguém pela primeira vez online. Tudo foi transparente do início ao fim.", name: "Roberto F.", role: "Contratante • Recife, PE" },
+            { stars: 5, quote: "Em duas semanas já tinha avaliações positivas e novos clientes batendo na porta. O sistema de reputação é muito bem pensado.", name: "Tatiane B.", role: "Diarista • Belo Horizonte, MG" },
+          ];
+
+          const ReviewCard = ({ review, idx }: { review: typeof rowTop[0]; idx: number }) => (
+            <div key={idx} style={{ width: "590px", height: "300px", borderRadius: "40px", backgroundColor: "rgba(39, 39, 39, 0.82)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", border: "4px solid #C3A85E", boxShadow: "0 8px 40px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", paddingLeft: "30px", paddingRight: "30px", boxSizing: "border-box", flexShrink: 0 }}>
+              <div style={{ display: "flex", gap: "10px", marginTop: "30px", marginBottom: "10px" }}>
                 {Array.from({ length: 5 }).map((_, s) => (
-                  <Image
-                    key={s}
-                    src="/images/review.svg"
-                    alt="estrela"
-                    width={25}
-                    height={25}
-                    style={{
-                      opacity: s < review.stars ? 1 : 0.25,
-                    }}
-                  />
+                  <Image key={s} src="/images/review.svg" alt="estrela" width={25} height={25} style={{ opacity: s < review.stars ? 1 : 0.25 }} />
                 ))}
               </div>
-
-              {/* Quote */}
-              <p
-                style={{
-                  fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                  fontWeight: 400,
-                  fontSize: "25px",
-                  color: "#FAF9F5",
-                  margin: 0,
-                  maxWidth: "550px",
-                  lineHeight: 1.35,
-                  textAlign: "justify",
-                  flex: 1,
-                }}
-              >
-                {review.quote}
-              </p>
-
-              {/* Rodapé: foto + nome + cargo */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "20px",
-                  marginTop: "auto",
-                }}
-              >
-                <Image
-                  src="/images/profile.svg"
-                  alt={review.name}
-                  width={50}
-                  height={50}
-                  style={{ marginRight: "10px", flexShrink: 0 }}
-                />
+              <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "25px", color: "#FAF9F5", margin: 0, maxWidth: "550px", lineHeight: 1.35, textAlign: "justify", flex: 1 }}>{review.quote}</p>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: "20px", marginTop: "auto" }}>
+                <Image src="/images/profile.svg" alt={review.name} width={50} height={50} style={{ marginRight: "10px", flexShrink: 0 }} />
                 <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                  <span
-                    style={{
-                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                      fontWeight: 400,
-                      fontSize: "25px",
-                      color: "#FAF9F5",
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    {review.name}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                      fontWeight: 400,
-                      fontSize: "20px",
-                      color: "#C3A85E",
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    {review.role}
-                  </span>
+                  <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "25px", color: "#FAF9F5", lineHeight: 1.1 }}>{review.name}</span>
+                  <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "20px", color: "#C3A85E", lineHeight: 1.1 }}>{review.role}</span>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          );
+
+          return (
+            <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
+              {/* Faixa 1: esquerda → direita */}
+              <div className="carousel-viewport" style={{ width: "100%" }}>
+                <div className="carousel-track-ltr">
+                  {[...rowTop, ...rowTop, ...rowTop].map((r, i) => <ReviewCard key={i} review={r} idx={i} />)}
+                </div>
+              </div>
+              {/* Faixa 2: direita → esquerda */}
+              <div className="carousel-viewport" style={{ width: "100%" }}>
+                <div className="carousel-track-rtl">
+                  {[...rowBottom, ...rowBottom, ...rowBottom].map((r, i) => <ReviewCard key={i} review={r} idx={i} />)}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ── MÁSCARAS LATERAIS ── */}
+        <div style={{
+          position: "absolute",
+          top: /* alinhe com o topo dos cards, ex: */ "0px",
+          left: 0,
+          width: "40px",
+          height: "1080px",
+          backgroundColor: "#FAF9F5",
+          zIndex: 40,
+          pointerEvents: "none",
+        }} />
+
+        <div style={{
+          position: "absolute",
+          top: "0px",
+          right: 0,
+          width: "70px",
+          height: "1080px",
+          backgroundColor: "#FAF9F5",
+          zIndex: 40,
+          pointerEvents: "none",
+        }} />
       </section>
 
       {/* ─── SEÇÃO 5 — Rodapé ─── */}
