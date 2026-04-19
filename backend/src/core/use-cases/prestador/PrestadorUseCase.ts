@@ -11,20 +11,19 @@ export class CriarPrestadorUseCase {
 
   async executar(dados: CriarPrestadorDto) {
     // 1. Tenta buscar um usuário com esse e-mail
-      const userExistente = await this.userRepository.findById(dados.user_id);
-
+    const userExistente = await this.userRepository.findById(dados.user_id);
 
     if (!userExistente) {
-        throw new Error("Este User nao existe.");
-      }
-      let prestador: Prestador;
+      throw new Error("Este User nao existe.");
+    }
+    let prestador: Prestador;
 
-      prestador = new Prestador({
-        user_id: dados.user_id,
-        nome: dados.nome,
-        bio: dados.bio,
-        score: 0,
-      }); 
+    prestador = new Prestador({
+      user_id: dados.user_id,
+      nome: dados.nome,
+      bio: dados.bio,
+      score: 0,
+    });
 
     const prestadorCriado = await this.prestadorRepository.create(prestador);
 
@@ -50,7 +49,9 @@ export class AtualizarPrestadorUseCase {
   constructor(private prestadorRepository: IPrestadorRepository) {}
 
   async executar(prestador: AtualizarPrestadorDto) {
-    const prestadorExistente = await this.prestadorRepository.findByUserId(prestador.user_id);
+    const prestadorExistente = await this.prestadorRepository.findByUserId(
+      prestador.user_id,
+    );
 
     if (!prestadorExistente) {
       throw new Error("Prestador não encontrado");
@@ -68,11 +69,9 @@ export class AcharPorUserId {
     const prestador = await this.prestadorRepository.findByUserId(user_id);
 
     if (!prestador) {
-      throw new Error("Nenhum prestador pertence a essa categoria");
+      throw new Error("Nenhum prestador encontrado para esse usuário");
     }
 
     return prestador;
   }
 }
-
-

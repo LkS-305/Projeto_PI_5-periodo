@@ -5,10 +5,10 @@ import { AtualizarEnderecoDto, CriarEnderecoDto } from '../../dtos/endereco';
 import { IUserRepository } from '../../repositories/IUserRepository';
 
 export class CriarEnderecoUseCase {
-    constructor(private enderecoRepository: IEnderecoRepository, private usuarioRepository: IUserRepository){}
+    constructor(private enderecoRepository: IEnderecoRepository, private userRepository: IUserRepository){}
 
     async executar(dados: CriarEnderecoDto): Promise<Endereco>{
-      const usuario = await this.usuarioRepository.findById(dados.user_id);
+      const usuario = await this.userRepository.findById(dados.user_id);
 
       if (!usuario) {
         throw new Error('Erro ao criar endereco, usuario inexistente');
