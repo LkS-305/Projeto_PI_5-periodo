@@ -9,6 +9,8 @@ export default function Cadastro() {
   const router = useRouter();
   const { signup, isAuthenticated, loading, error: authError } = useSession();
   const [section, setSection] = useState(1);
+  const [completedSections, setCompletedSections] = useState<number[]>([]);
+  const [termosAceitos, setTermosAceitos] = useState(false);
   const [error, setError] = useState("");
   const [localError, setLocalError] = useState("");
   const [verificationCode, setVerificationCode] = useState(["", "", "", ""]);
@@ -170,6 +172,9 @@ export default function Cadastro() {
 
   const goToNextSection = () => {
     if (validateSection(section)) {
+      setCompletedSections((prev) =>
+        prev.includes(section) ? prev : [...prev, section]
+      );
       setSection(section + 1);
     }
   };
@@ -205,6 +210,22 @@ export default function Cadastro() {
     );
   }
 
+  const TOTAL_SECTIONS = 3;
+
+  const handleDotClick = (dotIndex: number) => {
+    const targetSection = dotIndex + 1;
+    if (completedSections.includes(targetSection)) {
+      // Seção já preenchida — permite navegar para ela
+      setSection(targetSection);
+      setError("");
+    } else if (targetSection === section) {
+      // Dot da seção atual — não faz nada
+    } else {
+      // Tentando avançar sem completar — exibe erro
+      setError("Por favor, preencha todos os campos");
+    }
+  };
+
   return (
     <div
       style={{
@@ -220,6 +241,49 @@ export default function Cadastro() {
         overflow: "hidden",
       }}
     >
+      {/* ── BARRA DE PROGRESSO EM DOTS ── */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: section === 3 ? "100px" : "210px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "flex",
+          alignItems: "center",
+          gap: "18px",
+          zIndex: 50,
+          pointerEvents: "none",
+        }}
+      >
+        {Array.from({ length: TOTAL_SECTIONS }).map((_, i) => {
+          const targetSection = i + 1;
+          const isActive = section === targetSection;
+          const isCompleted = completedSections.includes(targetSection);
+          const isClickable = isCompleted && !isActive;
+
+          return (
+            <button
+              key={i}
+              onClick={() => handleDotClick(i)}
+              style={{
+                pointerEvents: "auto",
+                width: "10px",
+                height: "10px",
+                borderRadius: "50%",
+                backgroundColor: isActive ? "#E0C271" : isCompleted ? "#C3A85E" : "#272727",
+                transform: isActive ? "scale(1.4)" : "scale(1)",
+                transition: "all 0.3s ease",
+                border: "none",
+                cursor: isClickable ? "pointer" : "default",
+                padding: 0,
+                opacity: isClickable ? 1 : isActive ? 1 : 0.5,
+              }}
+              aria-label={`Seção ${targetSection}`}
+            />
+          );
+        })}
+      </div>
+
       {/* Imagem de fundo - Topo Direita */}
       <div
         style={{
@@ -310,7 +374,7 @@ export default function Cadastro() {
                 gridTemplateColumns: "1fr 1fr",
                 columnGap: "200px",
                 rowGap: "25px",
-                marginBottom: "65px", //GAP QUE EU QUERO
+                marginBottom: "55px", //GAP QUE EU QUERO
               }}
             >
               {/* Nome */}
@@ -553,7 +617,7 @@ export default function Cadastro() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  marginBottom: "10px",
+                  marginBottom: "20px",
                   transition: "transform 0.2s ease",
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
@@ -670,7 +734,7 @@ export default function Cadastro() {
                 gridTemplateColumns: "1fr 1fr",
                 columnGap: "200px",
                 rowGap: "25px",
-                marginBottom: "65px",
+                marginBottom: "55px",
               }}
             >
               {/* CEP */}
@@ -824,7 +888,7 @@ export default function Cadastro() {
               </div>
 
               {/* Confirme sua Senha */}
-              <div style={{ gridColumn: "2 / 3" }}>
+              <div style={{ gridColumn: "2 / 3", position: "relative" }}>
                 <label
                   style={{
                     fontSize: "40px",
@@ -871,6 +935,64 @@ export default function Cadastro() {
                     }}
                   />
                 </div>
+
+                {/* ── Checkbox Termos de Uso ── */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 15px)",
+                    left: "95px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    cursor: "pointer",
+                    userSelect: "none",
+                  }}
+                  onClick={() => setTermosAceitos((v) => !v)}
+                >
+                  {/* Checkbox vazada */}
+                  <div
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      borderRadius: "4px",
+                      border: `2px solid ${termosAceitos ? "#E0C271" : "#535353"}`,
+                      backgroundColor: termosAceitos ? "#E0C271" : "transparent",
+                      flexShrink: 0,
+                      transition: "background-color 0.2s ease, border-color 0.2s ease",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {termosAceitos && (
+                      <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
+                        <path d="M1 4L4.5 7.5L11 1" stroke="#FAF9F5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </div>
+
+                  {/* Texto */}
+                  <span
+                    style={{
+                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                      fontWeight: 400,
+                      fontSize: "20px",
+                      color: "#535353",
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    Concordo com os{" "}
+                    <a href="/termos" onClick={(e) => e.stopPropagation()} style={{ color: "#535353", fontWeight: 400, textDecoration: "underline" }}>
+                      Termos de Uso
+                    </a>
+                    {" "}e a{" "}
+                    <a href="/privacidade" onClick={(e) => e.stopPropagation()} style={{ color: "#535353", fontWeight: 400, textDecoration: "underline" }}>
+                      Política de Privacidade
+                    </a>
+                    .
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -906,7 +1028,7 @@ export default function Cadastro() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  marginBottom: "10px",
+                  marginBottom: "20px",
                   transition: "transform 0.2s ease",
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
@@ -915,9 +1037,6 @@ export default function Cadastro() {
                 Enviar
               </button>
             </div>
-
-            {/* Barra de Progresso - Seção 2 */}
-
 
             {/* Divisor "ou" */}
             <div
@@ -1166,7 +1285,7 @@ export default function Cadastro() {
                 fontWeight: 600,
                 cursor: loading ? "not-allowed" : "pointer",
                 transition: "transform 0.2s ease",
-                margin: "0 auto 40px auto",
+                margin: "0 auto 65px auto",
                 opacity: loading ? 0.7 : 1,
               }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
@@ -1175,25 +1294,6 @@ export default function Cadastro() {
             >
               {loading ? "Cadastrando..." : "Cadastrar-se"}
             </button>
-
-            {/* Barra de Progresso - Seção 3 (100% preenchida) */}
-            <div
-              style={{
-                display: "flex",
-                margin: "0 auto 30px auto",
-                borderRadius: "10px",
-                overflow: "hidden",
-                width: "600px",
-              }}
-            >
-              <div
-                style={{
-                  width: "100%",
-                  height: "15px",
-                  backgroundColor: "#E0C271",
-                }}
-              />
-            </div>
 
             {/* Link para Entrar */}
             <div
