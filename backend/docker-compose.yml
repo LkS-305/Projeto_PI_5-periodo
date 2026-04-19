@@ -4,18 +4,18 @@ services:
     container_name: pi_postgres
     restart: always
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: dataset
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgre123
+      POSTGRES_DB: projeto_pi
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-
+      - ./src/infra/database/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   redis:
     image: redis:7-alpine
-    container_name: pi_redis 
+    container_name: pi_redis
     restart: always
     ports:
       - "6379:6379"
@@ -40,7 +40,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgresql://admin:admin@potgres:5432/dataset
+      - DATABASE_URL=postgresql://postgres:postgre123@postgres:5432/projeto_pi
       - REDIS_URL=redis://redis:6379
     depends_on:
       - postgres
