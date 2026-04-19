@@ -14,9 +14,9 @@ export const pool = new Pool({
 
 // Log para confirmar que o banco está vivo
 pool.on('connect', () => {
-  console.log('🐘 Postgres: Conexão estabelecida com sucesso!');
+  console.log('Postgres: Conexão estabelecida com sucesso!');
 });
 
 pool.on('error', (err) => {
-  console.error('❌ Erro inesperado no pool do Postgres:', err);
+  console.error('Erro inesperado no pool do Postgres:', err);
 });

@@ -4,9 +4,10 @@ import { pool } from '../database/postgres';
 import { userRouter } from '../routes/user.routes';
 import { avaliacaoRouter } from '../routes/avaliacao.routes'
 import { errorHandler } from '../../middlewares/ErrorHandler';
+import { logger } from '../../middlewares/Logger';
+import { globalRateLimit } from '../../middlewares/RateLimit';
 
 const app = express();
-
 
 app.use(cors());
 app.use(express.json());

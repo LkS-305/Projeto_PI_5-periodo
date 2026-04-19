@@ -41,7 +41,6 @@ export default function Login() {
         minHeight: "100vh",
         backgroundColor: "#FAF9F5",
         fontFamily: "'SF Pro Text', system-ui, sans-serif",
-        padding: "20px",
         position: "relative",
         overflow: "hidden",
       }}
@@ -50,8 +49,8 @@ export default function Login() {
       <div
         style={{
           position: "absolute",
-          top: "100px",
-          right: "150px",
+          top: "90px",
+          right: "80px",
           opacity: 0.05,
           pointerEvents: "none",
           zIndex: 0,
@@ -71,8 +70,8 @@ export default function Login() {
       <div
         style={{
           position: "absolute",
-          bottom: "50px",
-          left: "150px",
+          bottom: "30px",
+          left: "40px",
           opacity: 0.05,
           pointerEvents: "none",
           zIndex: 0,
@@ -81,16 +80,36 @@ export default function Login() {
         <Image
           src="/images/logo_domi.png"
           alt="Logo decorativa"
-          width={500}
-          height={427}
+          width={463.5}
+          height={390.5}
         />
       </div>
+
+      {/* Botão voltar */}
+      <div
+        onClick={() => router.push("/")}
+        style={{
+          position: "fixed",
+          top: "46px",
+          left: "51px",
+          fontSize: "30px",
+          fontFamily: "'SF Pro Text', system-ui, sans-serif",
+          fontWeight: 500,
+          color: "#272727",
+          cursor: "pointer",
+          userSelect: "none",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+          onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+        >
+           ← Voltar
+          </div>
 
       {/* Container Principal do Formulário */}
       <div
         style={{
           width: "100%",
-          maxWidth: "700px",
+          maxWidth: "1000px",
           display: "flex",
           flexDirection: "column",
           position: "relative",
@@ -101,12 +120,12 @@ export default function Login() {
         <h1
           style={{
             fontFamily: "'Clash Display', sans-serif",
-            fontSize: "40px",
+            fontSize: "60px",
             fontWeight: 900,
             textAlign: "center",
-            margin: 0,
+            marginTop: "10px",
+            marginBottom: "-30px",
             color: "#272727",
-            letterSpacing: "-1px",
           }}
         >
           DOMI
@@ -116,13 +135,11 @@ export default function Login() {
         <h2
           style={{
             fontFamily: "'SF Pro Text', system-ui, sans-serif",
-            fontSize: "100px",
+            fontSize: "130px",
             fontWeight: 700,
             textAlign: "center",
-            marginTop: "10px",
-            marginBottom: "40px",
+            marginBottom: "0px",
             color: "#272727",
-            letterSpacing: "-2px",
           }}
         >
           Entrar
@@ -148,10 +165,11 @@ export default function Login() {
           {/* Campo E-mail */}
           <label
             style={{
-              fontSize: "28px",
-              fontWeight: 500,
+              fontFamily: "'SF Pro Text', system-ui, sans-serif",
+              fontSize: "50px",
+              fontWeight: 510,
               color: "#272727",
-              marginBottom: "10px",
+              marginBottom: "15px",
             }}
           >
             e-mail
@@ -160,15 +178,15 @@ export default function Login() {
             style={{
               display: "flex",
               alignItems: "center",
-              backgroundColor: "#EBEBEB",
-              borderRadius: "50px",
-              padding: "0 20px",
+              backgroundColor: "#EAEAEA",
+              borderRadius: "60px",
+              padding: "0 40px",
               width: "100%",
-              height: "60px",
+              height: "80px",
               marginBottom: "20px",
             }}
           >
-            <Image src="/images/email.svg" alt="email" width={20} height={20} />
+            <Image src="/images/email.svg" alt="email" width={30} height={23} />
             <input
               type="email"
               placeholder="insira seu e-mail"
@@ -180,8 +198,9 @@ export default function Login() {
                 backgroundColor: "transparent",
                 outline: "none",
                 marginLeft: "15px",
-                fontSize: "18px",
-                color: "#333",
+                fontWeight: 400,
+                fontSize: "30px",
+                color: "#535353",
               }}
               required
             />
@@ -190,10 +209,11 @@ export default function Login() {
           {/* Campo Senha */}
           <label
             style={{
-              fontSize: "28px",
-              fontWeight: 500,
+              fontFamily: "'SF Pro Text', system-ui, sans-serif",
+              fontSize: "50px",
+              fontWeight: 510,
               color: "#272727",
-              marginBottom: "10px",
+              marginBottom: "15px",
             }}
           >
             senha
@@ -202,19 +222,19 @@ export default function Login() {
             style={{
               display: "flex",
               alignItems: "center",
-              backgroundColor: "#EBEBEB",
-              borderRadius: "50px",
-              padding: "0 20px",
+              backgroundColor: "#EAEAEA",
+              borderRadius: "60px",
+              padding: "0 40px",
               width: "100%",
-              height: "60px",
-              marginBottom: "10px",
+              height: "80px",
+              marginBottom: "15px",
             }}
           >
             <Image
               src="/images/PasswordLock.svg"
               alt="lock"
-              width={20}
-              height={20}
+              width={30}
+              height={23}
             />
             <input
               type="password"
@@ -227,25 +247,27 @@ export default function Login() {
                 backgroundColor: "transparent",
                 outline: "none",
                 marginLeft: "15px",
-                fontSize: "18px",
-                color: "#333",
+                fontWeight: 400,
+                fontSize: "30px",
+                color: "#535353",
               }}
               required
             />
           </div>
 
           {/* Esqueceu a senha */}
-          <div style={{ textAlign: "right", marginBottom: "40px" }}>
+          <div style={{ textAlign: "right", marginBottom: "20px" }}>
             <a
               href="#"
               style={{
-                fontSize: "14px",
-                color: "#555",
+                fontSize: "20px",
+                color: "#535353",
                 textDecoration: "underline",
+                marginRight: "30px",
                 transition: "color 0.3s ease",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#000")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#555")}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#272727")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#535353")}
             >
               Esqueceu a senha?
             </a>
@@ -258,27 +280,21 @@ export default function Login() {
             style={{
               display: "flex",
               backgroundColor: "#E0C271",
-              color: "#FFF",
+              color: "#FAF9F5",
               border: "none",
-              borderRadius: "50px",
+              borderRadius: "60px",
               width: "400px",
               justifyContent: "center",
               alignItems: "center",
-              height: "65px",
-              fontSize: "28px",
+              height: "80px",
+              fontSize: "60px",
               fontWeight: 600,
-              cursor: loading ? "not-allowed" : "pointer",
-              marginBottom: "20px",
-              transition: "opacity 0.3s ease",
+              marginBottom: "25px",
+              transition: "transform 0.2s ease",
               margin: "0 auto 30px auto",
-              opacity: loading ? 0.7 : 1,
-            }}
-            onMouseEnter={(e) => {
-              if (!loading) e.currentTarget.style.opacity = "0.8";
-            }}
-            onMouseLeave={(e) => {
-              if (!loading) e.currentTarget.style.opacity = "1";
-            }}
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
@@ -289,20 +305,20 @@ export default function Login() {
           style={{
             display: "flex",
             alignItems: "center",
-            margin: "10px 0 30px 0",
+            margin: "0px 0 25px 0",
           }}
         >
-          <div style={{ flex: 1, height: "2px", backgroundColor: "#E0C271" }} />
+          <div style={{ flex: 1, height: "3px", backgroundColor: "#C3A85E" }} />
           <span
             style={{
               margin: "0 15px",
-              color: "#555",
-              fontSize: "18px",
+              color: "#535353",
+              fontSize: "25px",
             }}
           >
             ou
           </span>
-          <div style={{ flex: 1, height: "2px", backgroundColor: "#E0C271" }} />
+          <div style={{ flex: 1, height: "3px", backgroundColor: "#C3A85E" }} />
         </div>
 
         {/* Botão Google */}
@@ -311,24 +327,27 @@ export default function Login() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "#1A1A1A",
-            color: "#FFF",
+            backgroundColor: "#272727",
+            color: "#FAF9F5",
             border: "none",
             borderRadius: "50px",
-            width: "400px",
-            height: "65px",
-            fontSize: "18px",
-            fontWeight: 600,
+            width: "385px",
+            height: "60px",
+            fontSize: "30px",
+            fontWeight: 400,
             cursor: "pointer",
             margin: "0 auto",
             gap: "12px",
-          }}
+            transition: "transform 0.2s ease",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           <Image
             src="/images/GoogleIcon.svg"
             alt="Google"
-            width={24}
-            height={24}
+            width={35}
+            height={35}
           />
           Entrar com Google
         </button>
@@ -337,16 +356,17 @@ export default function Login() {
           style={{
             marginTop: "30px",
             textAlign: "center",
-            color: "#555",
-            fontSize: "16px",
+            color: "#535353",
+            fontWeight: 500,
+            fontSize: "25px",
           }}
         >
           Não tem conta?{" "}
           <a
             href="/register"
             style={{
-              color: "#555",
-              fontWeight: 600,
+              color: "#535353",
+              fontWeight: 500,
               textDecoration: "underline",
             }}
           >
