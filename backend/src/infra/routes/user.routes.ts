@@ -24,13 +24,9 @@ userRouter.post('/deletarUsuario', (req, res) => usuarioController.deletar(req, 
 
 userRouter.post('/atualizar-usuario', (req, res) => usuarioController.atualizar(req, res));
 
-<<<<<<< HEAD
-userRouter.post('/buscarPorEmail', (req, res) => usuarioController.findByName(req, res));
-=======
 userRouter.post('/buscarPorId', (req, res) => usuarioController.findById(req, res));
->>>>>>> 983c23b (finalizando crud e enderecos)
 
-userRouter.post('/buscarPorEmail', (req, res) => usuarioController.deletar(req, res));
+userRouter.post('/buscarPorEmail', (req, res) => usuarioController.findByName(req, res));
 
 
 
