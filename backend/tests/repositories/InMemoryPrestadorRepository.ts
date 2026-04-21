@@ -6,9 +6,14 @@ export class InMemoryPrestadorRepository implements IPrestadorRepository {
   public items: Prestador[] = [];
 
   async create(dados: CriarPrestadorDto): Promise<Prestador> {
-    const prestador = new Prestador(dados);
-    this.items.push(prestador);
-    return prestador;
+    const newPrestador = new Prestador({
+      user_id: dados.user_id,
+      nome: dados.nome,
+      bio: dados.bio,
+      score: dados.score,
+    });
+    this.items.push(newPrestador);
+    return newPrestador;
   }
 
   async delete(user_id: string): Promise<void> {
