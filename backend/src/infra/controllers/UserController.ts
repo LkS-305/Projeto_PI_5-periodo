@@ -3,14 +3,13 @@ import { RegisterUseCase, LoginUseCase, ForgotPassword, ChangePassword } from '.
 import { AppError } from '../../core/errors/AppError';
 import { exigirCampos } from '../../core/utils/validate';
 
-
-export class AutenticacaoController {
+export class UserController {
   constructor(
     private registerUC: RegisterUseCase,
     private loginUC: LoginUseCase,
     private forgotPasswordUC: ForgotPassword,
     private changePasswordUC: ChangePassword,
-  ){}
+  ) {}
 
   async registrar(req: Request, res: Response) {
     try {

@@ -48,7 +48,7 @@ export class DeletarPrestadorUseCase {
       throw new ResourceNotFoundError('Prestador');
     }
 
-    return await this.prestadorRepository.delete(user_id);
+    await this.prestadorRepository.delete(user_id);
   }
 }
 
@@ -87,5 +87,3 @@ export class AcharPorUserId {
     return prestador;
   }
 }
-
-

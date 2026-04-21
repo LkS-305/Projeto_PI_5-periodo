@@ -6,7 +6,7 @@ import { ResourceNotFoundError, ValidationError } from '../../errors/AppError';
 import { validarUUID, validarTexto, validarCEP, sanitizarTexto } from '../../utils/validate';
 
 export class CriarEnderecoUseCase {
-    constructor(private enderecoRepository: IEnderecoRepository, private usuarioRepository: IUserRepository){}
+    constructor(private enderecoRepository: IEnderecoRepository, private userRepository: IUserRepository){}
 
     async executar(dados: CriarEnderecoDto): Promise<Endereco>{
       validarUUID(dados.user_id, 'ID do usuário');

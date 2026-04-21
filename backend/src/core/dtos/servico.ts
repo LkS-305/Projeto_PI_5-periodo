@@ -1,8 +1,10 @@
 export interface CriarServicoDto {
     user_id: string,
     prestador_id: string,
-    endereco_id: string,
     titulo: string,
+    preco_acordado: number,
+    data_inicio: Date,
+    duracao: string,
     categoria: string
 }
 

@@ -7,8 +7,6 @@ export interface CriarEnderecoDto {
     cidade: string,
     estado: string,
     cep: string,
-    latitude?: number,
-    longitude?: number,
     is_principal: boolean,
 
     complemento?: string, 

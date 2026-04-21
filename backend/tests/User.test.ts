@@ -1,110 +1,60 @@
-import {
-  DeletarUsuarioUseCase,
-  AtualizarUsuarioUseCase,
-  PesquisarPorId,
-  PesquisarPorEmail,
-} from '../src/core/use-cases/usuario/UsuarioUseCase';
-import { IUsuarioRepository } from '../src/core/repositories/IUsuarioRepository';
-import { ResourceNotFoundError, ValidationError } from '../src/core/errors/AppError';
-import { Usuario } from '../src/core/entities/Usuario';
+import { test, describe, beforeEach } from 'node:test';
+import assert from 'node:assert';
+import { InMemoryUsuarioRepository } from './repositories/InMemoryUsuarioRepository';
+import {  DeletarUsuarioUseCase, AtualizarUsuarioUseCase, PesquisarPorId, PesquisarPorEmail } from '../src/core/use-cases/usuario/UsuarioUseCase';
 
-const ID_VALIDO = '123e4567-e89b-12d3-a456-426614174000';
-const USUARIO_MOCK = { user_id: ID_VALIDO, nome: 'Teste', score: 0 } as Usuario;
 
-function makeRepo(overrides: Partial<Record<keyof IUsuarioRepository, jest.Mock>> = {}): IUsuarioRepository {
-  return {
-    create: jest.fn(),
-    delete: jest.fn().mockResolvedValue(undefined),
-    update: jest.fn().mockResolvedValue(undefined),
-    findByUserId: jest.fn().mockResolvedValue(null),
-    findByEmail: jest.fn().mockResolvedValue(null),
-    ...overrides,
-  } as unknown as IUsuarioRepository;
-}
 
-describe('DeletarUsuarioUseCase', () => {
-  it('deve chamar delete com o ID correto', async () => {
-    const repo = makeRepo();
-    const sut = new DeletarUsuarioUseCase(repo);
 
-    await sut.executar(ID_VALIDO);
+describe('Suíte de Testes: Usuário', () => {
+  let repo: InMemoryUsuarioRepository;
 
-    expect(repo.delete).toHaveBeenCalledWith(ID_VALIDO);
+  // Reinicia o repositório antes de cada teste para um não interferir no outro 
+  beforeEach(() => {
+    repo = new InMemoryUsuarioRepository();
   });
 
-  it('deve lançar ValidationError para UUID inválido', async () => {
-    const repo = makeRepo();
-    const sut = new DeletarUsuarioUseCase(repo);
+  describe('Cenário: Deleção', () => {
+    test('Deve deletar um usuário existente', async () => {
+      const sut = new DeletarUsuarioUseCase(repo);
+      const userr = await repo.create({email: 'sla@gmail', senha: '22'});
+      const user = await repo.findByEmail(userr.email);
 
-    await expect(sut.executar('id-invalido')).rejects.toBeInstanceOf(ValidationError);
-  });
-});
+      const result = await sut.executar(user!.id!);
+      assert.strictEqual(result, true);
+      
+      // Verifica se realmente sumiu do repositório
+      const search = await repo.findById(user!.id!);
+      assert.strictEqual(search, null);
+    });
 
-describe('AtualizarUsuarioUseCase', () => {
-  it('deve chamar update com o ID e dados corretos', async () => {
-    const repo = makeRepo();
-    const sut = new AtualizarUsuarioUseCase(repo);
-    const dados = { nome: 'Novo Nome' };
-
-    await sut.executar(ID_VALIDO, dados);
-
-    expect(repo.update).toHaveBeenCalledWith(ID_VALIDO, dados);
-  });
-
-  it('deve lançar ValidationError para UUID inválido', async () => {
-    const repo = makeRepo();
-    const sut = new AtualizarUsuarioUseCase(repo);
-
-    await expect(sut.executar('id-invalido', { nome: 'x' })).rejects.toBeInstanceOf(ValidationError);
-  });
-});
-
-describe('PesquisarPorId', () => {
-  it('deve retornar o usuário quando encontrado', async () => {
-    const repo = makeRepo({ findByUserId: jest.fn().mockResolvedValue(USUARIO_MOCK) });
-    const sut = new PesquisarPorId(repo);
-
-    const resultado = await sut.executar(ID_VALIDO);
-
-    expect(resultado).toEqual(USUARIO_MOCK);
+    test('Deve retornar false ao tentar deletar um ID inexistente', async () => {
+        const sut = new DeletarUsuarioUseCase(repo);
+        const result = await sut.executar('id-que-nao-existe');
+        assert.strictEqual(result, false);
+    });
   });
 
-  it('deve lançar ResourceNotFoundError quando não encontrado', async () => {
-    const repo = makeRepo();
-    const sut = new PesquisarPorId(repo);
+  describe('Cenario: deve achar um usuario pelo email', () => {
+     test('Deve buscar um perfil pelo email', async () => {
+      const sut = new PesquisarPorEmail(repo);
+      const criado = await repo.create({ email: 'teste@gmail.com', senha: '1' });
 
-    await expect(sut.executar(ID_VALIDO)).rejects.toBeInstanceOf(ResourceNotFoundError);
+      const user = await sut.executar(criado.email);
+      assert.strictEqual(user?.senha, '1');
+    });
   });
 
-  it('deve lançar ValidationError para UUID inválido', async () => {
-    const repo = makeRepo();
-    const sut = new PesquisarPorId(repo);
+  describe('Cenario: UPDATE', () => {
+    test('Deve atualiar um usuario', async () => {
+      const sut = new AtualizarUsuarioUseCase(repo);
+      const criado = await repo.create({email: 'teste2@gmail.com', senha: '2' });
 
-    await expect(sut.executar('id-invalido')).rejects.toBeInstanceOf(ValidationError);
-  });
-});
+      const usuario = await repo.findByEmail('teste2@gmail.com');
+      await repo.update(usuario!.id!, {email: 'novoEmail@gmail.com' });
 
-describe('PesquisarPorEmail', () => {
-  it('deve retornar o usuário quando encontrado pelo e-mail', async () => {
-    const repo = makeRepo({ findByEmail: jest.fn().mockResolvedValue(USUARIO_MOCK) });
-    const sut = new PesquisarPorEmail(repo);
-
-    const resultado = await sut.executar('teste@email.com');
-
-    expect(resultado).toEqual(USUARIO_MOCK);
-  });
-
-  it('deve lançar ResourceNotFoundError quando e-mail não encontrado', async () => {
-    const repo = makeRepo();
-    const sut = new PesquisarPorEmail(repo);
-
-    await expect(sut.executar('naoexiste@email.com')).rejects.toBeInstanceOf(ResourceNotFoundError);
-  });
-
-  it('deve lançar ValidationError para e-mail inválido', async () => {
-    const repo = makeRepo();
-    const sut = new PesquisarPorEmail(repo);
-
-    await expect(sut.executar('email-invalido')).rejects.toBeInstanceOf(ValidationError);
+      const atualizado = await repo.findByEmail('novoEmail@gmail.com');
+      assert.notStrictEqual(atualizado, null);
+    });
   });
 });

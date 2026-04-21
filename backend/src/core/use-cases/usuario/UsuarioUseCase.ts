@@ -1,9 +1,31 @@
-import { User } from '../../entities/User';
+import {CriarUsuarioDto, AtualizarUsuarioDto } from '../../dtos/usuario';
 import { Usuario } from '../../entities/Usuario';
+import { IUserRepository } from '../../repositories/IUserRepository';
 import { IUsuarioRepository } from '../../repositories/IUsuarioRepository';
 import { ResourceNotFoundError } from '../../errors/AppError';
 import { validarUUID, validarEmail } from '../../utils/validate';
 
+export class CriarUsuarioUseCase {
+  constructor(private usuarioRepository: IUsuarioRepository, private userRepository: IUserRepository) {}
+
+  async executar(dados: CriarUsuarioDto): Promise<Usuario> {
+    const userExistente = await this.userRepository.findById(dados.user_id);
+
+    if (!userExistente) {
+      throw new Error('User nao existe');
+    }
+
+    const usuario = new Usuario(dados);
+    const usuarioCriado = await this.usuarioRepository.create(usuario);
+
+    if (!usuarioCriado) {
+      throw new Error('Erro ao criar usuario');
+    }
+
+    return usuarioCriado;
+  }
+
+}
 
 export class DeletarUsuarioUseCase {
   constructor(private usuarioRepository: IUsuarioRepository){}
@@ -24,7 +46,7 @@ export class AtualizarUsuarioUseCase {
 }
 
 
-export class PesquisarPorId {
+export class PesquisarPorUserId {
   constructor(private usuarioRepository: IUsuarioRepository) {}
 
   async executar(id: string): Promise<Usuario | null>{
@@ -54,6 +76,3 @@ export class PesquisarPorEmail {
   }
 
 }
-
-
-

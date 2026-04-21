@@ -1,41 +1,50 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+type RequestOptions = {
+  headers?: Record<string, string>;
+  body?: any;
+  params?: Record<string, string>;
+  cache?: RequestCache;
+};
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+async function apiFetch<T>(
+  endpoint: string,
+  method: string,
+  options: RequestOptions = {}
+): Promise<T> {
+  const { headers, body, params, cache } = options;
 
-const client: AxiosInstance = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000,
-});
+  // No cliente, pegamos o token de onde você o armazena (ex: cookies via js-cookie)
+  // const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
 
-// Request interceptor - add auth token if available
-client.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('authToken');
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor - handle errors globally
-client.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('authToken');
-        window.location.href = '/login';
-      }
-    }
-    return Promise.reject(error);
+  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`);
+  
+  if (params) {
+    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
   }
-);
 
-export default client;
+  const config: RequestInit = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      // ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...headers,
+    },
+    body: body ? JSON.stringify(body) : undefined,
+    cache: cache || 'default',
+  };
+
+  const response = await fetch(url.toString(), config);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Erro na requisição');
+  }
+
+  return response.json() as Promise<T>;
+}
+
+export const apiClient = {
+  get: <T>(endpoint: string, options?: RequestOptions) => apiFetch<T>(endpoint, 'GET', options),
+  post: <T>(endpoint: string, body: any, options?: RequestOptions) => apiFetch<T>(endpoint, 'POST', { ...options, body }),
+  put: <T>(endpoint: string, body: any, options?: RequestOptions) => apiFetch<T>(endpoint, 'PUT', { ...options, body }),
+  delete: <T>(endpoint: string, options?: RequestOptions) => apiFetch<T>(endpoint, 'DELETE', options),
+};
