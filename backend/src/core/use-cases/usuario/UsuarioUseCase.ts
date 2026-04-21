@@ -1,6 +1,7 @@
 import { User } from '../../entities/User';
 import { Usuario } from '../../entities/Usuario';
 import { IUsuarioRepository } from '../../repositories/IUsuarioRepository';
+import { ResourceNotFoundError } from '../../errors/AppError';
 
 
 export class DeletarUsuarioUseCase {
@@ -27,7 +28,7 @@ export class PesquisarPorId {
     const usuario = await this.usuarioRepository.findById(id);
 
     if (!usuario) {
-      throw new Error('Nao existe usuario com este id');
+      throw new ResourceNotFoundError('Usuário');
     }
 
     return usuario;
@@ -41,7 +42,7 @@ export class PesquisarPorEmail {
     const usuario = await this.usuarioRepository.findByEmail(id);
 
     if (!usuario) {
-      throw new Error('Nao existe usuario com este email');
+      throw new ResourceNotFoundError('Usuário');
     }
 
     return usuario;

@@ -5,6 +5,8 @@ import { RegisterDto, RegisterResponseDto, ChangeForgotPasswordDto, LoginDto, Ch
 import { IAutenticacaoRepository } from '../../repositories/IAutenticacaoRepository';
 import { IUserRepository } from '../../repositories/IUserRepository';
 import { IMailProvider } from '../../dtos/mail';
+import { ResourceAlreadyExistsError, ResourceNotFoundError, UnauthorizedError, ValidationError } from '../../errors/AppError';
+import { validarEmail } from '../../utils/validate';
 
 import { User } from '../../entities/User';
 import { UserType } from '../../dtos/usuario';
@@ -17,9 +19,11 @@ export class RegisterUseCase {
   ){}
 
   async executar(dados: RegisterDto){
+    validarEmail(dados.email);
+
     const usuarioExiste = await this.usuarioRepository.findByEmail(dados.email);
     if (usuarioExiste){
-        throw new Error('Este email ja existe');
+        throw new ResourceAlreadyExistsError('Este e-mail já está cadastrado.');
     }
 
     const senhaCriptografada = await bcrypt.hash(dados.senha, 10);
@@ -44,15 +48,13 @@ export class LoginUseCase {
         // 1. Busca o usuário
         const usuario = await this.usuarioRepo.findByEmail(dados.email);
 
-        // 2. Erro genérico para evitar enumeração de usuários (Segurança)
         if (!usuario) {
-            throw new Error("E-mail ou senha incorretos");
+            throw new UnauthorizedError("E-mail ou senha incorretos.");
         }
 
-        // 3. Compara os hashes
         const senhaValida = await bcrypt.compare(dados.senha, usuario.senha);
         if (!senhaValida) {
-            throw new Error("E-mail ou senha incorretos");
+            throw new UnauthorizedError("E-mail ou senha incorretos.");
         }
 
         // 4. Gera o Token (Validade de 1 dia, por exemplo)
@@ -115,16 +117,15 @@ export class ChangeForgotPassword {
 
     // 2. Validações de segurança
     if (!usuario) {
-      throw new Error("Usuário não encontrado.");
+      throw new ResourceNotFoundError('Usuário');
     }
 
     if (!usuario.recovery_token || usuario.recovery_token !== props.codigo) {
-      throw new Error("Código de verificação inválido.");
+      throw new ValidationError("Código de verificação inválido.");
     }
 
-    // 3. Valida se o código expirou (comparando com a data atual do seu Kali)
     if (usuario.recovery_token_expires && new Date() > usuario.recovery_token_expires) {
-      throw new Error("O código de recuperação expirou. Solicite um novo.");
+      throw new ValidationError("O código de recuperação expirou. Solicite um novo.");
     }
 
     // 4. Criptografa a nova senha antes de salvar
@@ -151,12 +152,11 @@ export class ChangePassword {
 
 async executar(props: ChangePasswordDto) {
     const usuario = await this.userRepository.findById(props.id);
-    if (!usuario) throw new Error("Usuário não encontrado");
+    if (!usuario) throw new ResourceNotFoundError('Usuário');
 
-    // CORREÇÃO: Comparar hash em vez de string pura
     const senhaValida = await bcrypt.compare(props.senha_atual, usuario.senha);
     if (!senhaValida) {
-      throw new Error('Senha atual não compatível');
+      throw new UnauthorizedError('Senha atual não compatível.');
     }
 
     // CORREÇÃO: Gerar hash da nova senha antes de mandar pro banco
