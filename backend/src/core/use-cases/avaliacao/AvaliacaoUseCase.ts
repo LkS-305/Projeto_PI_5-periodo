@@ -1,7 +1,7 @@
 import { CriarAvaliacaoDto, ListBy } from '../../dtos/avaliacao';
 import { IAvaliacaoRepository } from '../../repositories/IAvaliacaoRepository';
 import { ResourceNotFoundError, ValidationError } from '../../errors/AppError';
-import { validarUUID, validarNota } from '../../utils/validate';
+import { validarUUID, validarNota, sanitizarTexto } from '../../utils/validate';
 
 
 export class CriarAvaliacaoUseCase {
@@ -9,6 +9,7 @@ export class CriarAvaliacaoUseCase {
 
   async executar(avaliacao: CriarAvaliacaoDto) {
     validarNota(avaliacao.nota);
+    if (avaliacao.comentario) avaliacao.comentario = sanitizarTexto(avaliacao.comentario);
 
     const avaliacaoCriada = await this.avaliacaoRepository.create(avaliacao);
 

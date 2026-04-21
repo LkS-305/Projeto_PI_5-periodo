@@ -2,7 +2,7 @@ import { IServicoRepository } from '../../repositories/IServicoRepository';
 import { CriarServicoDto, ServicoStatus } from '../../dtos/servico';
 import { Servico } from '../../entities/Servico';
 import { ResourceNotFoundError, ValidationError } from '../../errors/AppError';
-import { validarUUID, validarTexto } from '../../utils/validate';
+import { validarUUID, validarTexto, sanitizarTexto } from '../../utils/validate';
 
 
 export class CriarServicoUseCase {
@@ -44,6 +44,7 @@ export class CriarServicoUseCase {
     validarUUID(dados.prestador_id, 'ID do prestador');
     validarTexto(dados.titulo, 'Título', 3, 100);
     validarTexto(dados.categoria, 'Categoria', 2, 60);
+    dados.titulo = sanitizarTexto(dados.titulo);
 
     const servico = new Servico(dados);
 

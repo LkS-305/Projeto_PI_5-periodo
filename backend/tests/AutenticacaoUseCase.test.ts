@@ -21,7 +21,7 @@ describe('RegisterUseCase', () => {
     const userRepo = makeUserRepo();
     const sut = new RegisterUseCase(authRepo, userRepo);
 
-    const resultado = await sut.executar({ email: 'novo@teste.com', senha: 'senha123', cpf: '12345678900' });
+    const resultado = await sut.executar({ email: 'novo@teste.com', senha: 'senha123', cpf: '52998224725' });
 
     expect(resultado).not.toBeNull();
     expect(resultado).not.toHaveProperty('senha');
@@ -29,13 +29,13 @@ describe('RegisterUseCase', () => {
   });
 
   it('deve lançar ResourceAlreadyExistsError se o e-mail já estiver cadastrado', async () => {
-    const usuarioExistente = new User({ email: 'existente@teste.com', senha: 'hash', cpf: '000' });
+    const usuarioExistente = new User({ email: 'existente@teste.com', senha: 'hash', cpf: '52998224725' });
     const authRepo = new InMemoryAutenticacaoRepository();
     const userRepo = makeUserRepo({ findByEmail: jest.fn().mockResolvedValue(usuarioExistente) });
     const sut = new RegisterUseCase(authRepo, userRepo);
 
     await expect(
-      sut.executar({ email: 'existente@teste.com', senha: 'nova12345', cpf: '111' })
+      sut.executar({ email: 'existente@teste.com', senha: 'nova12345', cpf: '52998224725' })
     ).rejects.toBeInstanceOf(ResourceAlreadyExistsError);
   });
 
@@ -45,7 +45,7 @@ describe('RegisterUseCase', () => {
     const sut = new RegisterUseCase(authRepo, userRepo);
 
     await expect(
-      sut.executar({ email: 'email-invalido', senha: 'senha123', cpf: '999' })
+      sut.executar({ email: 'email-invalido', senha: 'senha123', cpf: '52998224725' })
     ).rejects.toBeInstanceOf(ValidationError);
   });
 });

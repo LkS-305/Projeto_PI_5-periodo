@@ -3,7 +3,7 @@ import { Prestador } from "../../entities/Prestador";
 import { AtualizarPrestadorDto, CriarPrestadorDto } from "../../dtos/prestador";
 import { IUserRepository } from "../../repositories/IUserRepository";
 import { ResourceNotFoundError, ValidationError } from "../../errors/AppError";
-import { validarUUID, validarTexto } from "../../utils/validate";
+import { validarUUID, validarTexto, sanitizarTexto } from "../../utils/validate";
 
 export class CriarPrestadorUseCase {
   constructor(
@@ -15,6 +15,8 @@ export class CriarPrestadorUseCase {
     validarUUID(dados.user_id, 'ID do usuário');
     validarTexto(dados.nome, 'Nome', 2, 100);
     validarTexto(dados.bio, 'Bio', 10, 500);
+    dados.nome = sanitizarTexto(dados.nome);
+    dados.bio  = sanitizarTexto(dados.bio);
 
     const usuarioExistente = await this.userRepository.findById(dados.user_id);
 
@@ -55,8 +57,8 @@ export class AtualizarPrestadorUseCase {
 
   async executar(prestador: AtualizarPrestadorDto) {
     validarUUID(prestador.user_id, 'ID do usuário');
-    if (prestador.nome !== undefined) validarTexto(prestador.nome, 'Nome', 2, 100);
-    if (prestador.bio !== undefined) validarTexto(prestador.bio, 'Bio', 10, 500);
+    if (prestador.nome !== undefined) { validarTexto(prestador.nome, 'Nome', 2, 100); prestador.nome = sanitizarTexto(prestador.nome); }
+    if (prestador.bio  !== undefined) { validarTexto(prestador.bio,  'Bio',  10, 500); prestador.bio  = sanitizarTexto(prestador.bio); }
 
     const prestadorExistente = await this.prestadorRepository.findByUserId(prestador.user_id);
 

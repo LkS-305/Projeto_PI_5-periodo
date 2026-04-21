@@ -6,7 +6,7 @@ import { IAutenticacaoRepository } from '../../repositories/IAutenticacaoReposit
 import { IUserRepository } from '../../repositories/IUserRepository';
 import { IMailProvider } from '../../dtos/mail';
 import { ResourceAlreadyExistsError, ResourceNotFoundError, UnauthorizedError, ValidationError } from '../../errors/AppError';
-import { validarEmail, validarSenha, validarUUID } from '../../utils/validate';
+import { validarEmail, validarSenha, validarUUID, validarCPF, sanitizarTexto } from '../../utils/validate';
 
 import { User } from '../../entities/User';
 import { UserType } from '../../dtos/usuario';
@@ -21,6 +21,8 @@ export class RegisterUseCase {
   async executar(dados: RegisterDto){
     validarEmail(dados.email);
     validarSenha(dados.senha);
+    validarCPF(dados.cpf);
+    if (dados.nome) dados.nome = sanitizarTexto(dados.nome);
 
     const usuarioExiste = await this.usuarioRepository.findByEmail(dados.email);
     if (usuarioExiste){
