@@ -14,16 +14,26 @@ export class ResourceNotFoundError extends AppError {
   }
 }
 
-// Erro 409 - Conflito (Duplicidade)
 export class ResourceAlreadyExistsError extends AppError {
   constructor(message: string) {
     super(message, 409);
   }
 }
 
-// Erro 401 - Não Autorizado
 export class UnauthorizedError extends AppError {
   constructor(message: string = 'Não autorizado.') {
     super(message, 401);
+  }
+}
+
+export class ForbiddenError extends AppError {
+  constructor(message: string = 'Acesso negado.') {
+    super(message, 403);
+  }
+}
+
+export class ValidationError extends AppError {
+  constructor(message: string) {
+    super(message, 400);
   }
 }
