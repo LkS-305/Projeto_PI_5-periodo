@@ -1,8 +1,8 @@
 import { IServicoRepository } from '../../repositories/IServicoRepository';
-
 import { CriarServicoDto, ServicoStatus } from '../../dtos/servico';
-
 import { Servico } from '../../entities/Servico';
+import { ResourceNotFoundError, ValidationError } from '../../errors/AppError';
+import { validarUUID, validarTexto } from '../../utils/validate';
 
 
 export class CriarServicoUseCase {
@@ -40,12 +40,17 @@ export class CriarServicoUseCase {
  //  }
 // }
   async executar(dados: CriarServicoDto) {
+    validarUUID(dados.user_id, 'ID do usuário');
+    validarUUID(dados.prestador_id, 'ID do prestador');
+    validarTexto(dados.titulo, 'Título', 3, 100);
+    validarTexto(dados.categoria, 'Categoria', 2, 60);
+
     const servico = new Servico(dados);
 
     const servicoCriado = await this.servicoRepository.create(servico);
 
     if (!servicoCriado) {
-      throw new Error('Falha ao criar servico');
+      throw new ValidationError('Falha ao criar serviço.');
     }
 
     return servicoCriado;
@@ -58,10 +63,11 @@ export class PesquisarServicoId {
 ) {}
 
   async executar(id: string) {
+    validarUUID(id, 'ID do serviço');
     const servico2 = await this.servicoRepository.findById(id);
 
     if (!servico2){
-      throw new Error('Erro ao pesquisar o servico pelo servico id');
+      throw new ResourceNotFoundError('Serviço');
     }
 
     return servico2;
@@ -74,10 +80,11 @@ export class PesquisarServicoUserId {
 ) {}
 
   async executar(id: string) {
+    validarUUID(id, 'ID do usuário');
     const servico2 = await this.servicoRepository.findByUserId(id);
 
     if (!servico2){
-      throw new Error('Erro ao pesquisar por user id o servico');
+      throw new ResourceNotFoundError('Serviço');
     }
 
     return servico2;
@@ -91,10 +98,11 @@ export class PesquisarServicoPrestadorId {
 ) {}
 
   async executar(id: string) {
+    validarUUID(id, 'ID do prestador');
     const servico2 = await this.servicoRepository.findByPrestadorId(id);
 
     if (!servico2){
-      throw new Error('Erro pesquisar por prestador id o servico');
+      throw new ResourceNotFoundError('Serviço');
     }
 
     return servico2;
@@ -108,7 +116,7 @@ export class UpdateStatusUseCase {
 ) {}
 
   async executar(id: string, status: ServicoStatus) {
+    validarUUID(id, 'ID do serviço');
     await this.servicoRepository.updateStatus(id, status);
-    return;
   }
 } 

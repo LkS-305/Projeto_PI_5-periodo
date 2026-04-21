@@ -6,7 +6,7 @@ import { IAutenticacaoRepository } from '../../repositories/IAutenticacaoReposit
 import { IUserRepository } from '../../repositories/IUserRepository';
 import { IMailProvider } from '../../dtos/mail';
 import { ResourceAlreadyExistsError, ResourceNotFoundError, UnauthorizedError, ValidationError } from '../../errors/AppError';
-import { validarEmail } from '../../utils/validate';
+import { validarEmail, validarSenha, validarUUID } from '../../utils/validate';
 
 import { User } from '../../entities/User';
 import { UserType } from '../../dtos/usuario';
@@ -20,6 +20,7 @@ export class RegisterUseCase {
 
   async executar(dados: RegisterDto){
     validarEmail(dados.email);
+    validarSenha(dados.senha);
 
     const usuarioExiste = await this.usuarioRepository.findByEmail(dados.email);
     if (usuarioExiste){
@@ -87,6 +88,7 @@ export class ForgotPassword {
   ) {}
 
 async executar(email: string) {
+    validarEmail(email);
     const usuario = await this.userRepository.findByEmail(email);
     if (!usuario) return;
 
@@ -151,6 +153,8 @@ export class ChangePassword {
   ) {}
 
 async executar(props: ChangePasswordDto) {
+    validarUUID(props.id, 'ID do usuário');
+    validarSenha(props.nova_senha);
     const usuario = await this.userRepository.findById(props.id);
     if (!usuario) throw new ResourceNotFoundError('Usuário');
 
