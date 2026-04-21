@@ -65,13 +65,9 @@ export class AtualizarPrestadorUseCase {
     }
 
     prestadorExistente.atualizarPerfil(prestador);
-    const prestadorAtualizado = await this.prestadorRepository.update(prestadorExistente);
+    await this.prestadorRepository.update(prestadorExistente);
 
-    if (!prestadorAtualizado) {
-      throw new ResourceNotFoundError('Prestador');
-    }
-
-    return prestadorAtualizado;
+    return prestadorExistente;
   }
 }
 

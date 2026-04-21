@@ -29,7 +29,7 @@ export class PesquisarPorId {
 
   async executar(id: string): Promise<Usuario | null>{
     validarUUID(id, 'ID do usuário');
-    const usuario = await this.usuarioRepository.findById(id);
+    const usuario = await this.usuarioRepository.findByUserId(id);
 
     if (!usuario) {
       throw new ResourceNotFoundError('Usuário');

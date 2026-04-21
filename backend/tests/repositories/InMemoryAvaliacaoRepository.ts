@@ -8,7 +8,7 @@ export class InMemoryAvaliacaoRepository implements IAvaliacaoRepository {
 
 
   async create(avaliacao: CriarAvaliacaoDto): Promise<Avaliacao | null>{
-    const newAvaliacao = {...avaliacao, id: `uuid-fake-${Math.random()}`};
+    const newAvaliacao = {...avaliacao, id: (avaliacao as any).id ?? `uuid-fake-${Math.random()}`};
     this.items.push(newAvaliacao);
     return newAvaliacao;
   }
@@ -45,15 +45,15 @@ export class InMemoryAvaliacaoRepository implements IAvaliacaoRepository {
       const resultado = this.items.filter(u => u.usuario_id === id);
       return resultado.length > 0 ? resultado : null;
     }
-    else if (listBy = 'prestador') {
+    else if (listBy === 'prestador') {
       const resultado = this.items.filter(u => u.prestador_id === id);
       return resultado.length > 0 ? resultado : null;
     }
-    else if (listBy = 'servico') {
+    else if (listBy === 'servico') {
       const resultado = this.items.filter(u => u.servico_id === id);
       return resultado.length > 0 ? resultado : null;
     }
-    else if (listBy = 'avaliacao') {
+    else if (listBy === 'avaliacao') {
       const resultado = this.items.filter(u => u.id === id);
       return resultado.length > 0 ? resultado : null;
     }
