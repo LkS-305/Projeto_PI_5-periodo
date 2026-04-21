@@ -9,7 +9,7 @@ export class InMemoryAutenticacaoRepository implements IAutenticacaoRepository {
   async register(usuario: User): Promise<Omit<User, 'senha'>> {
     this.usuarios.push(usuario);
     const { senha, ...usuarioSemSenha } = usuario;
-    return usuarioSemSenha;
+    return usuarioSemSenha as Omit<User, 'senha'>;
   }
 
   // 2. LOGIN

@@ -3,9 +3,11 @@ import { RegisterDto } from '../dtos/autenticacao';
 
 export class User {
   public readonly id: string;
+  public nome?: string;
   public email: string;
   public senha: string;
   public cpf: string;
+  public tipo_usuario?: string;
   public recovery_token?: string;
   public recovery_token_expires?: Date;
   public readonly created_at: Date;
@@ -13,9 +15,11 @@ export class User {
 
    constructor(props: RegisterDto, id?: string) {
     this.id = id ?? randomUUID();
+    this.nome = props.nome;
     this.email = props.email;
     this.senha = props.senha;
     this.cpf = props.cpf;
+    this.tipo_usuario = props.tipo_usuario;
     this.created_at = new Date();
     this.updated_at = new Date();
   }
