@@ -1,7 +1,5 @@
-import { test, describe, beforeEach } from 'node:test';
-import assert from 'node:assert';
 import { InMemoryUsuarioRepository } from './repositories/InMemoryUsuarioRepository';
-import {  DeletarUsuarioUseCase, AtualizarUsuarioUseCase, PesquisarPorId, PesquisarPorEmail } from '../src/core/use-cases/usuario/UsuarioUseCase';
+import { DeletarUsuarioUseCase, AtualizarUsuarioUseCase, PesquisarPorId, PesquisarPorEmail } from '../src/core/use-cases/usuario/UsuarioUseCase';
 
 
 
@@ -9,7 +7,7 @@ import {  DeletarUsuarioUseCase, AtualizarUsuarioUseCase, PesquisarPorId, Pesqui
 describe('Suíte de Testes: Usuário', () => {
   let repo: InMemoryUsuarioRepository;
 
-  // Reinicia o repositório antes de cada teste para um não interferir no outro 
+  // Reinicia o repositório antes de cada teste para um não interferir no outro
   beforeEach(() => {
     repo = new InMemoryUsuarioRepository();
   });
@@ -21,17 +19,17 @@ describe('Suíte de Testes: Usuário', () => {
       const user = await repo.findByEmail(userr.email);
 
       const result = await sut.executar(user!.id!);
-      assert.strictEqual(result, true);
-      
+      expect(result).toBe(true);
+
       // Verifica se realmente sumiu do repositório
       const search = await repo.findById(user!.id!);
-      assert.strictEqual(search, null);
+      expect(search).toBeNull();
     });
 
     test('Deve retornar false ao tentar deletar um ID inexistente', async () => {
         const sut = new DeletarUsuarioUseCase(repo);
         const result = await sut.executar('id-que-nao-existe');
-        assert.strictEqual(result, false);
+        expect(result).toBe(false);
     });
   });
 
@@ -41,7 +39,7 @@ describe('Suíte de Testes: Usuário', () => {
       const criado = await repo.create({ email: 'teste@gmail.com', senha: '1' });
 
       const user = await sut.executar(criado.email);
-      assert.strictEqual(user?.senha, '1');
+      expect(user?.senha).toBe('1');
     });
   });
 
@@ -54,7 +52,7 @@ describe('Suíte de Testes: Usuário', () => {
       await repo.update(usuario!.id!, {email: 'novoEmail@gmail.com' });
 
       const atualizado = await repo.findByEmail('novoEmail@gmail.com');
-      assert.notStrictEqual(atualizado, null);
+      expect(atualizado).not.toBeNull();
     });
   });
 });

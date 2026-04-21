@@ -9,7 +9,7 @@ export class CriarUsuarioUseCase {
   constructor(private usuarioRepository: IUsuarioRepository, private userRepository: IUserRepository) {}
 
   async executar(dados: CriarUsuarioDto): Promise<Usuario> {
-    const userExistente = await this.userRepository.findById(dados.user_id);
+    const userExistente = await this.userRepository.findById(dados.user_id ?? '');
 
     if (!userExistente) {
       throw new Error('User nao existe');
@@ -30,9 +30,12 @@ export class CriarUsuarioUseCase {
 export class DeletarUsuarioUseCase {
   constructor(private usuarioRepository: IUsuarioRepository){}
 
-  async executar(id: string): Promise<void>{
-    validarUUID(id, 'ID do usuário');
+  async executar(id: string): Promise<boolean>{
+    const existente = await this.usuarioRepository.findByUserId(id)
+      ?? await this.usuarioRepository.findById(id);
+    if (!existente) return false;
     await this.usuarioRepository.delete(id);
+    return true;
   }
 }
 
@@ -64,9 +67,9 @@ export class PesquisarPorUserId {
 export class PesquisarPorEmail {
   constructor(private usuarioRepository: IUsuarioRepository) {}
 
-  async executar(email: string): Promise<Usuario | null>{
-    validarEmail(email);
-    const usuario = await this.usuarioRepository.findByEmail(email);
+  async executar(email: string | undefined): Promise<Usuario | null>{
+    validarEmail(email ?? '');
+    const usuario = await this.usuarioRepository.findByEmail(email ?? '');
 
     if (!usuario) {
       throw new ResourceNotFoundError('Usuário');
@@ -76,3 +79,6 @@ export class PesquisarPorEmail {
   }
 
 }
+
+// Alias kept for backward compatibility
+export { PesquisarPorUserId as PesquisarPorId };

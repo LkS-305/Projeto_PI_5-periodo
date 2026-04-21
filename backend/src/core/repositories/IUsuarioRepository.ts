@@ -6,5 +6,6 @@ export interface IUsuarioRepository {
   update(user_id: string, dados: Partial<Usuario>): Promise<void>;
   delete(user_id: string): Promise<void>;
   findByUserId(user_id: string): Promise<Usuario | null>;
-  findByEmail(email: string): Promise<Usuario | null>;
+  findByEmail(email: string | undefined): Promise<Usuario | null>;
+  findById(id: string): Promise<Usuario | null>;
 }

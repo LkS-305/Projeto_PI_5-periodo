@@ -1,5 +1,3 @@
-import { test, describe, beforeEach } from "node:test";
-import assert from "node:assert";
 import { InMemoryUsuarioRepository } from "./repositories/InMemoryUsuarioRepository";
 import {
   CriarUsuarioUseCase,
@@ -36,8 +34,8 @@ describe("Suíte de Testes: Usuário", () => {
         score: 0,
       });
 
-      assert.strictEqual(usuario.user_id, user!.id);
-      assert.ok(usuario);
+      expect(usuario.user_id).toBe(user!.id);
+      expect(usuario).toBeTruthy();
     });
   });
 
@@ -53,17 +51,17 @@ describe("Suíte de Testes: Usuário", () => {
       const user = await repo.findByUserId(usuario.user_id);
 
       const result = await sut.executar(user!.user_id);
-      assert.strictEqual(result, true);
+      expect(result).toBe(true);
 
       // Verifica se realmente sumiu do repositório
       const search = await repo.findByUserId(user!.user_id);
-      assert.strictEqual(search, null);
+      expect(search).toBeNull();
     });
 
     test("Deve retornar false ao tentar deletar um ID inexistente", async () => {
       const sut = new DeletarUsuarioUseCase(repo);
       const result = await sut.executar("id-que-nao-existe");
-      assert.strictEqual(result, false);
+      expect(result).toBe(false);
     });
   });
 });
