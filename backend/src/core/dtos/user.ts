@@ -1,4 +1,4 @@
-import { UserType } from './usuario';
+export type UserType = 'User' | 'Prestador' | 'Usuario' | 'Admin'
 
 export interface RegisterDto {
   nome?: string,

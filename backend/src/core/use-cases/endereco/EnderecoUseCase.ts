@@ -19,7 +19,7 @@ export class CriarEnderecoUseCase {
       dados.bairro     = sanitizarTexto(dados.bairro);
       dados.cidade     = sanitizarTexto(dados.cidade);
 
-      const usuario = await this.usuarioRepository.findById(dados.user_id);
+      const usuario = await this.userRepository.findById(dados.user_id);
       if (!usuario) throw new ResourceNotFoundError('Usuário');
 
       const endereco = new Endereco(dados);

@@ -1,4 +1,4 @@
-import { UserType } from "./usuario";
+import { UserType } from "./user";
 
 export interface CriarPrestadorDto {
   user_id: string,

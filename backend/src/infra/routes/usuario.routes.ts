@@ -7,10 +7,10 @@ import {
   AtualizarUsuarioUseCase,
   PesquisarPorUserId,
 } from "../../core/use-cases/usuario/UsuarioUseCase";
-
+import { ensureAuthenticated } from "../../middlewares/AuthMiddleware";
 import { UsuarioController } from "../controllers/UsuarioController";
 
-const userRouter = Router();
+const usuarioRouter = Router();
 
 const usuarioRepo = new PgUsuarioRepository();
 const userRepo = new PgUserRepository();
@@ -27,19 +27,12 @@ const usuarioController = new UsuarioController(
   pesquisarPorUserIdUC,
 );
 
-userRouter.post("/criarUsuario", (req, res) =>
-  usuarioController.criar(req, res),
-);
-userRouter.post("/deletarUsuario", (req, res) =>
-  usuarioController.deletar(req, res),
-);
+usuarioRouter.post("/criarUsuario", ensureAuthenticated, usuarioController.criar.bind(usuarioController));
 
-userRouter.post("/atualizar-usuario", (req, res) =>
-  usuarioController.atualizar(req, res),
-);
+usuarioRouter.delete("/deletarUsuario", ensureAuthenticated, usuarioController.deletar.bind(usuarioController));
 
-userRouter.post("/buscarPorUserId", (req, res) =>
-  usuarioController.findByUserId(req, res),
-);
+usuarioRouter.patch("/editarUsuario", ensureAuthenticated, usuarioController.atualizar.bind(usuarioController));
 
-export { userRouter };
+usuarioRouter.post("/buscarPorUserId", ensureAuthenticated, usuarioController.findByUserId.bind(usuarioController));
+
+export { usuarioRouter };

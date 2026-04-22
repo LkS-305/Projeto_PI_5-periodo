@@ -1,5 +1,5 @@
 import { Response, Request } from 'express';
-import { RegisterUseCase, LoginUseCase, ForgotPassword, ChangePassword } from '../../core/use-cases/autenticacao/AutenticacaoUseCase';
+import { RegisterUseCase, LoginUseCase, ForgotPassword, ChangePassword } from '../../core/use-cases/user/UserUseCase';
 import { AppError } from '../../core/errors/AppError';
 import { exigirCampos } from '../../core/utils/validate';
 
@@ -14,6 +14,7 @@ export class UserController {
   async registrar(req: Request, res: Response) {
     try {
       exigirCampos(req.body, ['email', 'senha', 'cpf']);
+      console.log('passou dos campos');
       const resultado = await this.registerUC.executar(req.body);
       return res.status(200).json(resultado);
     } catch (erro: unknown) {

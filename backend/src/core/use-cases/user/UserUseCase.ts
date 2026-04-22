@@ -1,76 +1,76 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { IUserRepository } from '../../repositories/IUserRepository';
+import { User } from '../../entities/User';
+import { RegisterDto, LoginDto, ChangeForgotPasswordDto, ChangePasswordDto } from '../../dtos/user';
 import {
-  RegisterDto,
-  RegisterResponseDto,
-  ChangeForgotPasswordDto,
-  LoginDto,
-  ChangePasswordDto,
-} from "../../dtos/user";
+  ResourceAlreadyExistsError,
+  UnauthorizedError,
+  ValidationError,
+} from '../../errors/AppError';
+import { IMailProvider } from '../../dtos/mail';  
 
-import { IUserRepository } from "../../repositories/IUserRepository";
-import { IMailProvider } from "../../dtos/mail";
-
-import { User } from "../../entities/User";
-import { UserType } from "../../dtos/usuario";
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export class RegisterUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(
+    private userRepository: IUserRepository,
+  ) {}
 
-  async executar(dados: RegisterDto) {
-    const usuarioExiste = await this.userRepository.findByEmail(dados.email);
-    if (usuarioExiste) {
-      throw new Error("Este email ja existe");
+  async executar(dados: RegisterDto): Promise<{token: string, user: Omit<User, 'senha'> | null}> {
+    if (!EMAIL_REGEX.test(dados.email)) {
+      throw new ValidationError('E-mail inválido.');
     }
 
+    const usuarioExiste = await this.userRepository.findByEmail(dados.email);
+    
+    if (usuarioExiste) {
+      throw new ResourceAlreadyExistsError('Este e-mail já está cadastrado.');
+    }
     const senhaCriptografada = await bcrypt.hash(dados.senha, 10);
+    const novoUser = new User({ ...dados, senha: senhaCriptografada });
+    console.log('entidade criada:', novoUser);
+    await this.userRepository.register(novoUser);
 
-    const dadosSafe = {
-      ...dados,
-      tipo_usuario: "Usuario" as UserType,
-      senha: senhaCriptografada,
-    };
-    const novoUsuario = new User(dadosSafe);
+    const { senha, ...UsersemSenha } = novoUser;
+    const token = jwt.sign(
+      { id: novoUser.id,
+        tipo: 'User'  },
+      process.env.JWT_SECRET || 'secret-key',
+      { expiresIn: '1d' },
+    );
+    console.log('Criei com sucesso: ', UsersemSenha);
+    return { token, user: UsersemSenha as Omit<User, 'senha'>};
 
-    const usuarioSalvo = await this.userRepository.register(novoUsuario);
-
-    return usuarioSalvo;
   }
 }
 
 export class LoginUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(
+    private userRepository: IUserRepository,
+  ) {}
 
-  async executar(dados: LoginDto) {
-    // 1. Busca o usuário
+  async executar(dados: LoginDto): Promise<{ token: string; user: Omit<User, 'senha'> }> {
     const usuario = await this.userRepository.findByEmail(dados.email);
 
-    // 2. Erro genérico para evitar enumeração de usuários (Segurança)
     if (!usuario) {
-      throw new Error("E-mail ou senha incorretos");
+      throw new UnauthorizedError('E-mail ou senha incorretos.');
     }
 
-    // 3. Compara os hashes
     const senhaValida = await bcrypt.compare(dados.senha, usuario.senha);
     if (!senhaValida) {
-      throw new Error("E-mail ou senha incorretos");
+      throw new UnauthorizedError('E-mail ou senha incorretos.');
     }
 
-    // 4. Gera o Token (Validade de 1 dia, por exemplo)
     const token = jwt.sign(
-      { id: usuario.id },
-      process.env.JWT_SECRET || "secret-key",
-      { expiresIn: "1d" },
+      { id: usuario.id,
+        tipo: 'User' },
+      process.env.JWT_SECRET || 'secret-key',
+      { expiresIn: '1d' },
     );
 
-    // 6. Retorno (Não envie a senha de volta!)
-    return {
-      user: {
-        id: usuario.id,
-        email: usuario.email,
-      },
-      token,
-    };
+    const { senha, ...semSenha } = usuario;
+    return { token, user: semSenha as Omit<User, 'senha'> };
   }
 }
 

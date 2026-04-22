@@ -2,17 +2,39 @@ import { IUserRepository } from "../../core/repositories/IUserRepository";
 import { User } from "../../core/entities/User";
 import { pool } from "../database/postgres";
 import { LoginDto } from "../../core/dtos/user";
+import { AppError } from '../../core/errors/AppError';
 
 export class PgUserRepository implements IUserRepository {
-  async register(usuario: User): Promise<Omit<User, "senha"> | null> {
+  async register(usuario: User): Promise<void> {
     const consulta = `
-        INSERT INTO usuarios (id, nome, email, senha, cpf)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING id, nome, email, cpf;
+        INSERT INTO users (id, email, senha, cpf)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id, email, cpf;
       `;
     const valores = [usuario.id, usuario.email, usuario.senha, usuario.cpf];
-    const { rows } = await pool.query(consulta, valores);
-    return rows[0];
+    try {
+      await pool.query(consulta, valores);
+    } catch (error: any) {
+
+      // Erro de violação de restrição única (Ex: Email ou CPF já existem)
+      if (error.code === '23505') {
+
+        const detail = error.detail; // O Postgres costuma dizer qual campo falhou
+        if (detail.includes('id')) {
+          throw new AppError('Este id ja esta em uso.', 400);
+        }
+        if (detail.includes('email')) {
+          throw new AppError('Este e-mail já está em uso.', 400);
+        }
+        if (detail.includes('cpf')) {
+          throw new AppError('Este CPF já está cadastrado.', 400);
+        }
+      }
+
+    // Erro genérico de banco (Conexão, sintaxe, etc)
+    console.error('Database Error:', error);
+    throw new AppError('Erro interno ao processar o cadastro no banco de dados.', 500);
+   }    
   }
 
   async login(props: LoginDto): Promise<Omit<User, "senha"> | null> {

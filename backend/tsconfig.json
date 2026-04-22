@@ -8,5 +8,8 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
     "typeRoots": ["./src/@types", "./node_modules/@types"]
-  }
+  },
+  "exclude": [
+    "tests",
+  ]
 }
