@@ -23,7 +23,7 @@ app.use((req, res, next) => {
 
 app.use('/users', userRouter);
 app.use('/avaliacao', avaliacaoRouter);
-app.use('/usuarios', usuarioRouter);
+app.use('/usuario', usuarioRouter);
 app.use('/prestador', prestadorRouter);
 
  
