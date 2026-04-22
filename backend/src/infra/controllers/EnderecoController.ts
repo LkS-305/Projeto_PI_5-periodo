@@ -10,6 +10,7 @@ import {
   SetarPrincipal,
   UnsetarPrincipal,
 } from "../../core/use-cases/endereco/EnderecoUseCase";
+import { BuscarCepUseCase } from "../../core/use-cases/endereco/BuscarCepUseCase";
 
 import { CriarEnderecoDto } from "../../core/dtos/endereco";
 import { Endereco } from "../../core/entities/Endereco";
@@ -24,6 +25,7 @@ export class EnderecoController {
     private acharPorCidade: AcharPorCidade,
     private setPrincipal: SetarPrincipal,
     private unsetPrincipal: UnsetarPrincipal,
+    private buscarCep: BuscarCepUseCase,
   ) {}
 
   async criar(req: Request, res: Response) {
@@ -99,6 +101,15 @@ export class EnderecoController {
   async unsetIsPrincipal(req: Request, res: Response) {
     try {
       const resultado = await this.unsetPrincipal.executar(req.body.id);
+      return res.status(200).json(resultado);
+    } catch (erro: any) {
+      return res.status(400).json({ erro: erro.message });
+    }
+  }
+
+  async getCep(req: Request, res: Response) {
+    try {
+      const resultado = await this.buscarCep.executar(req.body.cep);
       return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({ erro: erro.message });

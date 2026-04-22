@@ -14,6 +14,7 @@ import {
   SetarPrincipal,
   UnsetarPrincipal,
 } from "../../core/use-cases/endereco/EnderecoUseCase";
+import { BuscarCepUseCase } from "../../core/use-cases/endereco/BuscarCepUseCase";
 
 const enderecoRouter = Router();
 
@@ -28,6 +29,7 @@ const acharPorPrestadorIdUC = new AcharPorPrestadorId(enderecoRepo);
 const acharPorCidadeUC = new AcharPorCidade(enderecoRepo);
 const setPrincipalUC = new SetarPrincipal(enderecoRepo);
 const unsetPrincipalUC = new UnsetarPrincipal(enderecoRepo);
+const buscarCepUC = new BuscarCepUseCase();
 
 const enderecoController = new EnderecoController(
   criarEnderecoUC,
@@ -38,6 +40,7 @@ const enderecoController = new EnderecoController(
   acharPorCidadeUC,
   setPrincipalUC,
   unsetPrincipalUC,
+  buscarCepUC,
 );
 
 enderecoRouter.post("/criarEndereco", (req, res) =>
@@ -64,5 +67,7 @@ enderecoRouter.get("/setPrincipal", (req, res) =>
 enderecoRouter.get("/unsetPrincipal", (req, res) =>
   enderecoController.unsetIsPrincipal(req, res),
 );
+
+enderecoRouter.get("/buscarCep", (req, res) => enderecoController.getCep(req, res))
 
 export { enderecoRouter };
