@@ -1,4 +1,3 @@
-export type UserType = "Usuario" | "Prestador" | "Admin";
 
 export interface CriarUsuarioDto {
   user_id?: string;
@@ -7,6 +6,7 @@ export interface CriarUsuarioDto {
   email?: string;
   senha?: string;
 }
+
 export interface AtualizarUsuarioDto {
   user_id: string;
   nome: string;

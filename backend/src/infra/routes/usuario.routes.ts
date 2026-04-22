@@ -10,7 +10,7 @@ import {
 
 import { UsuarioController } from "../controllers/UsuarioController";
 
-const userRouter = Router();
+const usuarioRouter = Router();
 
 const usuarioRepo = new PgUsuarioRepository();
 const userRepo = new PgUserRepository();
@@ -27,19 +27,19 @@ const usuarioController = new UsuarioController(
   pesquisarPorUserIdUC,
 );
 
-userRouter.post("/criarUsuario", (req, res) =>
+usuarioRouter.post("/criarUsuario", (req, res) =>
   usuarioController.criar(req, res),
 );
-userRouter.post("/deletarUsuario", (req, res) =>
+usuarioRouter.post("/deletarUsuario", (req, res) =>
   usuarioController.deletar(req, res),
 );
 
-userRouter.post("/atualizar-usuario", (req, res) =>
+usuarioRouter.post("/atualizar-usuario", (req, res) =>
   usuarioController.atualizar(req, res),
 );
 
-userRouter.post("/buscarPorUserId", (req, res) =>
+usuarioRouter.post("/buscarPorUserId", (req, res) =>
   usuarioController.findByUserId(req, res),
 );
 
-export { userRouter };
+export { usuarioRouter };

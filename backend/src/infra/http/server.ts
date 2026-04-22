@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import { pool } from '../database/postgres';
 import { userRouter } from '../routes/user.routes';
+import { usuarioRouter } from '../routes/usuario.routes';
+import { prestadorRouter } from '../routes/prestador.routes';
 import { avaliacaoRouter } from '../routes/avaliacao.routes'
 import { errorHandler } from '../../middlewares/ErrorHandler';
 import { logger } from '../../middlewares/Logger';
@@ -21,7 +23,8 @@ app.use((req, res, next) => {
 
 app.use('/users', userRouter);
 app.use('/avaliacao', avaliacaoRouter);
-
+app.use('/usuarios', usuarioRouter);
+app.use('/prestador', prestadorRouter);
 
  
 app.get('/health', async (req, res) => {

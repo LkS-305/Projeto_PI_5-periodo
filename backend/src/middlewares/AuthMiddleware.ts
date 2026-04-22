@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { UnauthorizedError } from '../core/errors/AppError';
-import { UserType } from '../core/dtos/usuario';
+import { UserType } from '../core/dtos/user';
 
 interface TokenPayload {
   id: string;

@@ -2,7 +2,7 @@ import { LoginDto } from "../dtos/user";
 import { User } from "../entities/User";
 
 export interface IUserRepository {
-  register(user: User): Promise<Omit<User, "senha"> | null>;
+  register(user: User): Promise<void>;
   login(props: LoginDto): Promise<Omit<User, "senha"> | null>;
   updateRecoveryToken(
     usuario_id: string,

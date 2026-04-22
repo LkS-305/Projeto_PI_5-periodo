@@ -1,4 +1,4 @@
-import { UserType } from '../../core/dtos/usuario';
+import { UserType } from '../../core/dtos/user';
 
 declare global {
   namespace Express {

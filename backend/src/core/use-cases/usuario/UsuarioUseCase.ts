@@ -32,7 +32,7 @@ export class DeletarUsuarioUseCase {
 
   async executar(id: string): Promise<boolean>{
     const existente = await this.usuarioRepository.findByUserId(id)
-      ?? await this.usuarioRepository.findById(id);
+      ?? await this.usuarioRepository.findByUserId(id);
     if (!existente) return false;
     await this.usuarioRepository.delete(id);
     return true;
@@ -42,9 +42,17 @@ export class DeletarUsuarioUseCase {
 export class AtualizarUsuarioUseCase {
   constructor(private usuarioRepository: IUsuarioRepository){}
 
-  async executar(id: string, usuario: Partial<Usuario>): Promise<void>{
+  async executar(id: string, dados: AtualizarUsuarioDto): Promise<void>{
     validarUUID(id, 'ID do usuário');
-    await this.usuarioRepository.update(id, usuario);
+
+    const usuario = await this.usuarioRepository.findByUserId(id);
+
+    if (!usuario) {
+      throw new ResourceNotFoundError('usuario');
+    }
+
+    usuario.atualizarPerfil(dados); 
+    await this.usuarioRepository.update(usuario);
   }
 }
 
@@ -64,21 +72,4 @@ export class PesquisarPorUserId {
   }
 }
 
-export class PesquisarPorEmail {
-  constructor(private usuarioRepository: IUsuarioRepository) {}
 
-  async executar(email: string | undefined): Promise<Usuario | null>{
-    validarEmail(email ?? '');
-    const usuario = await this.usuarioRepository.findByEmail(email ?? '');
-
-    if (!usuario) {
-      throw new ResourceNotFoundError('Usuário');
-    }
-
-    return usuario;
-  }
-
-}
-
-// Alias kept for backward compatibility
-export { PesquisarPorUserId as PesquisarPorId };
