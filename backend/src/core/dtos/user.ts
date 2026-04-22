@@ -1,9 +1,12 @@
 import { UserType } from './usuario';
 
 export interface RegisterDto {
+  nome?: string,
   email: string,
   senha: string,
   cpf: string,
+  tipo_usuario?: string,
+  role?: string,
 }
 
 export interface RegisterResponseDto {

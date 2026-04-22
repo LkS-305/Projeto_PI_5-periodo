@@ -1,9 +1,11 @@
 export type UserType = "Usuario" | "Prestador" | "Admin";
 
 export interface CriarUsuarioDto {
-  user_id: string;
-  nome: string;
-  score: number;
+  user_id?: string;
+  nome?: string;
+  score?: number;
+  email?: string;
+  senha?: string;
 }
 export interface AtualizarUsuarioDto {
   user_id: string;

@@ -1,13 +1,11 @@
-import { test, describe, beforeEach } from 'node:test';
-import assert from 'node:assert';
 import { InMemoryCategoriaRepository } from './repositories/InMemoryCategoriaRepository';
-import { 
-  CriarCategoriaUseCase, 
-  DeletarCategoriaUseCase, 
-  AtualizarCategoriaUseCase, 
-  PesquisarPorId, 
-  PesquisarTudo, 
-  PesquisarPorNome 
+import {
+  CriarCategoriaUseCase,
+  DeletarCategoriaUseCase,
+  AtualizarCategoriaUseCase,
+  PesquisarPorId,
+  PesquisarTudo,
+  PesquisarPorNome
 } from '../src/core/use-cases/categoria/CategoriaUseCase';
 
 describe('Suite de testes: Categoria', () => {
@@ -18,7 +16,7 @@ describe('Suite de testes: Categoria', () => {
   });
 
   describe('Criar Categoria', () => {
-    test('Deve cadastrar uma nova categoria', async () => {
+    it('Deve cadastrar uma nova categoria', async () => {
       const sut = new CriarCategoriaUseCase(repo);
       const categoria = await sut.executar({
         nome: 'Marcenaria',
@@ -26,49 +24,46 @@ describe('Suite de testes: Categoria', () => {
         icon_url: 'url_do_icone',
       });
 
-      assert.strictEqual(categoria.nome, 'Marcenaria');
-      assert.ok(categoria.id);
+      expect(categoria.nome).toBe('Marcenaria');
+      expect(categoria.id).toBeTruthy();
     });
 
-    test('Não deve permitir categorias com nomes duplicados', async () => {
+    it('Não deve permitir categorias com nomes duplicados', async () => {
       const sut = new CriarCategoriaUseCase(repo);
       await repo.create({ nome: 'Repetida', slug: 'r', icon_url: 'u' });
 
-      await assert.rejects(
-        async () => { await sut.executar({ nome: 'Repetida', slug: 'r2', icon_url: 'u2' }) },
-        /Esta categoria ja existe/ // Ajuste conforme a mensagem real do seu Use Case
-      );
+      await expect(
+        sut.executar({ nome: 'Repetida', slug: 'r2', icon_url: 'u2' })
+      ).rejects.toThrow(/Esta categoria ja existe/);
     });
   });
 
   describe('Deletar Categoria', () => {
-    test('Deve deletar uma categoria existente', async () => {
+    it('Deve deletar uma categoria existente', async () => {
       const sut = new DeletarCategoriaUseCase(repo);
       const criada = await repo.create({ nome: 'Teste', slug: 't', icon_url: 'u' });
 
       const result = await sut.executar(criada.id!);
-      assert.strictEqual(result, true);
-      
+      expect(result).toBe(true);
+
       const busca = await repo.findById(criada.id!);
-      assert.strictEqual(busca, null);
+      expect(busca).toBeNull();
     });
   });
 
   describe('Listar Categorias', () => {
-    test('Deve retornar todas as categorias cadastradas', async () => {
+    it('Deve retornar todas as categorias cadastradas', async () => {
       const sut = new PesquisarTudo(repo);
       await repo.create({ nome: 'Cat 1', slug: 'c1', icon_url: 'i1' });
       await repo.create({ nome: 'Cat 2', slug: 'c2', icon_url: 'i2' });
 
       const lista = await sut.executar();
-      if (lista) {
-        assert.strictEqual(lista.length, 2);
-      }
+      expect(lista?.length).toBe(2);
     });
   });
 
   describe('Pesquisar por ID', () => {
-    test('Deve retornar a categoria correta ao buscar por ID', async () => {
+    it('Deve retornar a categoria correta ao buscar por ID', async () => {
       const sut = new PesquisarPorId(repo);
       const criado = await repo.create({
         nome: 'Marcenaria',
@@ -77,23 +72,23 @@ describe('Suite de testes: Categoria', () => {
       });
 
       const categoria = await sut.executar(criado.id!);
-      assert.strictEqual(categoria?.nome, 'Marcenaria');
-      assert.strictEqual(categoria?.id, criado.id);
+      expect(categoria?.nome).toBe('Marcenaria');
+      expect(categoria?.id).toBe(criado.id);
     });
   });
 
   describe('Pesquisar por Nome', () => {
-    test('Deve encontrar uma categoria pelo nome exato', async () => {
+    it('Deve encontrar uma categoria pelo nome exato', async () => {
       const sut = new PesquisarPorNome(repo);
       await repo.create({ nome: 'Pintura', slug: 'pintura', icon_url: 'url' });
 
       const categoria = await sut.executar('Pintura');
-      assert.strictEqual(categoria?.nome, 'Pintura');
+      expect(categoria?.nome).toBe('Pintura');
     });
   });
 
   describe('Atualizar Categoria', () => {
-    test('Deve alterar os dados de uma categoria', async () => {
+    it('Deve alterar os dados de uma categoria', async () => {
       const sut = new AtualizarCategoriaUseCase(repo);
       const criada = await repo.create({ nome: 'Original', slug: 'o', icon_url: 'u' });
 
@@ -103,8 +98,8 @@ describe('Suite de testes: Categoria', () => {
         icon_url: 'nova_url'
       });
 
-      assert.strictEqual(atualizada?.nome, 'Editada');
-      assert.strictEqual(atualizada?.slug, 'editada');
+      expect(atualizada?.nome).toBe('Editada');
+      expect(atualizada?.slug).toBe('editada');
     });
   });
 });
