@@ -229,7 +229,7 @@ export default function Dashboard() {
       {/* ── BARRA DE PESQUISA ── */}
       <div className="home-search-bar">
         <Image
-          src="/images/lupa.svg"
+          src="/images/Lupa.svg"
           alt="Buscar"
           width={50}
           height={50}

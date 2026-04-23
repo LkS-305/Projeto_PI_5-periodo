@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./messages/messages.css";
 @import "./not-found.css";
+@import "./shared/home-header.css";
 
 @font-face {
   font-family: "SF Pro Text";

@@ -1,0 +1,138 @@
+.personal-content {
+  width: 100%;
+}
+
+.personal-content__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.personal-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 0;
+  border-bottom: 1px solid #ebd38a;
+}
+
+.personal-info-item__label {
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 36px;
+  font-weight: 500;
+  color: #272727;
+  margin: 0 0 4px;
+}
+
+.personal-info-item__value {
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  color: #878787;
+  margin: 0;
+}
+
+.personal-info-item__action {
+  background: transparent;
+  border: none;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 36px;
+  font-weight: 500;
+  color: #272727;
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.personal-info-item__action:hover {
+  color: #000;
+}
+
+.personal-info-editor {
+  margin-top: 14px;
+  display: flex;
+  max-width: 740px;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.personal-info-editor__helper {
+  margin: 0;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: #6f6f6f;
+}
+
+.personal-info-editor__input {
+  width: 100%;
+  border: 1px solid #d5bf7d;
+  border-radius: 12px;
+  background: #fffdf5;
+  padding: 12px 14px;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: #272727;
+  outline: none;
+}
+
+.personal-info-editor__input:focus {
+  border-color: #9c834a;
+}
+
+.personal-info-editor__error {
+  margin: 0;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #b24a20;
+}
+
+.personal-info-editor__save {
+  align-self: flex-start;
+  border: none;
+  border-radius: 999px;
+  background: #e1c471;
+  padding: 10px 22px;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #272727;
+  cursor: pointer;
+}
+
+.personal-info-editor__save:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 720px) {
+  .personal-info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px 0;
+  }
+
+  .personal-info-item__label {
+    font-size: 24px;
+  }
+
+  .personal-info-item__value,
+  .personal-info-item__action {
+    font-size: 20px;
+  }
+
+  .personal-info-editor__helper,
+  .personal-info-editor__error {
+    font-size: 16px;
+  }
+
+  .personal-info-editor__input {
+    font-size: 18px;
+  }
+
+  .personal-info-editor__save {
+    font-size: 18px;
+  }
+}
