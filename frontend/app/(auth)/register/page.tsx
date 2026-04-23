@@ -296,7 +296,7 @@ export default function Cadastro() {
         }}
       >
         <Image
-          src="/images/logo_domi.png"
+          src="/images/logo_domi.svg"
           alt="Logo decorativa"
           width={346}
           height={295}
@@ -317,7 +317,7 @@ export default function Cadastro() {
         }}
       >
         <Image
-          src="/images/logo_domi.png"
+          src="/images/logo_domi.svg"
           alt="Logo decorativa"
           width={373}
           height={318}
@@ -941,7 +941,7 @@ export default function Cadastro() {
                   style={{
                     position: "absolute",
                     top: "calc(100% + 15px)",
-                    left: "95px",
+                    left: "230px",
                     display: "flex",
                     alignItems: "center",
                     gap: "10px",
@@ -977,7 +977,7 @@ export default function Cadastro() {
                     style={{
                       fontFamily: "'SF Pro Text', system-ui, sans-serif",
                       fontWeight: 400,
-                      fontSize: "20px",
+                      fontSize: "15px",
                       color: "#535353",
                       lineHeight: 1.3,
                     }}

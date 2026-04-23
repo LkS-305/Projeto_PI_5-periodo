@@ -160,6 +160,11 @@ body {
   font-family: var(--font-sf-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden; /* Evita scrollbars quando scale < 1 */
+}
+
+html {
+  overflow: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {

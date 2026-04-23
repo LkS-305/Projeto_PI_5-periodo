@@ -57,7 +57,7 @@ export default function Login() {
         }}
       >
         <Image
-          src="/images/logo_domi.png"
+          src="/images/logo_domi.svg"
           alt="Logo decorativa"
           width={346}
           height={295}
@@ -78,7 +78,7 @@ export default function Login() {
         }}
       >
         <Image
-          src="/images/logo_domi.png"
+          src="/images/logo_domi.svg"
           alt="Logo decorativa"
           width={463.5}
           height={390.5}

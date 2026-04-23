@@ -92,7 +92,7 @@ export default function Dashboard() {
           }}
         >
           <Image
-            src="/images/logo_domi.png"
+            src="/images/logo_domi.svg"
             alt="Logo DOMI"
             width={70}
             height={60}

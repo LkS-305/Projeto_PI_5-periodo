@@ -204,7 +204,7 @@ export default function MessagesPage() {
           {/* Bloco da logo no topo */}
           <div className="absolute left-[40px] top-[15px] z-20">
             <Image
-              src="/images/logo_domi.png"
+              src="/images/logo_domi.svg"
               alt="DOMI"
               width={70}
               height={60}
