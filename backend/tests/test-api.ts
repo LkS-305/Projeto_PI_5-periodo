@@ -6,7 +6,7 @@ async function testAPI() {
   try {
     // 1. TESTE DE REGISTRO
     console.log("--- Testando Registro ---");
-    const registerRes = await fetch(`${BASE_URL}/users/register`, {
+    const registerRes = await fetch(`${BASE_URL}/user/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -25,9 +25,23 @@ async function testAPI() {
 
     const token = registerData.token;
 
+    let countUsuarios = 0;
+
+
+
+
+//------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
+    
+    
+
 
     // teste de usuario
     console.log('\n------ Testando rotas do Usuario ----------');
+    try {
+      
     const usuarioCriado = await fetch(`${BASE_URL}/usuario/criarUsuario`, {
       method: 'POST',
       headers: {
@@ -39,8 +53,14 @@ async function testAPI() {
       })
     });
     const usuarioData = await usuarioCriado.json();
-    //console.log('Resposta:', usuarioData);
-    
+    if (usuarioData.user_id === registerData.user.id) {
+     console.log('Usuario criado com sucesso'); 
+        countUsuarios++;
+    } else {
+        console.error('erro ao criar usuario');
+      }
+
+//------------------------------------------------------------------------------------
 
     const usuarioAtualizado = await fetch(`${BASE_URL}/usuario/editarUsuario`, {
       method: 'PATCH',
@@ -54,7 +74,15 @@ async function testAPI() {
     });
 
     const usuarioDataDois = await usuarioAtualizado.json();
-    //console.log('Novo Usuario:', usuarioDataDois);
+
+      if (usuarioDataDois.nome != 'GustavoDois') {
+        console.error('erro ao editar usuario');
+      } else {
+     console.log('usuario editado com sucesso'); 
+        countUsuarios++;
+      }
+
+//------------------------------------------------------------------------------------
 
     const usuarioBuscado = await fetch(`${BASE_URL}/usuario/buscarPorUserId`, {
       method: 'POST',
@@ -68,9 +96,12 @@ async function testAPI() {
     });
 
     const usuarioBuscadoData = await usuarioBuscado.json();
-    if (usuarioBuscadoData.id === usuarioDataDois.id) {
-    //console.log('Busca feita com sucesso');
-    }
+    if (usuarioBuscadoData.user_id === registerData.user.id) {
+    console.log('Busca feita com sucesso');
+        countUsuarios++;
+    } else { console.error('erro ao buscar usuario');}
+
+//------------------------------------------------------------------------------------
 
     const usuarioDeletado = await fetch(`${BASE_URL}/usuario/deletarUsuario`, {
       method: 'DELETE',
@@ -82,9 +113,106 @@ async function testAPI() {
         user_id: usuarioData.user_id
       })
     });
-    //if(usuarioDeletado) console.log('Sucesso ao deletar usuario');
+    
+      if(usuarioDeletado){countUsuarios++; console.log('usuario deletado com sucesso')} else {console.error('erro ao deletar usuario');};
 
-    console.log('TODOS OS TESTES DE USUARIO PASSARAM');
+      if (countUsuarios == 4) {
+         console.log('TODOS OS TESTES DE USUARIO PASSARAM');
+      }
+
+    } catch (error: any) {
+      console.error("\n❌ Erro durante os testes de usuario:");
+      console.error(error.message);
+    }
+
+
+//------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
+    let countPrestadores = 0;
+    
+
+        // teste de prestador
+    console.log('\n------ Testando rotas do Prestador ----------');
+    const  prestadorCriado = await fetch(`${BASE_URL}/prestador/criarPrestador`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        nome: 'Gustavo',
+        bio: 'Ola eu soy o gustavo e tenho no mininmo 10 fucking caracteres'
+      })
+    });
+    
+    
+    const prestadorData = await prestadorCriado.json();
+    if (prestadorData.user_id === registerData.user.id) {
+     console.log('Prestador criado com sucesso'); 
+        countPrestadores++;
+    } else {
+        console.error('erro ao criar prestador');
+      }
+    
+//------------------------------------------------------------------------------------
+
+    const prestadorAtualizado = await fetch(`${BASE_URL}/prestador/editarPrestador`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        nome: 'GustavoDois',
+      })
+    });
+
+    const prestadorDataDois = await prestadorAtualizado.json();
+           if (prestadorDataDois.nome === 'GustavoDois') {
+     console.log('Prestador editado com sucesso'); 
+        countPrestadores++;
+    } else {
+        console.error('erro ao editado prestador');
+      }
+    
+
+//------------------------------------------------------------------------------------
+    
+    const prestadorBuscado = await fetch(`${BASE_URL}/prestador/buscarPorUserId`, {
+      method: 'POST',
+      headers:{
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        user_id: prestadorData.user_id,
+      })
+    });
+
+    const prestadorBuscadoData = await prestadorBuscado.json();
+    if (prestadorBuscadoData.user_id === registerData.user.id) {
+    console.log('busca feita com sucesso');
+      countPrestadores++;
+    } else {console.error('erro ao buscar prestador');}
+
+//------------------------------------------------------------------------------------
+    
+    const prestadorDeletado = await fetch(`${BASE_URL}/prestador/deletarPresador`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        user_id: prestadorData.user_id
+      })
+    });
+    
+    if(prestadorDeletado){ console.log('prestador deletado com sucesso'); countPrestadores++;} else {console.error('erro ao deletar prestador');};
+
+    console.log('TODOS OS TESTES DE PRESTADOR PASSARAM');
   } catch (error: any) {
 
     console.error("\n❌ Erro durante os testes:");

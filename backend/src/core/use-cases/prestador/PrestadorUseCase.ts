@@ -28,12 +28,14 @@ export class CriarPrestadorUseCase {
       user_id: dados.user_id,
       nome: dados.nome,
       bio: dados.bio,
-      score: 0,
+      foto_url: dados.foto_url,
     });
 
-    const prestadorCriado = await this.prestadorRepository.create(prestador);
+    console.log('criei um prestador: ', prestador);
 
-    return prestadorCriado;
+    await this.prestadorRepository.create(prestador);
+
+    return prestador;
   }
 }
 
@@ -65,11 +67,11 @@ export class AtualizarPrestadorUseCase {
     if (!prestadorExistente) {
       throw new ResourceNotFoundError('Prestador');
     }
+    const prestadorInstanciado = new Prestador(prestadorExistente);
+    prestadorInstanciado.atualizarPerfil(prestador);
+    await this.prestadorRepository.update(prestadorInstanciado);
 
-    prestadorExistente.atualizarPerfil(prestador);
-    await this.prestadorRepository.update(prestadorExistente);
-
-    return prestadorExistente;
+    return prestadorInstanciado;
   }
 }
 
@@ -84,6 +86,7 @@ export class AcharPorUserId {
       throw new ResourceNotFoundError('Prestador');
     }
 
+    console.log('busquei um prestador: ', prestador);
     return prestador;
   }
 }

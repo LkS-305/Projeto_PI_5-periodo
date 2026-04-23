@@ -38,9 +38,9 @@ export class DeletarUsuarioUseCase {
 export class AtualizarUsuarioUseCase {
   constructor(private usuarioRepository: IUsuarioRepository){}
 
-  async executar(user_id: string, dados: AtualizarUsuarioDto): Promise<Usuario>{
+  async executar(dados: AtualizarUsuarioDto): Promise<Usuario>{
 
-    const usuario = await this.usuarioRepository.findByUserId(user_id);
+    const usuario = await this.usuarioRepository.findByUserId(dados.user_id);
 
     if (!usuario) {
       throw new ResourceNotFoundError('usuario');

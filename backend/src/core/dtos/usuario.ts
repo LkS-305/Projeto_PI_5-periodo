@@ -5,6 +5,7 @@ export interface CriarUsuarioDto {
 }
 
 export interface AtualizarUsuarioDto {
-  nome: string;
-  foto_url: string;
+  user_id: string,
+  nome?: string;
+  foto_url?: string;
 }

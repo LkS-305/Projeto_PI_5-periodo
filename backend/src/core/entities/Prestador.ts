@@ -14,6 +14,7 @@ export class Prestador {
     this.user_id = props.user_id;
     this.nome = props.nome
     this.bio = props.bio;
+    this.foto_url = props.foto_url;
     this.score = 0;
     this.created_at = new Date();
     this.updated_at = new Date();

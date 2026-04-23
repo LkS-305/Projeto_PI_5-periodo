@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 	next();
 });
 
-app.use('/users', userRouter);
+app.use('/user', userRouter);
 app.use('/avaliacao', avaliacaoRouter);
 app.use('/usuario', usuarioRouter);
 app.use('/prestador', prestadorRouter);

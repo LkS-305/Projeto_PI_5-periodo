@@ -4,7 +4,7 @@ export interface CriarPrestadorDto {
   user_id: string,
   nome: string,
   bio: string,
-  score: number
+  foto_url?: string,
 }
 
 

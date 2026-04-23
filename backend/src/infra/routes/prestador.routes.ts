@@ -8,6 +8,7 @@ import {
   AcharPorUserId,
 } from "../../core/use-cases/prestador/PrestadorUseCase";
 import { PrestadorController } from "../controllers/PrestadorController";
+import { ensureAuthenticated } from "../../middlewares/AuthMiddleware";
 
 const prestadorRouter = Router();
 
@@ -26,20 +27,12 @@ const prestadorController = new PrestadorController(
   pesquisarPorUserIdUC,
 );
 
-prestadorRouter.post("/criarPrestador", (req, res) =>
-  prestadorController.criar(req, res),
-);
+prestadorRouter.post("/criarPrestador", ensureAuthenticated, prestadorController.criar.bind(prestadorController));
 
-prestadorRouter.post("/deletarPrestador", (req, res) =>
-  prestadorController.deletar(req, res),
-);
+prestadorRouter.post("/deletarPrestador", ensureAuthenticated, prestadorController.deletar.bind(prestadorController));
 
-prestadorRouter.patch("/atualizarPrestador", (req, res) =>
-  prestadorController.atualizar(req, res),
-);
+prestadorRouter.patch("/editarPrestador", ensureAuthenticated, prestadorController.atualizar.bind(prestadorController));
 
-prestadorRouter.get("/buscarPorUserId", (req, res) =>
-  prestadorController.findByUserId(req, res),
-);
+prestadorRouter.post("/buscarPorUserId", ensureAuthenticated, prestadorController.findByUserId.bind(prestadorController));
 
 export { prestadorRouter };
