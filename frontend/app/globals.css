@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./messages/messages.css";
+@import "./not-found.css";
 
 @font-face {
   font-family: "SF Pro Text";
@@ -161,6 +162,11 @@ body {
   font-family: var(--font-sf-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+html {
+  overflow: hidden;
 }
 
 h1,

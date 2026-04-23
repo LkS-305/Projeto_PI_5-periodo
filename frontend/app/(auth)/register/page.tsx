@@ -173,7 +173,7 @@ export default function Cadastro() {
   const goToNextSection = () => {
     if (validateSection(section)) {
       setCompletedSections((prev) =>
-        prev.includes(section) ? prev : [...prev, section]
+        prev.includes(section) ? prev : [...prev, section],
       );
       setSection(section + 1);
     }
@@ -206,7 +206,7 @@ export default function Cadastro() {
 
     setLocalError(
       authError ||
-      "Falha ao criar conta. Verifique os dados e tente novamente.",
+        "Falha ao criar conta. Verifique os dados e tente novamente.",
     );
   }
 
@@ -270,7 +270,11 @@ export default function Cadastro() {
                 width: "10px",
                 height: "10px",
                 borderRadius: "50%",
-                backgroundColor: isActive ? "#E0C271" : isCompleted ? "#C3A85E" : "#272727",
+                backgroundColor: isActive
+                  ? "#E0C271"
+                  : isCompleted
+                    ? "#C3A85E"
+                    : "#272727",
                 transform: isActive ? "scale(1.4)" : "scale(1)",
                 transition: "all 0.3s ease",
                 border: "none",
@@ -296,7 +300,7 @@ export default function Cadastro() {
         }}
       >
         <Image
-          src="/images/logo_domi.png"
+          src="/images/logo_domi.svg"
           alt="Logo decorativa"
           width={346}
           height={295}
@@ -317,7 +321,7 @@ export default function Cadastro() {
         }}
       >
         <Image
-          src="/images/logo_domi.png"
+          src="/images/logo_domi.svg"
           alt="Logo decorativa"
           width={373}
           height={318}
@@ -601,7 +605,15 @@ export default function Cadastro() {
             )}
 
             {/* Botão Seguir */}
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}> {/* LINHA ADICIONADA */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginBottom: "20px",
+              }}
+            >
+              {" "}
+              {/* LINHA ADICIONADA */}
               <button
                 onClick={goToNextSection}
                 style={{
@@ -619,9 +631,13 @@ export default function Cadastro() {
                   justifyContent: "center",
                   marginBottom: "20px",
                   transition: "transform 0.2s ease",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.transform = "scale(1.03)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
               >
                 Seguir
               </button>
@@ -636,7 +652,13 @@ export default function Cadastro() {
                 margin: "0 auto 24px auto",
               }}
             >
-              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
+              <div
+                style={{
+                  width: "475px",
+                  height: "3px",
+                  backgroundColor: "#C3A85E",
+                }}
+              />
               <span
                 style={{
                   margin: "0 15px",
@@ -646,7 +668,13 @@ export default function Cadastro() {
               >
                 ou
               </span>
-              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
+              <div
+                style={{
+                  width: "475px",
+                  height: "3px",
+                  backgroundColor: "#C3A85E",
+                }}
+              />
             </div>
 
             {/* Botão Google */}
@@ -667,9 +695,13 @@ export default function Cadastro() {
                 margin: "0 auto",
                 gap: "12px",
                 transition: "transform 0.2s ease",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
-                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "scale(1.02)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform = "scale(1)")
+              }
             >
               <Image
                 src="/images/GoogleIcon.svg"
@@ -704,25 +736,27 @@ export default function Cadastro() {
           </>
         )}
 
-            {/* Botão voltar */}
-            <div
-              onClick={section === 1 ? () => router.push("/") : goToPreviousSection}
-              style={{
-                position: "fixed",
-                top: "46px",
-                left: "51px",
-                fontSize: "30px",
-                fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                fontWeight: 500,
-                color: "#272727",
-                cursor: "pointer",
-                userSelect: "none",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
-            >
-              ← Voltar
-            </div>
+        {/* Botão voltar */}
+        <div
+          onClick={section === 1 ? () => router.push("/") : goToPreviousSection}
+          style={{
+            position: "fixed",
+            top: "46px",
+            left: "51px",
+            fontSize: "30px",
+            fontFamily: "'SF Pro Text', system-ui, sans-serif",
+            fontWeight: 500,
+            color: "#272727",
+            cursor: "pointer",
+            userSelect: "none",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.textDecoration = "underline")
+          }
+          onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+        >
+          ← Voltar
+        </div>
 
         {/* SEÇÃO 2 */}
         {section === 2 && (
@@ -941,7 +975,7 @@ export default function Cadastro() {
                   style={{
                     position: "absolute",
                     top: "calc(100% + 15px)",
-                    left: "95px",
+                    left: "230px",
                     display: "flex",
                     alignItems: "center",
                     gap: "10px",
@@ -957,9 +991,12 @@ export default function Cadastro() {
                       height: "20px",
                       borderRadius: "4px",
                       border: `2px solid ${termosAceitos ? "#E0C271" : "#535353"}`,
-                      backgroundColor: termosAceitos ? "#E0C271" : "transparent",
+                      backgroundColor: termosAceitos
+                        ? "#E0C271"
+                        : "transparent",
                       flexShrink: 0,
-                      transition: "background-color 0.2s ease, border-color 0.2s ease",
+                      transition:
+                        "background-color 0.2s ease, border-color 0.2s ease",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -967,7 +1004,13 @@ export default function Cadastro() {
                   >
                     {termosAceitos && (
                       <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
-                        <path d="M1 4L4.5 7.5L11 1" stroke="#FAF9F5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path
+                          d="M1 4L4.5 7.5L11 1"
+                          stroke="#FAF9F5"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     )}
                   </div>
@@ -977,17 +1020,33 @@ export default function Cadastro() {
                     style={{
                       fontFamily: "'SF Pro Text', system-ui, sans-serif",
                       fontWeight: 400,
-                      fontSize: "20px",
+                      fontSize: "15px",
                       color: "#535353",
                       lineHeight: 1.3,
                     }}
                   >
                     Concordo com os{" "}
-                    <a href="/termos" onClick={(e) => e.stopPropagation()} style={{ color: "#535353", fontWeight: 400, textDecoration: "underline" }}>
+                    <a
+                      href="/termos"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        color: "#535353",
+                        fontWeight: 400,
+                        textDecoration: "underline",
+                      }}
+                    >
                       Termos de Uso
-                    </a>
-                    {" "}e a{" "}
-                    <a href="/privacidade" onClick={(e) => e.stopPropagation()} style={{ color: "#535353", fontWeight: 400, textDecoration: "underline" }}>
+                    </a>{" "}
+                    e a{" "}
+                    <a
+                      href="/privacidade"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        color: "#535353",
+                        fontWeight: 400,
+                        textDecoration: "underline",
+                      }}
+                    >
                       Política de Privacidade
                     </a>
                     .
@@ -1012,7 +1071,15 @@ export default function Cadastro() {
             )}
 
             {/* Botão Enviar */}
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}> {/* LINHA ADICIONADA */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginBottom: "20px",
+              }}
+            >
+              {" "}
+              {/* LINHA ADICIONADA */}
               <button
                 onClick={goToNextSection}
                 style={{
@@ -1030,9 +1097,13 @@ export default function Cadastro() {
                   justifyContent: "center",
                   marginBottom: "20px",
                   transition: "transform 0.2s ease",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.transform = "scale(1.03)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
               >
                 Enviar
               </button>
@@ -1047,7 +1118,13 @@ export default function Cadastro() {
                 margin: "0 auto 25px auto",
               }}
             >
-              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
+              <div
+                style={{
+                  width: "475px",
+                  height: "3px",
+                  backgroundColor: "#C3A85E",
+                }}
+              />
               <span
                 style={{
                   margin: "0 15px",
@@ -1057,7 +1134,13 @@ export default function Cadastro() {
               >
                 ou
               </span>
-              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
+              <div
+                style={{
+                  width: "475px",
+                  height: "3px",
+                  backgroundColor: "#C3A85E",
+                }}
+              />
             </div>
 
             {/* Botão Google */}
@@ -1078,9 +1161,13 @@ export default function Cadastro() {
                 margin: "0 auto",
                 gap: "12px",
                 transition: "transform 0.2s ease",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
-                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "scale(1.02)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform = "scale(1)")
+              }
             >
               <Image
                 src="/images/GoogleIcon.svg"
@@ -1127,12 +1214,15 @@ export default function Cadastro() {
                 cursor: "pointer",
                 userSelect: "none",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.textDecoration = "underline")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.textDecoration = "none")
+              }
             >
               ← Voltar
             </div>
-
           </>
         )}
 
@@ -1162,7 +1252,13 @@ export default function Cadastro() {
                 margin: "0 auto 15px auto",
               }}
             >
-              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
+              <div
+                style={{
+                  width: "475px",
+                  height: "3px",
+                  backgroundColor: "#C3A85E",
+                }}
+              />
               <span
                 style={{
                   margin: "0 15px",
@@ -1172,7 +1268,13 @@ export default function Cadastro() {
               >
                 ou
               </span>
-              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
+              <div
+                style={{
+                  width: "475px",
+                  height: "3px",
+                  backgroundColor: "#C3A85E",
+                }}
+              />
             </div>
 
             {/* Texto E-mail */}
@@ -1261,8 +1363,12 @@ export default function Cadastro() {
                 cursor: "pointer",
                 userSelect: "none",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.textDecoration = "underline")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.textDecoration = "none")
+              }
             >
               ← Voltar
             </div>
@@ -1288,8 +1394,12 @@ export default function Cadastro() {
                 margin: "0 auto 65px auto",
                 opacity: loading ? 0.7 : 1,
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.transform = "scale(1.03)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.transform = "scale(1)")
+              }
               onClick={handleSubmit}
             >
               {loading ? "Cadastrando..." : "Cadastrar-se"}
@@ -1320,6 +1430,6 @@ export default function Cadastro() {
           </>
         )}
       </div>
-    </div >
+    </div>
   );
 }
