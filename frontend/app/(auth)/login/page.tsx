@@ -57,7 +57,7 @@ export default function Login() {
         }}
       >
         <Image
-          src="/images/logo_domi.png"
+          src="/images/logo_domi.svg"
           alt="Logo decorativa"
           width={346}
           height={295}
@@ -78,7 +78,7 @@ export default function Login() {
         }}
       >
         <Image
-          src="/images/logo_domi.png"
+          src="/images/logo_domi.svg"
           alt="Logo decorativa"
           width={463.5}
           height={390.5}
@@ -98,12 +98,14 @@ export default function Login() {
           color: "#272727",
           cursor: "pointer",
           userSelect: "none",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-          onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
-        >
-           ← Voltar
-          </div>
+        }}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.textDecoration = "underline")
+        }
+        onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+      >
+        ← Voltar
+      </div>
 
       {/* Container Principal do Formulário */}
       <div
@@ -292,9 +294,11 @@ export default function Login() {
               marginBottom: "25px",
               transition: "transform 0.2s ease",
               margin: "0 auto 30px auto",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "scale(1.03)")
+            }
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
@@ -339,9 +343,11 @@ export default function Login() {
             margin: "0 auto",
             gap: "12px",
             transition: "transform 0.2s ease",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = "scale(1.02)")
+          }
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           <Image
             src="/images/GoogleIcon.svg"

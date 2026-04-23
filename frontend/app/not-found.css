@@ -1,0 +1,89 @@
+.not-found-page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  overflow: hidden;
+  background: #faf9f5;
+  color: #272727;
+}
+
+.not-found-header {
+  flex-shrink: 0;
+}
+
+.not-found-card {
+  margin: auto;
+  width: min(760px, calc(100% - 32px));
+  border: 2px solid #e0c271;
+  border-radius: 28px;
+  background-color: #f7f0db;
+  padding: 56px 48px;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(39, 39, 39, 0.08);
+}
+
+.not-found-card__eyebrow {
+  margin: 12px;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 50px;
+  font-weight: 500;
+  color: #e0c271;
+}
+
+.not-found-card__title {
+  margin: 0;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 600;
+  line-height: 1;
+  color: #272727;
+}
+
+.not-found-card__description {
+  margin: 18px auto 0;
+  max-width: 560px;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: #535353;
+}
+
+.not-found-card__actions {
+  margin-top: 36px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.not-found-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  border-radius: 999px;
+  padding: 14px 24px;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    transform 0.2s,
+    opacity 0.2s,
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.not-found-button:hover {
+  transform: translateY(-1px);
+}
+
+.not-found-button--primary {
+  background: #e0c271;
+  color: #faf9f5;
+}
+
+.not-found-button--primary:hover {
+  opacity: 0.92;
+}

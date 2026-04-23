@@ -492,12 +492,7 @@ export default function MessagesPage() {
   };
 
   const handleBack = () => {
-    if (window.history.length > 1) {
-      router.back();
-      return;
-    }
-
-    router.push("/");
+    router.push("/home");
   };
 
   useEffect(() => {
@@ -514,7 +509,7 @@ export default function MessagesPage() {
           {/* Bloco da logo no topo */}
           <div className="messages-header__logo-wrap">
             <Image
-              src="/images/logo_domi.png"
+              src="/images/logo_domi.svg"
               alt="DOMI"
               width={70}
               height={60}
