@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 
 type Conversation = {
   id: string;
@@ -20,9 +21,13 @@ type Message = {
   text: string;
   time: string;
   read?: boolean;
+  attachmentName?: string;
+  attachmentSize?: number;
+  attachmentMimeType?: string;
+  attachmentDataUrl?: string;
 };
 
-const conversations: Conversation[] = [
+const initialConversations: Conversation[] = [
   {
     id: "1",
     name: "Jeferson Thomas Pereira",
@@ -89,7 +94,7 @@ const conversations: Conversation[] = [
   },
 ];
 
-const messagesByConversation: Record<string, Message[]> = {
+const initialMessagesByConversation: Record<string, Message[]> = {
   "1": [
     {
       id: "m1",
@@ -113,44 +118,147 @@ const messagesByConversation: Record<string, Message[]> = {
   ],
 };
 
+function loadSavedConversations() {
+  if (typeof window === "undefined") {
+    return initialConversations;
+  }
+
+  const savedConversations = localStorage.getItem("domi:conversations");
+
+  if (!savedConversations) {
+    return initialConversations;
+  }
+
+  try {
+    const parsedConversations = JSON.parse(
+      savedConversations,
+    ) as Conversation[];
+
+    if (Array.isArray(parsedConversations) && parsedConversations.length > 0) {
+      return parsedConversations;
+    }
+  } catch {
+    // Ignore invalid localStorage data and keep defaults.
+  }
+
+  return initialConversations;
+}
+
+function loadSavedMessages() {
+  if (typeof window === "undefined") {
+    return initialMessagesByConversation;
+  }
+
+  const savedMessages = localStorage.getItem("domi:messages");
+
+  if (!savedMessages) {
+    return initialMessagesByConversation;
+  }
+
+  try {
+    const parsedMessages = JSON.parse(savedMessages) as Record<
+      string,
+      Message[]
+    >;
+
+    if (parsedMessages && typeof parsedMessages === "object") {
+      return parsedMessages;
+    }
+  } catch {
+    // Ignore invalid localStorage data and keep defaults.
+  }
+
+  return initialMessagesByConversation;
+}
+
 function MessageBubble({ message }: { message: Message }) {
   const isMe = message.sender === "me";
+  const hasText = message.text.trim().length > 0;
+  const hasAttachment = Boolean(message.attachmentName);
+  const isPngAttachment = message.attachmentMimeType === "image/png";
+
+  const formatAttachmentSize = (size?: number) => {
+    if (!size) {
+      return "Arquivo";
+    }
+
+    if (size < 1024) {
+      return `${size} B`;
+    }
+
+    if (size < 1024 * 1024) {
+      return `${(size / 1024).toFixed(1)} KB`;
+    }
+
+    return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   return (
     <>
       {/* Wrapper de alinhamento da bolha (esquerda/direita) */}
-      <div className={`mb-7 flex ${isMe ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`message-row ${isMe ? "message-row--me" : "message-row--client"}`}
+      >
         {/* Container com largura maxima da mensagem */}
-        <div className="inline-flex max-w-[75%] flex-col md:max-w-[62%]">
+        <div className="message-bubble-wrap">
           {/* Linha superior com avatar e horario */}
-          <div
-            className={`mb-1.5 flex items-center justify-between px-1 ${
-              isMe ? "flex-row-reverse" : ""
-            }`}
-          >
-            <Image
-              src="/images/fotoPerfil.svg"
-              alt="Perfil"
-              width={16}
-              height={16}
-            />
-            <span className="text-[11px] text-[#888888]">{message.time}</span>
+          <div className={`message-meta ${isMe ? "message-meta--me" : ""}`}>
+            {!isMe ? (
+              <Image
+                src="/images/fotoPerfil.svg"
+                alt="Perfil"
+                width={16}
+                height={16}
+                className="message-meta__avatar"
+              />
+            ) : null}
+            <span className="message-meta__time">{message.time}</span>
           </div>
 
           {/* Caixa da mensagem */}
           <div
-            className={`relative inline-block w-fit max-w-full rounded-[20px] bg-[#D9D9D9] px-5 py-4 text-[20px] font-normal text-[#272727] ${
-              isMe ? "rounded-br-[6px]" : "rounded-bl-[6px]"
-            }`}
+            className={`message-bubble ${isMe ? "message-bubble--me" : "message-bubble--client"}`}
           >
-            {message.text}
+            {hasText ? (
+              <p className="message-bubble__text">{message.text}</p>
+            ) : null}
+            {hasAttachment ? (
+              <a
+                href={message.attachmentDataUrl || "#"}
+                download={message.attachmentName}
+                className={`message-attachment ${hasText ? "message-attachment--with-text" : ""}`}
+                onClick={(event) => {
+                  if (!message.attachmentDataUrl) {
+                    event.preventDefault();
+                  }
+                }}
+              >
+                {isPngAttachment && message.attachmentDataUrl ? (
+                  <Image
+                    src={message.attachmentDataUrl}
+                    alt={message.attachmentName || "Imagem anexada"}
+                    width={320}
+                    height={220}
+                    unoptimized
+                    className="message-attachment__preview"
+                  />
+                ) : null}
+                <p className="message-attachment__name">
+                  {message.attachmentName}
+                </p>
+                <p className="message-attachment__size">
+                  {formatAttachmentSize(message.attachmentSize)}
+                  {message.attachmentDataUrl ? " - clique para baixar" : ""}
+                </p>
+              </a>
+            ) : null}
             {message.read && isMe ? (
               <Image
                 src="/images/Visto.svg"
                 alt="Lida"
                 width={16}
                 height={16}
-                className="absolute bottom-2 right-3"
+                className="message-bubble__read"
               />
             ) : null}
           </div>
@@ -162,47 +270,249 @@ function MessageBubble({ message }: { message: Message }) {
 
 function IconButton({ iconSrc, label }: { iconSrc: string; label: string }) {
   return (
-    <button
-      type="button"
-      aria-label={label}
-      className="grid h-9 w-9 place-items-center rounded-lg border border-[#E0C271] bg-[#E0C271] text-white transition hover:opacity-85"
-    >
+    <button type="button" aria-label={label} className="icon-button">
       <Image src={iconSrc} alt="" width={18} height={18} aria-hidden="true" />
     </button>
   );
 }
 
 export default function MessagesPage() {
-  const [selectedConversation, setSelectedConversation] = useState("1");
+  const router = useRouter();
+  const [conversationList, setConversationList] =
+    useState<Conversation[]>(initialConversations);
+  const [messagesMap, setMessagesMap] = useState<Record<string, Message[]>>(
+    initialMessagesByConversation,
+  );
+  const [selectedConversation, setSelectedConversation] = useState(
+    initialConversations[0]?.id ?? "",
+  );
   const [filter, setFilter] = useState<"Todas" | "Não lidas">("Todas");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [newMessage, setNewMessage] = useState("");
+  const [attachedFile, setAttachedFile] = useState<{
+    name: string;
+    size: number;
+    mimeType: string;
+    dataUrl: string;
+  } | null>(null);
+  const messageListRef = useRef<HTMLDivElement>(null);
+  const messageInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const hasLoadedStorageRef = useRef(false);
+
+  const formatTime = (date: Date) => {
+    const hour = String(date.getHours()).padStart(2, "0");
+    const minute = String(date.getMinutes()).padStart(2, "0");
+
+    return `${hour}h${minute}`;
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      const savedConversations = loadSavedConversations();
+      const savedMessages = loadSavedMessages();
+
+      setConversationList(savedConversations);
+      setMessagesMap(savedMessages);
+      setSelectedConversation((previousSelected) => {
+        if (
+          previousSelected &&
+          savedConversations.some(
+            (conversation) => conversation.id === previousSelected,
+          )
+        ) {
+          return previousSelected;
+        }
+
+        return savedConversations[0]?.id ?? "";
+      });
+
+      hasLoadedStorageRef.current = true;
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hasLoadedStorageRef.current) {
+      return;
+    }
+
+    localStorage.setItem(
+      "domi:conversations",
+      JSON.stringify(conversationList),
+    );
+  }, [conversationList]);
+
+  useEffect(() => {
+    if (!hasLoadedStorageRef.current) {
+      return;
+    }
+
+    localStorage.setItem("domi:messages", JSON.stringify(messagesMap));
+  }, [messagesMap]);
+
+  const handleSendMessage = () => {
+    const trimmedMessage = newMessage.trim();
+
+    if ((!trimmedMessage && !attachedFile) || !selectedConversation) {
+      return;
+    }
+
+    const now = new Date();
+    const createdMessage: Message = {
+      id: `${selectedConversation}-${Date.now()}`,
+      sender: "me",
+      text: trimmedMessage,
+      time: formatTime(now),
+      read: true,
+      attachmentName: attachedFile?.name,
+      attachmentSize: attachedFile?.size,
+      attachmentMimeType: attachedFile?.mimeType,
+      attachmentDataUrl: attachedFile?.dataUrl,
+    };
+
+    setMessagesMap((previousMessages) => ({
+      ...previousMessages,
+      [selectedConversation]: [
+        ...(previousMessages[selectedConversation] ?? []),
+        createdMessage,
+      ],
+    }));
+
+    setConversationList((previousConversations) =>
+      previousConversations.map((conversation) =>
+        conversation.id === selectedConversation
+          ? {
+              ...conversation,
+              preview:
+                trimmedMessage || `Arquivo: ${attachedFile?.name ?? "anexo"}`,
+              time: formatTime(now),
+              date: formatDate(now),
+              unread: 0,
+            }
+          : conversation,
+      ),
+    );
+
+    setNewMessage("");
+    setAttachedFile(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const selectedConv = useMemo(
     () =>
-      conversations.find(
+      conversationList.find(
         (conversation) => conversation.id === selectedConversation,
-      ) ?? conversations[0],
-    [selectedConversation],
+      ) ?? conversationList[0],
+    [conversationList, selectedConversation],
   );
 
   const visibleConversations = useMemo(() => {
-    if (filter === "Não lidas") {
-      return conversations.filter((conversation) => conversation.unread > 0);
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    return conversationList.filter((conversation) => {
+      const matchUnread = filter !== "Não lidas" || conversation.unread > 0;
+      const matchSearch =
+        normalizedQuery.length === 0 ||
+        `${conversation.name} ${conversation.role} ${conversation.location ?? ""}`
+          .toLowerCase()
+          .includes(normalizedQuery);
+
+      return matchUnread && matchSearch;
+    });
+  }, [conversationList, filter, searchQuery]);
+
+  const selectedMessages = messagesMap[selectedConversation] ?? [];
+
+  const handleToggleSearch = () => {
+    setIsSearchOpen((previousState) => {
+      const nextState = !previousState;
+
+      if (!nextState) {
+        setSearchQuery("");
+      }
+
+      return nextState;
+    });
+  };
+
+  const handleOpenFilePicker = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAttachFile = (event: ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+
+    if (!selectedFile) {
+      return;
     }
 
-    return conversations;
-  }, [filter]);
+    const reader = new FileReader();
 
-  const selectedMessages =
-    messagesByConversation[selectedConversation] ?? messagesByConversation["1"];
+    reader.onload = () => {
+      const result = reader.result;
+
+      if (typeof result !== "string") {
+        return;
+      }
+
+      setAttachedFile({
+        name: selectedFile.name,
+        size: selectedFile.size,
+        mimeType: selectedFile.type,
+        dataUrl: result,
+      });
+      messageInputRef.current?.focus();
+    };
+
+    reader.readAsDataURL(selectedFile);
+  };
+
+  const handleRemoveAttachment = () => {
+    setAttachedFile(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    router.push("/");
+  };
+
+  useEffect(() => {
+    if (messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    }
+  }, [selectedConversation, selectedMessages.length]);
 
   return (
     <>
       {/* Container raiz da pagina de mensagens */}
-      <div className="flex h-screen flex-col overflow-hidden bg-[#FAF9F5] text-[#272727]">
-        <header className="relative z-10 flex h-[90px] w-full items-center bg-[#E0C271]">
+      <div className="messages-page">
+        <header className="messages-header">
           {/* Bloco da logo no topo */}
-          <div className="absolute left-[40px] top-[15px] z-20">
+          <div className="messages-header__logo-wrap">
             <Image
               src="/images/logo_domi.png"
               alt="DOMI"
@@ -212,23 +522,37 @@ export default function MessagesPage() {
             />
           </div>
 
-          <span className="ml-[130px] select-none font-['Clash_Display',sans-serif] text-[70px] font-bold leading-none tracking-[-1px] text-[#272727]">
-            DOMI
-          </span>
+          <span className="messages-header__brand">DOMI</span>
+
+          <div className="messages-header__back" onClick={handleBack}>
+            ← Voltar
+          </div>
         </header>
 
-        <main className="flex flex-1 overflow-hidden">
-          <aside className="flex w-[420px] flex-col border-r-2 border-[#E0C271] bg-[#FAF9F5]">
+        <main className="messages-main">
+          <aside className="messages-sidebar">
             {/* Cabecalho da lista lateral */}
-            <div className="px-5 pb-2 pt-5">
+            <div className="messages-sidebar__header">
               {/* Linha com titulo e botoes de acao */}
-              <div className="mb-5 flex items-center justify-between gap-3">
-                <h1 className="text-[38px] font-bold leading-none text-[#272727]">
-                  Mensagens
-                </h1>
+              <div className="messages-sidebar__title-row">
+                <h1 className="messages-sidebar__title">Mensagens</h1>
                 {/* Grupo de botoes de acao (buscar/arquivar) */}
-                <div className="flex items-center gap-2">
-                  <IconButton label="Pesquisar" iconSrc="/images/lupa2.svg" />
+                <div className="messages-sidebar__actions">
+                  <button
+                    type="button"
+                    onClick={handleToggleSearch}
+                    aria-label="Pesquisar"
+                    aria-pressed={isSearchOpen}
+                    className="icon-button"
+                  >
+                    <Image
+                      src="/images/lupa2.svg"
+                      alt=""
+                      width={18}
+                      height={18}
+                      aria-hidden="true"
+                    />
+                  </button>
                   <IconButton
                     label="Arquivar"
                     iconSrc="/images/Arquivadas.svg"
@@ -236,8 +560,28 @@ export default function MessagesPage() {
                 </div>
               </div>
 
+              {/* Campo de pesquisa de contatos */}
+              {isSearchOpen ? (
+                <div className="messages-sidebar__search">
+                  <Image
+                    src="/images/lupa2.svg"
+                    alt=""
+                    width={16}
+                    height={16}
+                    aria-hidden="true"
+                  />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder="Pesquisar"
+                    className="messages-sidebar__search-input"
+                  />
+                </div>
+              ) : null}
+
               {/* Area de filtros da lista de conversas */}
-              <div className="mb-3 flex gap-3">
+              <div className="messages-sidebar__filters">
                 {(["Todas", "Não lidas"] as const).map((option) => (
                   <button
                     key={option}
@@ -245,11 +589,11 @@ export default function MessagesPage() {
                     onClick={() =>
                       setFilter(option === "Não lidas" ? "Não lidas" : "Todas")
                     }
-                    className={`rounded-full px-6 py-2 text-[16px] font-semibold transition ${
+                    className={`messages-sidebar__filter-btn ${
                       (option === "Não lidas" ? "Não lidas" : "Todas") ===
                       filter
-                        ? "bg-[#272727] text-white"
-                        : "border border-[#272727] bg-transparent text-[#272727]"
+                        ? "messages-sidebar__filter-btn--active"
+                        : ""
                     }`}
                   >
                     {option}
@@ -259,7 +603,7 @@ export default function MessagesPage() {
             </div>
 
             {/* Lista rolavel de conversas */}
-            <div className="flex-1 overflow-y-auto border-t-2 border-[#E0C271]">
+            <div className="messages-sidebar__list scrollbar-hidden">
               {visibleConversations.map((conversation) => {
                 const isSelected = conversation.id === selectedConversation;
 
@@ -268,8 +612,10 @@ export default function MessagesPage() {
                     key={conversation.id}
                     type="button"
                     onClick={() => setSelectedConversation(conversation.id)}
-                    className={`flex w-full items-start gap-3 border-b-2 border-[#E0C271] px-5 py-3 text-left transition ${
-                      isSelected ? "bg-[#F3E9C9]" : "hover:bg-[#F3E9C9]"
+                    className={`messages-conversation-item ${
+                      isSelected
+                        ? "messages-conversation-item--selected"
+                        : "messages-conversation-item--idle"
                     }`}
                   >
                     <Image
@@ -277,40 +623,42 @@ export default function MessagesPage() {
                       alt="Perfil"
                       width={45}
                       height={45}
-                      className="h-[45px] w-[45px] shrink-0"
+                      className="messages-conversation-item__avatar"
                     />
 
                     {/* Bloco central com dados da conversa */}
-                    <div className="min-w-0 flex-1">
+                    <div className="messages-conversation-item__content">
                       {/* Linha com nome e papel do contato */}
-                      <div className="mb-1 flex items-baseline gap-1">
-                        <span className="truncate font-['SF_Pro_Text',system-ui,sans-serif] text-[16px] font-medium text-[#272727]">
+                      <div className="messages-conversation-item__name-row">
+                        <span className="messages-conversation-item__name">
                           {conversation.name}
                         </span>
-                        <span className="text-[12px] text-[#272727]">-</span>
-                        <span className="truncate text-[16px] font-medium text-[#E0C271]">
+                        <span className="messages-conversation-item__separator">
+                          -
+                        </span>
+                        <span className="messages-conversation-item__role">
                           {conversation.role}
                         </span>
                       </div>
 
-                      <p className="truncate text-[14px] text-[#555555]">
+                      <p className="messages-conversation-item__preview">
                         {conversation.preview}
                       </p>
 
                       {/* Linha inferior com data e indicador de nao lidas */}
-                      <div className="mt-1 flex items-center justify-between gap-2">
-                        <span className="truncate text-[11px] text-[#888888]">
+                      <div className="messages-conversation-item__meta">
+                        <span className="messages-conversation-item__date">
                           {conversation.date}
                         </span>
                         {conversation.unread > 0 ? (
-                          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#272727] px-1.5 text-[11px] text-white">
+                          <span className="messages-conversation-item__unread">
                             {conversation.unread}
                           </span>
                         ) : null}
                       </div>
                     </div>
 
-                    <span className="shrink-0 text-[12px] font-medium text-[#888888]">
+                    <span className="messages-conversation-item__time">
                       {conversation.time}
                     </span>
                   </button>
@@ -318,7 +666,7 @@ export default function MessagesPage() {
               })}
 
               {/* Rodape da lista lateral */}
-              <div className="px-5 py-8 text-center text-[14px] font-medium text-[#272727]">
+              <div className="messages-sidebar__end">
                 ...
                 <br />
                 Parece que voce chegou ao fim!
@@ -326,47 +674,45 @@ export default function MessagesPage() {
             </div>
           </aside>
 
-          <section className="flex min-w-0 flex-1 flex-col bg-[#FAF9F5]">
+          <section className="messages-chat">
             {/* Cabecalho da conversa ativa */}
-            <div className="flex items-center justify-between border-b-2 border-[#E0C271] px-8 py-5">
+            <div className="messages-chat__header">
               {/* Bloco com avatar e informacoes do contato */}
-              <div className="flex min-w-0 items-center gap-3">
+              <div className="messages-chat__contact">
                 <Image
                   src="/images/fotoPerfil.svg"
                   alt="Perfil"
                   width={55}
                   height={55}
-                  className="h-[55px] w-[55px] shrink-0"
+                  className="messages-chat__contact-avatar"
                 />
                 {/* Nome e subtitulo do contato */}
-                <div className="min-w-0">
-                  <h2 className="truncate font-['SF_Pro_Text',system-ui,sans-serif] text-[34px] font-medium leading-none text-[#272727]">
+                <div className="messages-chat__contact-info">
+                  <h2 className="messages-chat__contact-name">
                     {selectedConv.name}
                   </h2>
-                  <p className="mt-1 truncate text-[18px] font-medium text-[#E0C271]">
+                  <p className="messages-chat__contact-role">
                     {selectedConv.role}
                     {selectedConv.location ? ` - ${selectedConv.location}` : ""}
                   </p>
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="rounded-full bg-[#E0C271] px-6 py-2 text-[18px] font-semibold text-white transition hover:opacity-90"
-              >
+              <button type="button" className="messages-chat__project-button">
                 Mostrar projeto
               </button>
             </div>
 
             {/* Area principal das mensagens */}
-            <div className="flex-1 overflow-y-auto px-8 py-8">
+            <div
+              ref={messageListRef}
+              className="messages-chat__messages scrollbar-hidden"
+            >
               {/* Marcador de data da conversa */}
-              <div className="mb-8 text-center text-[12px] font-medium text-[#888888]">
-                25 abr. de 2026
-              </div>
+              <div className="messages-chat__date-divider">25 abr. de 2026</div>
 
               {/* Coluna com as bolhas renderizadas */}
-              <div className="flex flex-col">
+              <div className="messages-chat__message-column">
                 {selectedMessages.map((message) => (
                   <MessageBubble key={message.id} message={message} />
                 ))}
@@ -374,13 +720,14 @@ export default function MessagesPage() {
             </div>
 
             {/* Rodape do chat com campo de digitacao */}
-            <div className="px-8 pb-10">
+            <div className="messages-chat__composer-wrap">
               {/* Barra arredondada de composicao da mensagem */}
-              <div className="flex h-[80px] items-center rounded-full bg-[#EBEBEB] px-5 shadow-[0_4px_10px_rgba(0,0,0,0.03)]">
+              <div className="messages-chat__composer">
                 <button
                   type="button"
                   aria-label="Anexar"
-                  className="grid h-10 w-10 place-items-center"
+                  onClick={handleOpenFilePicker}
+                  className="composer__attach-button"
                 >
                   <Image
                     src="/images/link.svg"
@@ -391,17 +738,47 @@ export default function MessagesPage() {
                 </button>
 
                 <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={handleAttachFile}
+                  className="composer__file-input"
+                />
+
+                <input
+                  ref={messageInputRef}
                   value={newMessage}
                   onChange={(event) => setNewMessage(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
                   placeholder="Escreva uma mensagem..."
-                  className="ml-4 min-w-0 flex-1 bg-transparent text-[24px] text-[#333333] outline-none placeholder:text-[#777777]"
+                  className="composer__input"
                 />
+
+                {attachedFile ? (
+                  <div className="composer__attached-file">
+                    <span className="composer__attached-file-name">
+                      {attachedFile.name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleRemoveAttachment}
+                      aria-label="Remover anexo"
+                      className="composer__remove-attachment"
+                    >
+                      x
+                    </button>
+                  </div>
+                ) : null}
 
                 <button
                   type="button"
-                  onClick={() => setNewMessage("")}
+                  onClick={handleSendMessage}
                   aria-label="Enviar"
-                  className="grid h-10 w-10 place-items-center"
+                  className="composer__send-button"
                 >
                   <Image
                     src="/images/enviar.svg"
