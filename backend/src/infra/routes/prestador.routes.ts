@@ -29,7 +29,7 @@ const prestadorController = new PrestadorController(
 
 prestadorRouter.post("/criarPrestador", ensureAuthenticated, prestadorController.criar.bind(prestadorController));
 
-prestadorRouter.post("/deletarPrestador", ensureAuthenticated, prestadorController.deletar.bind(prestadorController));
+prestadorRouter.delete("/deletarPrestador", ensureAuthenticated, prestadorController.deletar.bind(prestadorController));
 
 prestadorRouter.patch("/editarPrestador", ensureAuthenticated, prestadorController.atualizar.bind(prestadorController));
 

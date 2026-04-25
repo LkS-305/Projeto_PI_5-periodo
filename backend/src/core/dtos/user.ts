@@ -1,6 +1,7 @@
 export type UserType = 'User' | 'Prestador' | 'Usuario' | 'Admin'
 
 export interface RegisterDto {
+  id?: string,
   nome?: string,
   email: string,
   senha: string,

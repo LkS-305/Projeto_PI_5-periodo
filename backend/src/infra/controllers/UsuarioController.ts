@@ -31,8 +31,8 @@ export class UsuarioController {
 
       const {id} = req.user
 
-      if (id != req.body.id) throw new Error('Usuario tentando apagar outro usuario');
-      const resultado = await this.deletarUsuario.executar(id);
+      if (id != req.body.user_id) throw new Error('Usuario tentando apagar outro usuario');
+      const resultado = await this.deletarUsuario.executar(req.body.user_id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({erro: erro.message})

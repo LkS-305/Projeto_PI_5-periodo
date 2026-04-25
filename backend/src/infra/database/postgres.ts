@@ -20,3 +20,28 @@ pool.on('connect', () => {
 pool.on('error', (err) => {
   console.error('Erro inesperado no pool do Postgres:', err);
 });
+
+// O evento 'acquire' dispara sempre que o pool entrega um cliente para uso
+pool.on('acquire', (client) => {
+    // Verificamos se o ouvinte já não foi adicionado para não duplicar logs
+    if (!client.listeners('notice').length) {
+        client.on('notice', (msg) => {
+            const message = msg.message;
+            let color = '\x1b[94m'; // Azul claro (padrão)
+            
+            if (message){
+
+              if (message.includes('INSERT')) {
+                color = '\x1b[32m'; // Verde
+              } else if (message.includes('DELETE')) {
+                color = '\x1b[31m'; // Vermelho
+              } else if (message.includes('UPDATE')) {
+                color = '\x1b[33m'; // Amarelo
+              }
+            }
+
+  // Imprime com a cor selecionada e reseta no final (\x1b[0m)
+  console.log(`${color}Postgres ${message}\x1b[0m`);
+        });
+    }
+});

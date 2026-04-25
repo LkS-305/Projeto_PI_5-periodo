@@ -14,7 +14,6 @@ export class UserController {
   async registrar(req: Request, res: Response) {
     try {
       exigirCampos(req.body, ['email', 'senha', 'cpf']);
-      console.log('passou dos campos');
       const resultado = await this.registerUC.executar(req.body);
       return res.status(200).json(resultado);
     } catch (erro: unknown) {

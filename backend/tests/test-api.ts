@@ -23,6 +23,7 @@ async function testAPI() {
 
     if (!registerRes.ok) throw new Error("Falha no registro");
 
+
     const token = registerData.token;
 
     let countUsuarios = 0;
@@ -131,7 +132,7 @@ async function testAPI() {
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
     let countPrestadores = 0;
-    
+    try {
 
         // teste de prestador
     console.log('\n------ Testando rotas do Prestador ----------');
@@ -199,7 +200,7 @@ async function testAPI() {
 
 //------------------------------------------------------------------------------------
     
-    const prestadorDeletado = await fetch(`${BASE_URL}/prestador/deletarPresador`, {
+    const prestadorDeletado = await fetch(`${BASE_URL}/prestador/deletarPrestador`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -209,15 +210,118 @@ async function testAPI() {
         user_id: prestadorData.user_id
       })
     });
-    
-    if(prestadorDeletado){ console.log('prestador deletado com sucesso'); countPrestadores++;} else {console.error('erro ao deletar prestador');};
+    const prestadorDeletadoData = await prestadorDeletado.json();
+    if(prestadorDeletadoData){ console.log('prestador deletado com sucesso'); countPrestadores++;} else {console.error('erro ao deletar prestador');};
 
     console.log('TODOS OS TESTES DE PRESTADOR PASSARAM');
   } catch (error: any) {
 
-    console.error("\n❌ Erro durante os testes:");
+    console.error("\n❌ Erro durante os testes de prestador:");
     console.error(error.message);
   }
-}
 
+// ------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------------
+
+  // TESTE DE CATEGORIAS
+    console.log('\n----------------- Teste de Categorias ------------------');
+
+    let countCategorias = 0;
+    
+  try {
+    const  categoriaCriado = await fetch(`${BASE_URL}/categoria/criarCategoria`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        nome: 'Pedreiro',
+        slug: 'Trabalho com pedras'
+      })
+    });
+    
+    
+    const categoriaData = await categoriaCriado.json();
+    if (categoriaData.nome === 'Pedreiro') {
+     console.log('Categoria criada com sucesso'); 
+        countCategorias++;
+    } else {
+        console.error('erro ao criar categoria');
+      }
+    
+//------------------------------------------------------------------------------------
+
+    const categoriaAtualizada = await fetch(`${BASE_URL}/categoria/editarCategoria`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        id: categoriaData.id,
+        nome: 'Pedreira',
+      })
+    });
+
+    const categoriaDataDois = await categoriaAtualizada.json();
+    if (categoriaDataDois.nome === 'Pedreira') {
+      console.log('Categoria editada com sucesso'); 
+      countCategorias++;
+    } else {
+        console.error('erro ao editar categoria');
+      }
+    
+
+//------------------------------------------------------------------------------------
+    
+    const categoriaBuscado = await fetch(`${BASE_URL}/categoria/buscarPorId`, {
+      method: 'POST',
+      headers:{
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        id: categoriaData.id,
+      })
+    });
+
+    const categoriaBuscadoData = await categoriaBuscado.json();
+    if (categoriaBuscadoData.id === categoriaData.id) {
+    console.log('busca feita com sucesso');
+      countCategorias++;
+    } else {console.error('erro ao buscar categoria');}
+
+//------------------------------------------------------------------------------------
+    
+    const categoriaDeletado = await fetch(`${BASE_URL}/categoria/deletarCategoria`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        id: categoriaData.id
+      })
+    });
+    const categoriaDeletadoData = await categoriaDeletado.json();
+    if(categoriaDeletadoData){ console.log('categoria deletado com sucesso'); countCategorias++;} else {console.error('erro ao deletar categoria');};
+
+    console.log('TODOS OS TESTES DE CATEGORIAS PASSARAM');
+
+
+
+ } catch (error: any) {
+    
+    console.error("\n❌ Erro durante os testes de categoria:");
+    console.error(error.message);
+  }
+
+
+ } catch (erro: any) {
+    console.error("\n❌ Erro durante os testes");
+    console.error(erro.message);
+  }}
 testAPI();

@@ -8,6 +8,7 @@ import { avaliacaoRouter } from '../routes/avaliacao.routes'
 import { errorHandler } from '../../middlewares/ErrorHandler';
 import { logger } from '../../middlewares/Logger';
 import { globalRateLimit } from '../../middlewares/RateLimit';
+import { categoriaRouter } from '../routes/categoria.routes';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/user', userRouter);
 app.use('/avaliacao', avaliacaoRouter);
 app.use('/usuario', usuarioRouter);
 app.use('/prestador', prestadorRouter);
+app.use('/categoria', categoriaRouter);
 
  
 app.get('/health', async (req, res) => {

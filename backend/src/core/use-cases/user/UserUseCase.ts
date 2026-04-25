@@ -29,7 +29,6 @@ export class RegisterUseCase {
     }
     const senhaCriptografada = await bcrypt.hash(dados.senha, 10);
     const novoUser = new User({ ...dados, senha: senhaCriptografada });
-    console.log('entidade criada:', novoUser);
     await this.userRepository.register(novoUser);
 
     const { senha, ...UsersemSenha } = novoUser;
@@ -39,7 +38,6 @@ export class RegisterUseCase {
       process.env.JWT_SECRET || 'secret-key',
       { expiresIn: '1d' },
     );
-    console.log('Criei com sucesso: ', UsersemSenha);
     return { token, user: UsersemSenha as Omit<User, 'senha'>};
 
   }

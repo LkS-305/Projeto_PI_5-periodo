@@ -30,7 +30,16 @@ export class PrestadorController {
 
   async deletar(req: Request, res: Response) {
     try {
-      const resultado = await this.deletarPrestador.executar(req.body);
+      if (!req.user) {
+      return res.status(401).json({ erro: "User não identificado no jwt." });
+    }
+
+      const { id } = req.user
+      if (id != req.body.user_id) {
+        return res.status(402).json({erro: "User tentando deletar outro user_id"});
+      }
+
+      const resultado = await this.deletarPrestador.executar(req.body.user_id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({ erro: erro.message });

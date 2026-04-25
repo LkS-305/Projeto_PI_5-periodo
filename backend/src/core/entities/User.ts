@@ -11,8 +11,8 @@ export class User {
   public readonly created_at: Date;
   public updated_at: Date;
 
-   constructor(props: RegisterDto, id?: string) {
-    this.id = id ?? randomUUID();
+   constructor(props: RegisterDto) {
+    this.id = props.id ?? randomUUID();
     this.email = props.email;
     this.senha = props.senha;
     this.cpf = props.cpf;

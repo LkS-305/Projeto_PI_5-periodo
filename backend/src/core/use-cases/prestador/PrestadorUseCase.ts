@@ -31,7 +31,6 @@ export class CriarPrestadorUseCase {
       foto_url: dados.foto_url,
     });
 
-    console.log('criei um prestador: ', prestador);
 
     await this.prestadorRepository.create(prestador);
 
@@ -42,7 +41,7 @@ export class CriarPrestadorUseCase {
 export class DeletarPrestadorUseCase {
   constructor(private prestadorRepository: IPrestadorRepository) {}
 
-  async executar(user_id: string) {
+  async executar(user_id: string): Promise<boolean> {
     validarUUID(user_id, 'ID do usuário');
     const prestador = await this.prestadorRepository.findByUserId(user_id);
 
@@ -51,6 +50,7 @@ export class DeletarPrestadorUseCase {
     }
 
     await this.prestadorRepository.delete(user_id);
+    return true;
   }
 }
 
@@ -86,7 +86,6 @@ export class AcharPorUserId {
       throw new ResourceNotFoundError('Prestador');
     }
 
-    console.log('busquei um prestador: ', prestador);
     return prestador;
   }
 }
