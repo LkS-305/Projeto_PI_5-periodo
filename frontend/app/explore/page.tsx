@@ -42,10 +42,18 @@ const CATEGORIES: Category[] = [
         city: "São Paulo, SP",
         rating: 4.9,
         media: [
-          { type: "photo" }, { type: "photo" }, { type: "photo" },
-          { type: "video" }, { type: "photo" }, { type: "video" },
-          { type: "photo" }, { type: "photo" }, { type: "video" },
-          { type: "photo" }, { type: "video" }, { type: "photo" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
         ],
         tags: ["Paredes", "Tetos"],
         distance: "1,2km",
@@ -58,10 +66,17 @@ const CATEGORIES: Category[] = [
         city: "Aracaju, SE",
         rating: 4.9,
         media: [
-          { type: "photo" }, { type: "video" }, { type: "photo" },
-          { type: "photo" }, { type: "video" }, { type: "photo" },
-          { type: "video" }, { type: "photo" }, { type: "photo" },
-          { type: "video" }, { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
         ],
         tags: ["Azulejo", "Louça"],
         distance: "8,2km",
@@ -74,9 +89,15 @@ const CATEGORIES: Category[] = [
         city: "Belém, PA",
         rating: 4.7,
         media: [
-          { type: "photo" }, { type: "photo" }, { type: "video" },
-          { type: "photo" }, { type: "photo" }, { type: "video" },
-          { type: "photo" }, { type: "video" }, { type: "photo" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
           { type: "photo" },
         ],
         tags: ["Portões"],
@@ -90,10 +111,17 @@ const CATEGORIES: Category[] = [
         city: "Fortaleza, CE",
         rating: 5.0,
         media: [
-          { type: "photo" }, { type: "video" }, { type: "photo" },
-          { type: "video" }, { type: "photo" }, { type: "photo" },
-          { type: "video" }, { type: "photo" }, { type: "photo" },
-          { type: "video" }, { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
         ],
         tags: ["Fachada", "Tetos", "Gesso"],
         distance: "3,4km",
@@ -111,10 +139,17 @@ const CATEGORIES: Category[] = [
         city: "São Paulo, SP",
         rating: 4.9,
         media: [
-          { type: "photo" }, { type: "photo" }, { type: "video" },
-          { type: "video" }, { type: "photo" }, { type: "photo" },
-          { type: "video" }, { type: "photo" }, { type: "video" },
-          { type: "photo" }, { type: "photo" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "photo" },
         ],
         tags: ["Alvenaria", "Reboco"],
         distance: "2,1km",
@@ -127,9 +162,15 @@ const CATEGORIES: Category[] = [
         city: "Aracaju, SE",
         rating: 4.9,
         media: [
-          { type: "photo" }, { type: "photo" }, { type: "photo" },
-          { type: "video" }, { type: "photo" }, { type: "video" },
-          { type: "photo" }, { type: "photo" }, { type: "video" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "video" },
+          { type: "photo" },
+          { type: "photo" },
+          { type: "video" },
           { type: "photo" },
         ],
         tags: ["Azulejo", "Piso", "Contrapiso"],
@@ -247,7 +288,8 @@ function WorkerCard({ worker }: { worker: Worker }) {
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLDivElement).style.boxShadow =
           "0 16px 48px rgba(224,194,113,0.35)";
-        (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)";
+        (e.currentTarget as HTMLDivElement).style.transform =
+          "translateY(-3px)";
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
@@ -383,7 +425,9 @@ function WorkerCard({ worker }: { worker: Worker }) {
             className="media-item"
           >
             <Image
-              src={m.type === "video" ? "/images/play.svg" : "/images/picture.svg"}
+              src={
+                m.type === "video" ? "/images/play.svg" : "/images/picture.svg"
+              }
               alt={m.type === "video" ? "Vídeo" : "Foto"}
               width={m.type === "video" ? 50 : 58}
               height={m.type === "video" ? 50 : 50}
@@ -668,13 +712,7 @@ function FilterModal({
   );
 }
 
-function SortModal({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+function SortModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [selected, setSelected] = useState("Relevância");
 
   if (!open) return null;
@@ -901,7 +939,14 @@ export default function Dashboard() {
           marginBottom: "35px",
         }}
       >
-        <div style={{ position: "absolute", top: "15px", left: "40px", zIndex: 20 }}>
+        <div
+          style={{
+            position: "absolute",
+            top: "15px",
+            left: "40px",
+            zIndex: 20,
+          }}
+        >
           <Image
             src="/images/logo_domi.svg"
             alt="Logo DOMI"
@@ -990,11 +1035,46 @@ export default function Dashboard() {
           const rowHeight = 90;
 
           const menuItems = [
-            { icon: "message.svg",  iconW: 42, iconH: 40, label: "Mensagens",     hasSwitch: false, href: "/messages" },
-            { icon: "settings.svg", iconW: 40, iconH: 40, label: "Configurações", hasSwitch: false, href: null },
-            { icon: "mode.svg",     iconW: 40, iconH: 40, label: "Modo escuro",   hasSwitch: true,  href: null },
-            { icon: "help.svg",     iconW: 40, iconH: 40, label: "Ajuda",         hasSwitch: false, href: null },
-            { icon: "logout.svg",   iconW: 40, iconH: 40, label: "Sair da conta", hasSwitch: false, href: null },
+            {
+              icon: "message.svg",
+              iconW: 42,
+              iconH: 40,
+              label: "Mensagens",
+              hasSwitch: false,
+              href: "/messages",
+            },
+            {
+              icon: "settings.svg",
+              iconW: 40,
+              iconH: 40,
+              label: "Configurações",
+              hasSwitch: false,
+              href: null,
+            },
+            {
+              icon: "mode.svg",
+              iconW: 40,
+              iconH: 40,
+              label: "Modo escuro",
+              hasSwitch: true,
+              href: null,
+            },
+            {
+              icon: "help.svg",
+              iconW: 40,
+              iconH: 40,
+              label: "Ajuda",
+              hasSwitch: false,
+              href: null,
+            },
+            {
+              icon: "logout.svg",
+              iconW: 40,
+              iconH: 40,
+              label: "Sair da conta",
+              hasSwitch: false,
+              href: null,
+            },
           ];
 
           return (
@@ -1002,7 +1082,10 @@ export default function Dashboard() {
               {[0, 1, 2, 3, 4, 5].map((i) => (
                 <div
                   key={`line-${i}`}
-                  style={{ ...lineStyle, top: `${firstLineTop + i * rowHeight}px` }}
+                  style={{
+                    ...lineStyle,
+                    top: `${firstLineTop + i * rowHeight}px`,
+                  }}
                 />
               ))}
 
@@ -1011,7 +1094,9 @@ export default function Dashboard() {
                 return (
                   <div
                     key={item.label}
-                    onClick={() => { if (item.href) router.push(item.href); }}
+                    onClick={() => {
+                      if (item.href) router.push(item.href);
+                    }}
                     style={{
                       position: "absolute",
                       top: `${centerY}px`,
@@ -1040,10 +1125,12 @@ export default function Dashboard() {
                         transition: "text-decoration 0.15s",
                       }}
                       onMouseEnter={(e) => {
-                        if (!item.hasSwitch) e.currentTarget.style.textDecoration = "underline";
+                        if (!item.hasSwitch)
+                          e.currentTarget.style.textDecoration = "underline";
                       }}
                       onMouseLeave={(e) => {
-                        if (!item.hasSwitch) e.currentTarget.style.textDecoration = "none";
+                        if (!item.hasSwitch)
+                          e.currentTarget.style.textDecoration = "none";
                       }}
                     >
                       {item.label}
@@ -1051,7 +1138,10 @@ export default function Dashboard() {
 
                     {item.hasSwitch && (
                       <div
-                        onClick={(e) => { e.stopPropagation(); setDarkMode((v) => !v); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDarkMode((v) => !v);
+                        }}
                         style={{
                           marginLeft: "60px",
                           width: "80px",
@@ -1074,7 +1164,8 @@ export default function Dashboard() {
                             height: "33px",
                             borderRadius: "50%",
                             backgroundColor: "#FAF9F5",
-                            transition: "left 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)",
+                            transition:
+                              "left 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)",
                             boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
                           }}
                         />
@@ -1107,7 +1198,7 @@ export default function Dashboard() {
           }}
         >
           <Image
-            src="/images/lupa.svg"
+            src="/images/Lupa.svg"
             alt="Buscar"
             width={50}
             height={50}
@@ -1145,7 +1236,9 @@ export default function Dashboard() {
             userSelect: "none",
             zIndex: 5,
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.textDecoration = "underline")
+          }
           onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
         >
           ← Voltar
@@ -1199,14 +1292,21 @@ export default function Dashboard() {
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLDivElement).style.borderColor = "#272727";
-              (e.currentTarget as HTMLDivElement).style.boxShadow = "0 6px 20px rgba(0,0,0,0.12)";
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 6px 20px rgba(0,0,0,0.12)";
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLDivElement).style.borderColor = "#DEDEDE";
-              (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 14px rgba(0,0,0,0.07)";
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 4px 14px rgba(0,0,0,0.07)";
             }}
           >
-            <Image src="/images/ordenar.svg" alt="Ordenar" width={28} height={28} />
+            <Image
+              src="/images/ordenar.svg"
+              alt="Ordenar"
+              width={28}
+              height={28}
+            />
             Ordenar
           </div>
 
@@ -1232,14 +1332,21 @@ export default function Dashboard() {
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLDivElement).style.borderColor = "#272727";
-              (e.currentTarget as HTMLDivElement).style.boxShadow = "0 6px 20px rgba(0,0,0,0.12)";
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 6px 20px rgba(0,0,0,0.12)";
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLDivElement).style.borderColor = "#DEDEDE";
-              (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 14px rgba(0,0,0,0.07)";
+              (e.currentTarget as HTMLDivElement).style.boxShadow =
+                "0 4px 14px rgba(0,0,0,0.07)";
             }}
           >
-            <Image src="/images/filter.svg" alt="Filtrar" width={28} height={28} />
+            <Image
+              src="/images/filter.svg"
+              alt="Filtrar"
+              width={28}
+              height={28}
+            />
             Filtrar
           </div>
         </div>
