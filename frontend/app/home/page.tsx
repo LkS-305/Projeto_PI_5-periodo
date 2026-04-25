@@ -303,7 +303,10 @@ export default function Dashboard() {
               </div>
 
               {/* Box 3 — Explorar catálogo */}
-              <div className="home-card home-card--half">
+              <div
+                className="home-card home-card--half"
+                onClick={() => router.push("/explore")}
+              >
                 <div className="home-card__title-row">
                   <Image
                     src="/images/explore.svg"
