@@ -1,51 +1,44 @@
-import { IUserRepository } from '../../src/core/repositories/IUserRepository';
-import { User } from '../../src/core/entities/User';
+import { IUsuarioRepository } from "../../src/core/repositories/IUsuarioRepository";
+import { Usuario } from "../../src/core/entities/Usuario";
+import { CriarUsuarioDto } from "../../src/core/dtos/usuario";
 
-export class InMemoryUsuarioRepository implements IUserRepository {
-    public items: User[] = [];
+export class InMemoryUsuarioRepository implements IUsuarioRepository {
+  public items: Usuario[] = [];
 
-    async create(user: User): Promise<User> {
-        const newUser = {
-            ...user,
-            id: user.id || 'test-uuid-123' // Simula o gen_random_uuid()
-        };
-        this.items.push(newUser);
-        return newUser;
-    }
+  async create(usuario: CriarUsuarioDto): Promise<Usuario> {
+    const novo = new Usuario(usuario);
+    this.items.push(novo);
+    return novo;
+  }
 
-    async delete(id: string): Promise<boolean> {
-        const index = this.items.findIndex(u => u.id === id);
-        if (index === -1) return false;
-        this.items.splice(index, 1);
-        return true;
-    }
+  async delete(id: string): Promise<void> {
+    // Support deletion by user_id or id
+    const index = this.items.findIndex((u) => u.user_id === id || u.id === id);
+    if (index === -1) return;
+    this.items.splice(index, 1);
+  }
 
-    async update(id: string, dados: Partial<User>): Promise<User | null> {
-     const index = this.items.findIndex(u => u.id === id);
+  async update(id: string, dados: Partial<Usuario>): Promise<void> {
+    const index = this.items.findIndex(
+      (u) => u.user_id === id || u.id === id,
+    );
+    if (index === -1) return;
+    Object.assign(this.items[index], dados);
+  }
 
-      if (index === -1) {
-        return null;
-      }
+  async findByUserId(user_id: string): Promise<Usuario | null> {
+    const user = this.items.find((u) => u.user_id === user_id);
+    return user || null;
+  }
 
-     // Mescla o que já existia com as novas informações
-     const usuarioAtualizado = {
-       ...this.items[index],
-       ...dados,
-     };
+  async findByEmail(email: string | undefined): Promise<Usuario | null> {
+    if (!email) return null;
+    const user = this.items.find((u) => u.email === email);
+    return user || null;
+  }
 
-      // Atualiza a lista em memória
-      this.items[index] = usuarioAtualizado;
-
-      return usuarioAtualizado;
-    }
-   
-    async findByEmail(email: string): Promise<User | null> {
-        const user = this.items.find(u => u.email === email);
-        return user || null;
-    }
-
-    async findById(id: string): Promise<User | null> {
-        const user = this.items.find(u => u.id === id);
-        return user || null;
-    }
+  async findById(id: string): Promise<Usuario | null> {
+    const user = this.items.find((u) => u.id === id || u.user_id === id);
+    return user || null;
+  }
 }

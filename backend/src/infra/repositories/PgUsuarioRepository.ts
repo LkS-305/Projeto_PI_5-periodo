@@ -1,54 +1,81 @@
-import { IUserRepository } from '../../core/repositories/IUserRepository';
-import { User } from '../../core/entities/User';
-import { pool } from '../database/postgres';
+import { pool } from "../database/postgres";
+import { Usuario } from "../../core/entities/Usuario";
+import { IUsuarioRepository } from "../../core/repositories/IUsuarioRepository";
+import { AppError } from "../../core/errors/AppError";
 
-export class PgUsuarioRepository implements IUserRepository {
+export class PgUsuarioRepository implements IUsuarioRepository {
+  async create(usuario: Usuario): Promise<void> {
+    const consulta = `
+      INSERT INTO usuarios (user_id, nome, score, foto_url, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, NOW(), NOW())
+      RETURNING *;
+    `;
+    const valores = [
+      usuario.user_id,
+      usuario.nome,
+      usuario.score,
+      usuario.foto_url,
+    ];
 
-  async delete(id: string){
-    const { rows } = await pool.query('DELETE FROM usuarios WHERE id = $1 RETURNING *', [id]);
+    try {
+      await pool.query(consulta, valores);
+    } catch (error: any) {
+
+      // Erro de violação de restrição única (Ex: Email ou CPF já existem)
+      if (error.code === '23505') {
+
+        const detail = error.detail; // O Postgres costuma dizer qual campo falhou
+        if (detail.includes('user_id')) {
+          throw new AppError('Este user_id ja esta em uso.', 400);
+        }
+      }
+
+    // Erro genérico de banco (Conexão, sintaxe, etc)
+    console.error('Database Error:', error);
+    throw new AppError('Erro interno ao processar o cadastro no banco de dados.', 500);
+   }
+  }
+
+  async delete(id: string): Promise<void> {
+    const { rows } = await pool.query(
+      "DELETE * FROM usuarios WHERE user_id = $1 RETURNING *",
+      [id],
+    );
     return rows[0];
   }
 
-async update(id: string, dados: User): Promise<User | null> {
-    const query = `
+  async update(dados: Usuario): Promise<void> {
+    const consulta = `
         UPDATE usuarios 
-        SET 
-            nome = $1, 
-            email = $2, 
-            senha = $3, 
-            endereco = $4,
-            cpf = $5, 
-            score = $6,
-            foto_url = $7, 
-            tipo_usuario = $8
-        WHERE id = $9
+        SET nome = $1,
+            foto_url = $2
+        WHERE user_id = $3
         RETURNING *
     `;
 
-    const values = [
-        dados.nome,
-        dados.email,
-        dados.senha,
-        dados.cpf,
-        dados.score,
-        dados.foto_url,
-        dados.tipo_usuario,
-        id 
-    ];
+    const valores = [dados.nome, dados.foto_url, dados.user_id];
 
-    const { rows } = await pool.query(query, values);
-    return rows[0] || null;
-}
-
-  async findByEmail(email: string): Promise<User | null> {
-    const { rows } = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
-    return rows[0] || null;
+  try {
+    await pool.query(consulta, valores);
+  } catch (error: any) {
+    console.error(error);
+    throw new AppError("Erro de sintaxe na atualização: " + error.message);
+  }
   }
 
-  async findById(id: string): Promise<User | null> {
-    const { rows } = await pool.query('SELECT * FROM usuarios WHERE id = $1', [id]);
-    return rows[0] || null;
-  }
-
+  async findByUserId(user_id: string): Promise<Usuario | null> {
+    console.log('procurando no banco pelpo user_id: ', user_id);
+    const consulta = "SELECT * FROM usuarios WHERE user_id = $1"; // Sem vírgula, sem RETURNING
   
+try {
+    const { rows } = await pool.query(consulta, [user_id]);
+      console.log('aaaaaaaa',rows[0]);
+    return rows[0] || null;
+  } catch (error: any) {
+    // Esse log vai aparecer no terminal onde o SERVIDOR (npm run dev) está rodando
+    console.error("ERRO NA QUERY:", consulta);
+    console.error("MENSAGEM:", error.message);
+    throw error;
+  }
+ }
 }

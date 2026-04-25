@@ -4,6 +4,7 @@
     "build": "tsc",
     "start": "node dist/main.js",
     "db:setup": "ts-node src/infra/database/migrate.ts",
+    "test:api": "ts-node tests/test-api.ts",
     "test": "jest",
     "test-user": "tsx --test tests/User.test.ts",
     "test-categorias": "tsx --test tests/Categoria.test.ts",
@@ -29,7 +30,9 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.3.2",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^8.0.4",
     "pg": "^8.18.0",

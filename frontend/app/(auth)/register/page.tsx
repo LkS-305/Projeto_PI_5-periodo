@@ -257,7 +257,11 @@ export default function Cadastro() {
                 width: "10px",
                 height: "10px",
                 borderRadius: "50%",
-                backgroundColor: isActive ? "#E0C271" : isCompleted ? "#C3A85E" : "#272727",
+                backgroundColor: isActive
+                  ? "#E0C271"
+                  : isCompleted
+                    ? "#C3A85E"
+                    : "#272727",
                 transform: isActive ? "scale(1.4)" : "scale(1)",
                 transition: "all 0.3s ease",
                 border: "none",
@@ -533,7 +537,13 @@ export default function Cadastro() {
                   <div style={{ width: "20px", height: "20px", borderRadius: "4px", border: `2px solid ${termosAceitos ? "#E0C271" : inputError ? "#D92B2E" : "#535353"}`, backgroundColor: termosAceitos ? "#E0C271" : "transparent", flexShrink: 0, transition: "background-color 0.2s ease, border-color 0.2s ease", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {termosAceitos && (
                       <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
-                        <path d="M1 4L4.5 7.5L11 1" stroke="#FAF9F5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path
+                          d="M1 4L4.5 7.5L11 1"
+                          stroke="#FAF9F5"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     )}
                   </div>

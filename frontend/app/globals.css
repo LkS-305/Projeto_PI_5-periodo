@@ -1,144 +1,147 @@
 @import "tailwindcss";
+@import "./messages/messages.css";
+@import "./not-found.css";
+@import "./shared/home-header.css";
 
 @font-face {
-  font-family: 'SF Pro Text';
-  src: url('/fonts/SF-Pro-Text-Thin.otf') format('opentype');
+  font-family: "SF Pro Text";
+  src: url("/fonts/SF-Pro-Text-Thin.otf") format("opentype");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Text';
-  src: url('/fonts/SF-Pro-Text-Light.otf') format('opentype');
+  font-family: "SF Pro Text";
+  src: url("/fonts/SF-Pro-Text-Light.otf") format("opentype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Text';
-  src: url('/fonts/SF-Pro-Text-Regular.otf') format('opentype');
+  font-family: "SF Pro Text";
+  src: url("/fonts/SF-Pro-Text-Regular.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Text';
-  src: url('/fonts/SF-Pro-Text-Medium.otf') format('opentype');
+  font-family: "SF Pro Text";
+  src: url("/fonts/SF-Pro-Text-Medium.otf") format("opentype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Text';
-  src: url('/fonts/SF-Pro-Text-Semibold.otf') format('opentype');
+  font-family: "SF Pro Text";
+  src: url("/fonts/SF-Pro-Text-Semibold.otf") format("opentype");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Text';
-  src: url('/fonts/SF-Pro-Text-Bold.otf') format('opentype');
+  font-family: "SF Pro Text";
+  src: url("/fonts/SF-Pro-Text-Bold.otf") format("opentype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Text';
-  src: url('/fonts/SF-Pro-Text-Black.otf') format('opentype');
+  font-family: "SF Pro Text";
+  src: url("/fonts/SF-Pro-Text-Black.otf") format("opentype");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Text';
-  src: url('/fonts/SF-Pro-Text-Heavy.otf') format('opentype');
+  font-family: "SF Pro Text";
+  src: url("/fonts/SF-Pro-Text-Heavy.otf") format("opentype");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SF-Pro-Display-Light.otf') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SF-Pro-Display-Light.otf") format("opentype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SF-Pro-Display-Regular.otf') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SF-Pro-Display-Regular.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SF-Pro-Display-Medium.otf') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SF-Pro-Display-Medium.otf") format("opentype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SF-Pro-Display-Semibold.otf') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SF-Pro-Display-Semibold.otf") format("opentype");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SF-Pro-Display-Bold.otf') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SF-Pro-Display-Bold.otf") format("opentype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SF-Pro-Display-Black.otf') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SF-Pro-Display-Black.otf") format("opentype");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SF Pro Display';
-  src: url('/fonts/SF-Pro-Display-Heavy.otf') format('opentype');
+  font-family: "SF Pro Display";
+  src: url("/fonts/SF-Pro-Display-Heavy.otf") format("opentype");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Clash Display';
-  src: url('/fonts/ClashDisplay-Variable.ttf') format('truetype');
+  font-family: "Clash Display";
+  src: url("/fonts/ClashDisplay-Variable.ttf") format("truetype");
   font-weight: 200 700;
   font-style: normal;
   font-display: swap;
 }
 
 :root {
-  --background: #FAF9F5;
+  --background: #faf9f5;
   --foreground: #272727;
 
-  --color-yellow: #E0C271;
+  --color-yellow: #e0c271;
   --color-black: #272727;
-  --color-white: #FAF9F5;
+  --color-white: #faf9f5;
 
-  --font-sf-text: 'SF Pro Text', system-ui, sans-serif;
-  --font-sf-display: 'SF Pro Display', system-ui, sans-serif;
-  --font-clash: 'Clash Display', sans-serif;
+  --font-sf-text: "SF Pro Text", system-ui, sans-serif;
+  --font-sf-display: "SF Pro Display", system-ui, sans-serif;
+  --font-clash: "Clash Display", sans-serif;
 }
 
 @theme inline {
@@ -167,6 +170,25 @@ html {
   overflow: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
+html {
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-clash);
+}
+
+.scrollbar-hidden {
+  overflow: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
 }

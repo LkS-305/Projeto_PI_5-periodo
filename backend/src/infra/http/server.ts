@@ -2,11 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import { pool } from '../database/postgres';
 import { userRouter } from '../routes/user.routes';
+import { usuarioRouter } from '../routes/usuario.routes';
+import { prestadorRouter } from '../routes/prestador.routes';
 import { avaliacaoRouter } from '../routes/avaliacao.routes'
 import { errorHandler } from '../../middlewares/ErrorHandler';
+import { logger } from '../../middlewares/Logger';
+import { globalRateLimit } from '../../middlewares/RateLimit';
 
 const app = express();
-
 
 app.use(cors());
 app.use(express.json());
@@ -14,15 +17,16 @@ app.use(express.json());
 
 
 app.use((req, res, next) => {
-	console.log('[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}');
+	console.log(`${new Date().toLocaleTimeString()} ${req.method} ${req.url}`);
 	next();
 });
 
 app.use('/users', userRouter);
 app.use('/avaliacao', avaliacaoRouter);
+app.use('/usuario', usuarioRouter);
+app.use('/prestador', prestadorRouter);
 
-
-
+ 
 app.get('/health', async (req, res) => {
 	try {
 		const result = await pool.query('SELECT NOW()');

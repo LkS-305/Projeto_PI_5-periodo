@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { ICategoriaRepository } from './../../src/core/repositories/ICategoriaRepository';
 import { Categoria } from '../../src/core/entities/Categoria';
 
@@ -6,7 +7,7 @@ export class InMemoryCategoriaRepository implements ICategoriaRepository {
   public items: Categoria[] = [];
 
     async create(categoria: Categoria): Promise<Categoria> {
-      const newCategoria = {...categoria, id: categoria.id || `uuid-fake-${Math.random()}`};
+      const newCategoria = {...categoria, id: categoria.id || randomUUID()};
       this.items.push(newCategoria);
       return newCategoria;
   }

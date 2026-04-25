@@ -200,21 +200,77 @@ export default function Login() {
       )}
 
       {/* Imagem de fundo - Topo Direita */}
-      <div style={{ position: "absolute", top: "90px", right: "80px", opacity: 0.05, pointerEvents: "none", zIndex: 0 }}>
-        <Image src="/images/logo_domi.svg" alt="Logo decorativa" width={346} height={295} priority style={{ transform: "scaleX(-1)" }} />
+      <div
+        style={{
+          position: "absolute",
+          top: "90px",
+          right: "80px",
+          opacity: 0.05,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      >
+        <Image
+          src="/images/logo_domi.svg"
+          alt="Logo decorativa"
+          width={346}
+          height={295}
+          priority
+          style={{ transform: "scaleX(-1)" }}
+        />
       </div>
 
       {/* Imagem de fundo - Base Esquerda */}
-      <div style={{ position: "absolute", bottom: "30px", left: "40px", opacity: 0.05, pointerEvents: "none", zIndex: 0 }}>
-        <Image src="/images/logo_domi.svg" alt="Logo decorativa" width={463.5} height={390.5} />
+      <div
+        style={{
+          position: "absolute",
+          bottom: "30px",
+          left: "40px",
+          opacity: 0.05,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      >
+        <Image
+          src="/images/logo_domi.svg"
+          alt="Logo decorativa"
+          width={463.5}
+          height={390.5}
+        />
       </div>
 
       {/* Botão voltar */}
       <div
         onClick={() => router.push("/")}
-        style={{ position: "fixed", top: "46px", left: "51px", fontSize: "30px", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, color: "#272727", cursor: "pointer", userSelect: "none" }}
-        onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+        style={{
+          position: "fixed",
+          top: "46px",
+          left: "51px",
+          fontSize: "30px",
+          fontFamily: "'SF Pro Text', system-ui, sans-serif",
+          fontWeight: 500,
+          color: "#272727",
+          cursor: "pointer",
+          userSelect: "none",
+        }}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.textDecoration = "underline")
+        }
         onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+      >
+        ← Voltar
+      </div>
+
+      {/* Container Principal do Formulário */}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "1000px",
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+          zIndex: 10,
+        }}
       >
         ← Voltar
       </div>
@@ -340,8 +396,26 @@ export default function Login() {
 
         {/* Botão Google */}
         <button
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#272727", color: "#FAF9F5", border: "none", borderRadius: "50px", width: "385px", height: "60px", fontSize: "30px", fontWeight: 400, cursor: "pointer", margin: "0 auto", gap: "12px", transition: "transform 0.2s ease" }}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#272727",
+            color: "#FAF9F5",
+            border: "none",
+            borderRadius: "50px",
+            width: "385px",
+            height: "60px",
+            fontSize: "30px",
+            fontWeight: 400,
+            cursor: "pointer",
+            margin: "0 auto",
+            gap: "12px",
+            transition: "transform 0.2s ease",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = "scale(1.02)")
+          }
           onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           <Image src="/images/GoogleIcon.svg" alt="Google" width={35} height={35} />
