@@ -1,0 +1,157 @@
+.balances-root {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: #faf9f5;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+}
+
+.balances-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.balances-title {
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  margin: 0;
+  font-size: 44px;
+  font-weight: 600;
+  color: #272727;
+}
+
+.balances-select {
+  width: fit-content;
+  border: 1px solid #e0c271;
+  border-radius: 10px;
+  background: #f6f0df;
+  color: #272727;
+  font-size: 20px;
+  font-weight: 500;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+}
+
+.balances-card {
+  border: 1px solid #ebd38a;
+  border-radius: 14px;
+  background: #faf9f5;
+  padding: 20px;
+}
+
+.balances-section-title {
+  margin: 0 0 12px;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+  color: #272727;
+}
+
+.balances-chart-wrap {
+  height: 66px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.balances-table-head,
+.balances-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.balances-table-head {
+  border-bottom: 1px solid #ebd38a;
+  padding: 0 0 10px;
+  color: #7b7b7b;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.balances-row {
+  border-bottom: 1px solid #f0dfb2;
+  padding: 12px 0;
+  color: #272727;
+  font-size: 26px;
+  font-weight: 500;
+}
+
+.balances-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.balances-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.balances-dot--entry {
+  background: #f0dfb2;
+}
+
+.balances-dot--available {
+  background: #e0c271;
+}
+
+.balances-activity {
+  border: 1px solid #ebd38a;
+  border-radius: 14px;
+  background: #faf9f5;
+  padding: 20px;
+}
+
+.balances-tabs {
+  display: flex;
+  gap: 20px;
+  border-bottom: 1px solid #ebd38a;
+}
+
+.balances-tab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 10px 2px;
+  background: transparent;
+  color: #272727;
+  font-size: 24px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+}
+
+.balances-tab--active {
+  color: #e0c271;
+  border-bottom-color: #e0c271;
+}
+
+.balances-empty {
+  margin-top: 16px;
+  border: 2px dashed #e0c271;
+  border-radius: 12px;
+  min-height: 100px;
+  display: grid;
+  place-items: center;
+  color: #272727;
+  font-size: 30px;
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .balances-title {
+    font-size: 34px;
+  }
+
+  .balances-row {
+    font-size: 20px;
+  }
+
+  .balances-tab,
+  .balances-empty {
+    font-size: 18px;
+  }
+}
