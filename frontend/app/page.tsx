@@ -1076,10 +1076,10 @@ export default function Home() {
               {/* ── MÁSCARAS LATERAIS ── */}
               <div style={{
                 position: "absolute",
-                top: /* alinhe com o topo dos cards, ex: */ "0px",
+                top: /* alinhe com o topo dos cards, ex: */ "310px",
                 left: 0,
                 width: "40px",
-                height: "1080px",
+                height: "700px",
                 backgroundColor: "#FAF9F5",
                 zIndex: 40,
                 pointerEvents: "none",
@@ -1087,10 +1087,10 @@ export default function Home() {
 
               <div style={{
                 position: "absolute",
-                top: "0px",
+                top: "310px",
                 right: 0,
                 width: "70px",
-                height: "1080px",
+                height: "700px",
                 backgroundColor: "#FAF9F5",
                 zIndex: 40,
                 pointerEvents: "none",

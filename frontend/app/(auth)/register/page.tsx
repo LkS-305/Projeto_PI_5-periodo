@@ -12,14 +12,15 @@ export default function Cadastro() {
   const [completedSections, setCompletedSections] = useState<number[]>([]);
   const [termosAceitos, setTermosAceitos] = useState(false);
   const [error, setError] = useState("");
+  const [showSenha, setShowSenha] = useState(false);
+  const [showConfirmeSenha, setShowConfirmeSenha] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [inputError, setInputError] = useState(false);
   const [localError, setLocalError] = useState("");
   const [verificationCode, setVerificationCode] = useState(["", "", "", ""]);
-  const verificationInputs = useRef<(HTMLInputElement | null)[]>([
-    null,
-    null,
-    null,
-    null,
-  ]);
+  const [showError3, setShowError3] = useState(false);
+  const dateInputRef = useRef<HTMLInputElement>(null);
+  const verificationInputs = useRef<(HTMLInputElement | null)[]>([null, null, null, null]);
   const [formData, setFormData] = useState({
     nome: "",
     celular: "",
@@ -37,87 +38,67 @@ export default function Cadastro() {
     }
   }, [isAuthenticated, router]);
 
+  const triggerError = (message: string) => {
+    setError(message);
+    setInputError(true);
+    setShowError(true);
+    setTimeout(() => setShowError(false), 2000);
+  };
+
+  const clearInputError = () => setInputError(false);
+
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     setError("");
     setLocalError("");
   };
 
   const validateSection = (sectionNum: number): boolean => {
     if (sectionNum === 1) {
-      if (
-        !formData.nome ||
-        !formData.celular ||
-        !formData.email ||
-        !formData.dataNascimento
-      ) {
-        setError("Por favor, preencha todos os campos");
+      if (!formData.nome || !formData.celular || !formData.email || !formData.dataNascimento) {
+        triggerError("Preencha todos os campos corretamente.");
         return false;
       }
       if (!isEmailValid(formData.email)) {
-        setError(
-          "Email inválido. Certifique-se de incluir @ e um domínio válido",
-        );
+        triggerError("e-mail inválido.");
         return false;
       }
       if (formData.celular.replace(/\D/g, "").length < 11) {
-        setError("Telefone inválido. Digite um número com 11 dígitos");
+        triggerError("Número de celular inválido.");
         return false;
       }
       if (!isDateValid(formData.dataNascimento).valid) {
-        const validation = isDateValid(formData.dataNascimento);
-        setError(validation.message);
+        triggerError("Data de nascimento inválida.");
         return false;
       }
     } else if (sectionNum === 2) {
-      if (
-        !formData.cep ||
-        !formData.numeroEndereco ||
-        !formData.senha ||
-        !formData.confirmeSenha
-      ) {
-        setError("Por favor, preencha todos os campos");
+      if (!formData.cep || !formData.numeroEndereco || !formData.senha || !formData.confirmeSenha) {
+        triggerError("Preencha todos os campos corretamente.");
         return false;
       }
       if (formData.cep.replace(/\D/g, "").length < 8) {
-        setError("CEP inválido. Digite um CEP com 8 dígitos");
+        triggerError("CEP inválido.");
         return false;
       }
       if (formData.senha !== formData.confirmeSenha) {
-        setError("As senhas não coincidem");
+        triggerError("As senhas digitadas devem ser iguais.");
+        return false;
+      }
+      if (!termosAceitos) {
+        triggerError("Aceite os Termos de Uso e a Política de Privacidade para continuar.");
         return false;
       }
     }
     return true;
   };
 
-  const isDateValid = (
-    dateString: string,
-  ): { valid: boolean; message: string } => {
+  const isDateValid = (dateString: string): { valid: boolean; message: string } => {
     const date = new Date(dateString);
     const minDate = new Date("1910-01-01");
     const maxDate = new Date();
     maxDate.setFullYear(maxDate.getFullYear() - 18);
-
-    if (date < minDate) {
-      return {
-        valid: false,
-        message:
-          "Data de nascimento inválida. Você deve ter nascido após 1910.",
-      };
-    }
-
-    if (date > maxDate) {
-      return {
-        valid: false,
-        message:
-          "Data de nascimento inválida. Você deve ter pelo menos 18 anos.",
-      };
-    }
-
+    if (date < minDate) return { valid: false, message: "Data inválida." };
+    if (date > maxDate) return { valid: false, message: "Você deve ter pelo menos 18 anos." };
     return { valid: true, message: "" };
   };
 
@@ -128,17 +109,14 @@ export default function Cadastro() {
 
   const formatPhone = (value: string): string => {
     const numbers = value.replace(/\D/g, "").slice(0, 11);
-
     if (numbers.length === 0) return "";
     if (numbers.length <= 2) return `(${numbers}`;
-    if (numbers.length <= 7)
-      return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    if (numbers.length <= 7) return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
     return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7)}`;
   };
 
   const formatCEP = (value: string): string => {
     const numbers = value.replace(/\D/g, "").slice(0, 8);
-
     if (numbers.length === 0) return "";
     if (numbers.length <= 5) return numbers;
     return `${numbers.slice(0, 5)}-${numbers.slice(5)}`;
@@ -151,20 +129,15 @@ export default function Cadastro() {
   const handleVerificationInput = (index: number, value: string) => {
     const numbers = value.replace(/\D/g, "");
     if (numbers.length > 1) return;
-
     const newCode = [...verificationCode];
     newCode[index] = numbers;
     setVerificationCode(newCode);
-
     if (numbers && index < 3) {
       verificationInputs.current[index + 1]?.focus();
     }
   };
 
-  const handleVerificationKeyDown = (
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
+  const handleVerificationKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !verificationCode[index] && index > 0) {
       verificationInputs.current[index - 1]?.focus();
     }
@@ -172,9 +145,7 @@ export default function Cadastro() {
 
   const goToNextSection = () => {
     if (validateSection(section)) {
-      setCompletedSections((prev) =>
-        prev.includes(section) ? prev : [...prev, section],
-      );
+      setCompletedSections((prev) => prev.includes(section) ? prev : [...prev, section]);
       setSection(section + 1);
     }
   };
@@ -182,15 +153,12 @@ export default function Cadastro() {
   const goToPreviousSection = () => {
     setSection(section - 1);
     setError("");
+    setShowError(false);
+    setInputError(false);
   };
 
   async function handleSubmit() {
     setLocalError("");
-
-    if (formData.senha !== formData.confirmeSenha) {
-      setLocalError("As senhas não coincidem.");
-      return;
-    }
 
     const user = await signup({
       nome: formData.nome,
@@ -204,10 +172,8 @@ export default function Cadastro() {
       return;
     }
 
-    setLocalError(
-      authError ||
-        "Falha ao criar conta. Verifique os dados e tente novamente.",
-    );
+    setShowError3(true);
+    setTimeout(() => setShowError3(false), 2000);
   }
 
   const TOTAL_SECTIONS = 3;
@@ -215,16 +181,18 @@ export default function Cadastro() {
   const handleDotClick = (dotIndex: number) => {
     const targetSection = dotIndex + 1;
     if (completedSections.includes(targetSection)) {
-      // Seção já preenchida — permite navegar para ela
       setSection(targetSection);
       setError("");
+      setShowError(false);
+      setInputError(false);
     } else if (targetSection === section) {
-      // Dot da seção atual — não faz nada
+      // dot atual — não faz nada
     } else {
-      // Tentando avançar sem completar — exibe erro
-      setError("Por favor, preencha todos os campos");
+      triggerError("Preencha todos os campos corretamente.");
     }
   };
+
+  const fieldBorder = inputError ? "2px solid #D92B2E" : "2px solid transparent";
 
   return (
     <div
@@ -241,6 +209,26 @@ export default function Cadastro() {
         overflow: "hidden",
       }}
     >
+      <style>{`
+        @keyframes fill-ltr {
+          from { background-size: 0% 100%; }
+          to   { background-size: 100% 100%; }
+        }
+        .btn-loading {
+          background-image: linear-gradient(to right, #C3A85E 0%, #C3A85E 100%);
+          background-size: 0% 100%;
+          background-repeat: no-repeat;
+          animation: fill-ltr 1.8s ease forwards;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+          display: none;
+          -webkit-appearance: none;
+        }
+        input[type="date"] {
+          -moz-appearance: textfield;
+        }
+      `}</style>
+
       {/* ── BARRA DE PROGRESSO EM DOTS ── */}
       <div
         style={{
@@ -260,7 +248,6 @@ export default function Cadastro() {
           const isActive = section === targetSection;
           const isCompleted = completedSections.includes(targetSection);
           const isClickable = isCompleted && !isActive;
-
           return (
             <button
               key={i}
@@ -289,46 +276,16 @@ export default function Cadastro() {
       </div>
 
       {/* Imagem de fundo - Topo Direita */}
-      <div
-        style={{
-          position: "absolute",
-          top: "30px",
-          right: "150px",
-          opacity: 0.05,
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      >
-        <Image
-          src="/images/logo_domi.svg"
-          alt="Logo decorativa"
-          width={346}
-          height={295}
-          priority
-          style={{ transform: "scaleX(-1)" }}
-        />
+      <div style={{ position: "absolute", top: "30px", right: "150px", opacity: 0.05, pointerEvents: "none", zIndex: 0 }}>
+        <Image src="/images/logo_domi.svg" alt="Logo decorativa" width={346} height={295} priority style={{ transform: "scaleX(-1)" }} />
       </div>
 
       {/* Imagem de fundo - Base Esquerda */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "40px",
-          left: "40px",
-          opacity: 0.05,
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      >
-        <Image
-          src="/images/logo_domi.svg"
-          alt="Logo decorativa"
-          width={373}
-          height={318}
-        />
+      <div style={{ position: "absolute", bottom: "40px", left: "40px", opacity: 0.05, pointerEvents: "none", zIndex: 0 }}>
+        <Image src="/images/logo_domi.svg" alt="Logo decorativa" width={373} height={318} />
       </div>
 
-      {/* Container Principal do Formulário */}
+      {/* Container Principal */}
       <div
         style={{
           width: "100%",
@@ -340,428 +297,44 @@ export default function Cadastro() {
         }}
       >
         {/* Logo */}
-        <h1
-          style={{
-            fontFamily: "'Clash Display', sans-serif",
-            fontSize: "60px",
-            fontWeight: 900,
-            textAlign: "center",
-            marginTop: "25px",
-            marginBottom: "-30px",
-            color: "#272727",
-          }}
-        >
+        <h1 style={{ fontFamily: "'Clash Display', sans-serif", fontSize: "60px", fontWeight: 900, textAlign: "center", marginTop: "25px", marginBottom: "-30px", color: "#272727" }}>
           DOMI
         </h1>
 
-        {/* Título Cadastrar-se */}
-        <h2
-          style={{
-            fontFamily: "'SF Pro Text', system-ui, sans-serif",
-            fontSize: "130px",
-            fontWeight: 700,
-            textAlign: "center",
-            marginBottom: "5px",
-            color: "#272727",
-          }}
-        >
+        {/* Título */}
+        <h2 style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontSize: "130px", fontWeight: 700, textAlign: "center", marginBottom: "5px", color: "#272727" }}>
           Cadastrar-se
         </h2>
 
-        {/* SEÇÃO 1 */}
-        {section === 1 && (
-          <>
-            {/* Container de Campos em Quadrado */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                columnGap: "200px",
-                rowGap: "25px",
-                marginBottom: "55px", //GAP QUE EU QUERO
-              }}
-            >
-              {/* Nome */}
-              <div style={{ gridColumn: "1 / 2" }}>
-                <label
-                  style={{
-                    fontSize: "40px",
-                    fontWeight: 510,
-                    color: "#272727",
-                    marginBottom: "10px",
-                    display: "block",
-                  }}
-                >
-                  nome
-                </label>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "#EAEAEA",
-                    borderRadius: "60px",
-                    padding: "0 40px",
-                    width: "700px",
-                    height: "80px",
-                  }}
-                >
-                  <Image
-                    src="/images/name.svg"
-                    alt="nome"
-                    width={42}
-                    height={30}
-                  />
-                  <input
-                    type="text"
-                    placeholder="insira seu nome completo"
-                    value={formData.nome}
-                    onChange={(e) => handleInputChange("nome", e.target.value)}
-                    style={{
-                      flex: 1,
-                      border: "none",
-                      backgroundColor: "transparent",
-                      outline: "none",
-                      marginLeft: "15px",
-                      fontWeight: 400,
-                      fontSize: "30px",
-                      color: "#535353",
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Celular */}
-              <div style={{ gridColumn: "2 / 3" }}>
-                <label
-                  style={{
-                    fontSize: "40px",
-                    fontWeight: 510,
-                    color: "#272727",
-                    marginBottom: "10px",
-                    display: "block",
-                  }}
-                >
-                  celular
-                </label>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "#EAEAEA",
-                    borderRadius: "60px",
-                    padding: "0 40px",
-                    width: "700px",
-                    height: "80px",
-                  }}
-                >
-                  <Image
-                    src="/images/cellphone.svg"
-                    alt="celular"
-                    width={35}
-                    height={35}
-                  />
-                  <input
-                    type="tel"
-                    placeholder="(11) 99999-9999"
-                    value={formData.celular}
-                    onChange={(e) => {
-                      const formatted = formatPhone(e.target.value);
-                      handleInputChange("celular", formatted);
-                    }}
-                    style={{
-                      flex: 1,
-                      border: "none",
-                      backgroundColor: "transparent",
-                      outline: "none",
-                      marginLeft: "15px",
-                      fontSize: "30px",
-                      color: "#535353",
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* E-mail */}
-              <div style={{ gridColumn: "1 / 2" }}>
-                <label
-                  style={{
-                    fontSize: "40px",
-                    fontWeight: 510,
-                    color: "#272727",
-                    marginBottom: "10px",
-                    display: "block",
-                  }}
-                >
-                  e-mail
-                </label>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "#EAEAEA",
-                    borderRadius: "60px",
-                    padding: "0 40px",
-                    width: "700px",
-                    height: "80px",
-                  }}
-                >
-                  <Image
-                    src="/images/email.svg"
-                    alt="email"
-                    width={37}
-                    height={30}
-                  />
-                  <input
-                    type="email"
-                    placeholder="insira seu e-mail"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    maxLength={254}
-                    style={{
-                      flex: 1,
-                      border: "none",
-                      backgroundColor: "transparent",
-                      outline: "none",
-                      marginLeft: "15px",
-                      fontSize: "30px",
-                      color: "#535353",
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Data de Nascimento */}
-              <div style={{ gridColumn: "2 / 3" }}>
-                <label
-                  style={{
-                    fontSize: "40px",
-                    fontWeight: 510,
-                    color: "#272727",
-                    marginBottom: "10px",
-                    display: "block",
-                  }}
-                >
-                  data de nascimento
-                </label>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "#EAEAEA",
-                    borderRadius: "60px",
-                    padding: "0 40px",
-                    width: "700px",
-                    height: "80px",
-                  }}
-                >
-                  <Image
-                    src="/images/calendar.svg"
-                    alt="data"
-                    width={35}
-                    height={35}
-                  />
-                  <input
-                    type="date"
-                    value={formData.dataNascimento}
-                    onChange={(e) =>
-                      handleInputChange("dataNascimento", e.target.value)
-                    }
-                    min="1920-01-01"
-                    max={
-                      new Date(
-                        new Date().getFullYear() - 18,
-                        new Date().getMonth(),
-                        new Date().getDate(),
-                      )
-                        .toISOString()
-                        .split("T")[0]
-                    }
-                    style={{
-                      flex: 1,
-                      border: "none",
-                      backgroundColor: "transparent",
-                      outline: "none",
-                      marginLeft: "15px",
-                      fontSize: "30px",
-                      color: "#535353",
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Mensagem de Erro */}
-            {error && (
-              <div
-                style={{
-                  color: "#FF0000",
-                  fontSize: "16px",
-                  textAlign: "center",
-                  fontWeight: 500,
-                }}
-              >
-                {error}
-              </div>
-            )}
-
-            {/* Botão Seguir */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: "20px",
-              }}
-            >
-              {" "}
-              {/* LINHA ADICIONADA */}
-              <button
-                onClick={goToNextSection}
-                style={{
-                  backgroundColor: "#FAF9F5",
-                  color: "#272727",
-                  border: "4px solid #272727",
-                  borderRadius: "60px",
-                  width: "400px",
-                  height: "80px",
-                  fontSize: "60px",
-                  fontWeight: 450,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: "20px",
-                  transition: "transform 0.2s ease",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.transform = "scale(1.03)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.transform = "scale(1)")
-                }
-              >
-                Seguir
-              </button>
-            </div>
-
-            {/* Divisor "ou" */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                width: "1000px",
-                margin: "0 auto 24px auto",
-              }}
-            >
-              <div
-                style={{
-                  width: "475px",
-                  height: "3px",
-                  backgroundColor: "#C3A85E",
-                }}
-              />
-              <span
-                style={{
-                  margin: "0 15px",
-                  color: "#535353",
-                  fontSize: "25px",
-                }}
-              >
-                ou
-              </span>
-              <div
-                style={{
-                  width: "475px",
-                  height: "3px",
-                  backgroundColor: "#C3A85E",
-                }}
-              />
-            </div>
-
-            {/* Botão Google */}
-            <button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#272727",
-                color: "#FAF9F5",
-                border: "none",
-                borderRadius: "50px",
-                width: "470px",
-                height: "60px",
-                fontSize: "30px",
-                fontWeight: 400,
-                cursor: "pointer",
-                margin: "0 auto",
-                gap: "12px",
-                transition: "transform 0.2s ease",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = "scale(1.02)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = "scale(1)")
-              }
-            >
-              <Image
-                src="/images/GoogleIcon.svg"
-                alt="Google"
-                width={35}
-                height={35}
-              />
-              Cadastrar-se com Google
-            </button>
-
+        {/* ── MENSAGEM DE ERRO FLUTUANTE (seções 1 e 2) ── */}
+        {section !== 3 && (
+          <div style={{ position: "relative", height: 0 }}>
             <p
               style={{
-                marginTop: "30px",
+                position: "absolute",
+                top: "340px",
+                left: 0,
+                right: 0,
+                fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                fontWeight: 400,
+                fontSize: "20px",
+                color: "#D92B2E",
                 textAlign: "center",
-                color: "#535353",
-                fontWeight: 500,
-                fontSize: "25px",
+                opacity: showError ? 1 : 0,
+                transition: "opacity 0.3s ease",
+                pointerEvents: "none",
+                margin: 0,
+                whiteSpace: "nowrap",
               }}
             >
-              Já tem uma conta?{" "}
-              <a
-                href="/login"
-                style={{
-                  color: "#535353",
-                  fontWeight: 500,
-                  textDecoration: "underline",
-                }}
-              >
-                Entrar
-              </a>
+              {error || "Preencha todos os campos corretamente."}
             </p>
-          </>
+          </div>
         )}
 
-        {/* Botão voltar */}
-        <div
-          onClick={section === 1 ? () => router.push("/") : goToPreviousSection}
-          style={{
-            position: "fixed",
-            top: "46px",
-            left: "51px",
-            fontSize: "30px",
-            fontFamily: "'SF Pro Text', system-ui, sans-serif",
-            fontWeight: 500,
-            color: "#272727",
-            cursor: "pointer",
-            userSelect: "none",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.textDecoration = "underline")
-          }
-          onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
-        >
-          ← Voltar
-        </div>
-
-        {/* SEÇÃO 2 */}
-        {section === 2 && (
+        {/* ── SEÇÃO 1 ── */}
+        {section === 1 && (
           <>
-            {/* Container de Campos em Quadrado */}
             <div
               style={{
                 display: "grid",
@@ -771,237 +344,197 @@ export default function Cadastro() {
                 marginBottom: "55px",
               }}
             >
-              {/* CEP */}
+              {/* Nome */}
               <div style={{ gridColumn: "1 / 2" }}>
-                <label
-                  style={{
-                    fontSize: "40px",
-                    fontWeight: 510,
-                    color: "#272727",
-                    marginBottom: "10px",
-                    display: "block",
-                  }}
-                >
-                  CEP
+                <label style={{ fontSize: "40px", fontWeight: 510, color: "#272727", marginBottom: "10px", display: "block" }}>nome</label>
+                <div style={{ display: "flex", alignItems: "center", backgroundColor: "#EAEAEA", borderRadius: "60px", padding: "0 40px", width: "700px", height: "80px", border: fieldBorder, boxSizing: "border-box" }}>
+                  <Image src="/images/name.svg" alt="nome" width={42} height={30} />
+                  <input type="text" placeholder="insira seu nome completo" value={formData.nome} onFocus={clearInputError} onChange={(e) => handleInputChange("nome", e.target.value)}
+                    style={{ flex: 1, border: "none", backgroundColor: "transparent", outline: "none", marginLeft: "15px", fontWeight: 400, fontSize: "30px", color: "#535353" }} />
+                </div>
+              </div>
+
+              {/* Celular */}
+              <div style={{ gridColumn: "2 / 3" }}>
+                <label style={{ fontSize: "40px", fontWeight: 510, color: "#272727", marginBottom: "10px", display: "block" }}>celular</label>
+                <div style={{ display: "flex", alignItems: "center", backgroundColor: "#EAEAEA", borderRadius: "60px", padding: "0 40px", width: "700px", height: "80px", border: fieldBorder, boxSizing: "border-box" }}>
+                  <Image src="/images/cellphone.svg" alt="celular" width={35} height={35} />
+                  <input type="tel" placeholder="(11) 99999-9999" value={formData.celular} onFocus={clearInputError}
+                    onChange={(e) => handleInputChange("celular", formatPhone(e.target.value))}
+                    style={{ flex: 1, border: "none", backgroundColor: "transparent", outline: "none", marginLeft: "15px", fontSize: "30px", color: "#535353" }} />
+                </div>
+              </div>
+
+              {/* E-mail */}
+              <div style={{ gridColumn: "1 / 2" }}>
+                <label style={{ fontSize: "40px", fontWeight: 510, color: "#272727", marginBottom: "10px", display: "block" }}>e-mail</label>
+                <div style={{ display: "flex", alignItems: "center", backgroundColor: "#EAEAEA", borderRadius: "60px", padding: "0 40px", width: "700px", height: "80px", border: fieldBorder, boxSizing: "border-box" }}>
+                  <Image src="/images/email.svg" alt="email" width={37} height={30} />
+                  <input type="email" placeholder="insira seu e-mail" value={formData.email} onFocus={clearInputError} onChange={(e) => handleInputChange("email", e.target.value)} maxLength={254}
+                    style={{ flex: 1, border: "none", backgroundColor: "transparent", outline: "none", marginLeft: "15px", fontSize: "30px", color: "#535353" }} />
+                </div>
+              </div>
+
+              {/* Data de Nascimento */}
+              <div style={{ gridColumn: "2 / 3" }}>
+                <label style={{ fontSize: "40px", fontWeight: 510, color: "#272727", marginBottom: "10px", display: "block" }}>
+                  data de nascimento
                 </label>
                 <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "#EBEBEB",
-                    borderRadius: "60px",
-                    padding: "0 40px",
-                    width: "700px",
-                    height: "80px",
-                  }}
+                  style={{ display: "flex", alignItems: "center", backgroundColor: "#EAEAEA", borderRadius: "60px", padding: "0 40px", width: "700px", height: "80px", border: fieldBorder, boxSizing: "border-box" }}
                 >
                   <Image
-                    src="/images/cep.svg"
-                    alt="cep"
+                    src="/images/calendar.svg"
+                    alt="data"
                     width={35}
-                    height={36}
+                    height={35}
+                    style={{ flexShrink: 0, cursor: "pointer" }}
+                    onClick={() => dateInputRef.current?.showPicker()}
                   />
                   <input
-                    type="text"
-                    placeholder="00000-000"
-                    value={formData.cep}
-                    onChange={(e) => {
-                      const formatted = formatCEP(e.target.value);
-                      handleInputChange("cep", formatted);
-                    }}
-                    style={{
-                      flex: 1,
-                      border: "none",
-                      backgroundColor: "transparent",
-                      outline: "none",
-                      marginLeft: "15px",
-                      fontSize: "30px",
-                      color: "#535353",
-                    }}
+                    ref={dateInputRef}
+                    type="date"
+                    value={formData.dataNascimento}
+                    onFocus={clearInputError}
+                    onChange={(e) => handleInputChange("dataNascimento", e.target.value)}
+                    min="1920-01-01"
+                    max={new Date(new Date().getFullYear() - 18, new Date().getMonth(), new Date().getDate()).toISOString().split("T")[0]}
+                    style={{ flex: 1, border: "none", backgroundColor: "transparent", outline: "none", marginLeft: "15px", fontSize: "30px", color: "#535353" }}
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* Botão Seguir */}
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+              <button onClick={goToNextSection}
+                style={{ backgroundColor: "#FAF9F5", color: "#272727", border: "4px solid #272727", borderRadius: "60px", width: "400px", height: "80px", fontSize: "60px", fontWeight: 450, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", transition: "transform 0.2s ease" }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}>
+                Seguir
+              </button>
+            </div>
+
+            {/* Divisor */}
+            <div style={{ display: "flex", alignItems: "center", width: "1000px", margin: "0 auto 24px auto" }}>
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
+              <span style={{ margin: "0 15px", color: "#535353", fontSize: "25px" }}>ou</span>
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
+            </div>
+
+            {/* Botão Google */}
+            <button style={{ display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#272727", color: "#FAF9F5", border: "none", borderRadius: "50px", width: "470px", height: "60px", fontSize: "30px", fontWeight: 400, cursor: "pointer", margin: "0 auto", gap: "12px", transition: "transform 0.2s ease" }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}>
+              <Image src="/images/GoogleIcon.svg" alt="Google" width={35} height={35} />
+              Cadastrar-se com Google
+            </button>
+
+            <p style={{ marginTop: "30px", textAlign: "center", color: "#535353", fontWeight: 500, fontSize: "25px" }}>
+              Já tem uma conta?{" "}
+              <a href="/login" style={{ color: "#535353", fontWeight: 500, textDecoration: "underline" }}>Entrar</a>
+            </p>
+          </>
+        )}
+
+        {/* Botão voltar (seção 1) */}
+        {section === 1 && (
+          <div onClick={() => router.push("/")}
+            style={{ position: "fixed", top: "46px", left: "51px", fontSize: "30px", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, color: "#272727", cursor: "pointer", userSelect: "none" }}
+            onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+            onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}>
+            ← Voltar
+          </div>
+        )}
+
+        {/* ── SEÇÃO 2 ── */}
+        {section === 2 && (
+          <>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "200px", rowGap: "25px", marginBottom: "55px" }}>
+
+              {/* CEP */}
+              <div style={{ gridColumn: "1 / 2" }}>
+                <label style={{ fontSize: "40px", fontWeight: 510, color: "#272727", marginBottom: "10px", display: "block" }}>CEP</label>
+                <div style={{ display: "flex", alignItems: "center", backgroundColor: "#EBEBEB", borderRadius: "60px", padding: "0 40px", width: "700px", height: "80px", border: fieldBorder, boxSizing: "border-box" }}>
+                  <Image src="/images/cep.svg" alt="cep" width={35} height={36} />
+                  <input type="text" placeholder="00000-000" value={formData.cep} onFocus={clearInputError}
+                    onChange={(e) => handleInputChange("cep", formatCEP(e.target.value))}
+                    style={{ flex: 1, border: "none", backgroundColor: "transparent", outline: "none", marginLeft: "15px", fontSize: "30px", color: "#535353" }} />
                 </div>
               </div>
 
               {/* Senha */}
               <div style={{ gridColumn: "2 / 3" }}>
-                <label
-                  style={{
-                    fontSize: "40px",
-                    fontWeight: 510,
-                    color: "#272727",
-                    marginBottom: "10px",
-                    display: "block",
-                  }}
-                >
-                  senha
-                </label>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "#EBEBEB",
-                    borderRadius: "60px",
-                    padding: "0 40px",
-                    width: "700px",
-                    height: "80px",
-                  }}
-                >
-                  <Image
-                    src="/images/PasswordLock.svg"
-                    alt="lock"
-                    width={35}
-                    height={36}
-                  />
+                <label style={{ fontSize: "40px", fontWeight: 510, color: "#272727", marginBottom: "10px", display: "block" }}>senha</label>
+                <div style={{ display: "flex", alignItems: "center", backgroundColor: "#EBEBEB", borderRadius: "60px", padding: "0 40px", width: "700px", height: "80px", border: fieldBorder, boxSizing: "border-box" }}>
+                  <Image src="/images/PasswordLock.svg" alt="lock" width={35} height={36} />
                   <input
-                    type="password"
+                    type={showSenha ? "text" : "password"}
                     placeholder="insira sua senha"
                     value={formData.senha}
+                    onFocus={clearInputError}
                     onChange={(e) => handleInputChange("senha", e.target.value)}
-                    style={{
-                      flex: 1,
-                      border: "none",
-                      backgroundColor: "transparent",
-                      outline: "none",
-                      marginLeft: "15px",
-                      fontSize: "30px",
-                      color: "#535353",
-                    }}
+                    style={{ flex: 1, border: "none", backgroundColor: "transparent", outline: "none", marginLeft: "15px", fontSize: "30px", color: "#535353" }}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowSenha((v) => !v)}
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", flexShrink: 0 }}
+                  >
+                    <Image
+                      src={showSenha ? "/images/hide_pw.svg" : "/images/show_pw.svg"}
+                      alt={showSenha ? "ocultar senha" : "mostrar senha"}
+                      width={30}
+                      height={23}
+                    />
+                  </button>
                 </div>
               </div>
 
               {/* Número do Endereço */}
               <div style={{ gridColumn: "1 / 2" }}>
-                <label
-                  style={{
-                    fontSize: "40px",
-                    fontWeight: 510,
-                    color: "#272727",
-                    marginBottom: "10px",
-                    display: "block",
-                  }}
-                >
-                  número do endereço
-                </label>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "#EBEBEB",
-                    borderRadius: "60px",
-                    padding: "0 40px",
-                    width: "700px",
-                    height: "80px",
-                  }}
-                >
-                  <Image
-                    src="/images/cep.svg"
-                    alt="endereço"
-                    width={35}
-                    height={36}
-                  />
-                  <input
-                    type="text"
-                    placeholder="123"
-                    value={formData.numeroEndereco}
-                    onChange={(e) => {
-                      const formatted = formatAddressNumber(e.target.value);
-                      handleInputChange("numeroEndereco", formatted);
-                    }}
-                    style={{
-                      flex: 1,
-                      border: "none",
-                      backgroundColor: "transparent",
-                      outline: "none",
-                      marginLeft: "15px",
-                      fontSize: "30px",
-                      color: "#535353",
-                    }}
-                  />
+                <label style={{ fontSize: "40px", fontWeight: 510, color: "#272727", marginBottom: "10px", display: "block" }}>número do endereço</label>
+                <div style={{ display: "flex", alignItems: "center", backgroundColor: "#EBEBEB", borderRadius: "60px", padding: "0 40px", width: "700px", height: "80px", border: fieldBorder, boxSizing: "border-box" }}>
+                  <Image src="/images/cep.svg" alt="endereço" width={35} height={36} />
+                  <input type="text" placeholder="123" value={formData.numeroEndereco} onFocus={clearInputError}
+                    onChange={(e) => handleInputChange("numeroEndereco", formatAddressNumber(e.target.value))}
+                    style={{ flex: 1, border: "none", backgroundColor: "transparent", outline: "none", marginLeft: "15px", fontSize: "30px", color: "#535353" }} />
                 </div>
               </div>
 
-              {/* Confirme sua Senha */}
+              {/* Confirme a Senha */}
               <div style={{ gridColumn: "2 / 3", position: "relative" }}>
-                <label
-                  style={{
-                    fontSize: "40px",
-                    fontWeight: 510,
-                    color: "#272727",
-                    marginBottom: "10px",
-                    display: "block",
-                  }}
-                >
-                  confirme sua senha
-                </label>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "#EBEBEB",
-                    borderRadius: "60px",
-                    padding: "0 40px",
-                    width: "700px",
-                    height: "80px",
-                  }}
-                >
-                  <Image
-                    src="/images/PasswordLock.svg"
-                    alt="lock"
-                    width={35}
-                    height={36}
-                  />
+                <label style={{ fontSize: "40px", fontWeight: 510, color: "#272727", marginBottom: "10px", display: "block" }}>confirme sua senha</label>
+                <div style={{ display: "flex", alignItems: "center", backgroundColor: "#EBEBEB", borderRadius: "60px", padding: "0 40px", width: "700px", height: "80px", border: fieldBorder, boxSizing: "border-box" }}>
+                  <Image src="/images/PasswordLock.svg" alt="lock" width={35} height={36} />
                   <input
-                    type="password"
+                    type={showConfirmeSenha ? "text" : "password"}
                     placeholder="confirme sua senha"
                     value={formData.confirmeSenha}
-                    onChange={(e) =>
-                      handleInputChange("confirmeSenha", e.target.value)
-                    }
-                    style={{
-                      flex: 1,
-                      border: "none",
-                      backgroundColor: "transparent",
-                      outline: "none",
-                      marginLeft: "15px",
-                      fontSize: "30px",
-                      color: "#535353",
-                    }}
+                    onFocus={clearInputError}
+                    onChange={(e) => handleInputChange("confirmeSenha", e.target.value)}
+                    style={{ flex: 1, border: "none", backgroundColor: "transparent", outline: "none", marginLeft: "15px", fontSize: "30px", color: "#535353" }}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmeSenha((v) => !v)}
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", flexShrink: 0 }}
+                  >
+                    <Image
+                      src={showConfirmeSenha ? "/images/hide_pw.svg" : "/images/show_pw.svg"}
+                      alt={showConfirmeSenha ? "ocultar senha" : "mostrar senha"}
+                      width={30}
+                      height={23}
+                    />
+                  </button>
                 </div>
 
-                {/* ── Checkbox Termos de Uso ── */}
+                {/* Checkbox Termos */}
                 <div
-                  style={{
-                    position: "absolute",
-                    top: "calc(100% + 15px)",
-                    left: "230px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    cursor: "pointer",
-                    userSelect: "none",
-                  }}
-                  onClick={() => setTermosAceitos((v) => !v)}
+                  style={{ position: "absolute", top: "calc(100% + 15px)", left: "230px", display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", userSelect: "none" }}
+                  onClick={() => { setTermosAceitos((v) => !v); clearInputError(); }}
                 >
-                  {/* Checkbox vazada */}
-                  <div
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      borderRadius: "4px",
-                      border: `2px solid ${termosAceitos ? "#E0C271" : "#535353"}`,
-                      backgroundColor: termosAceitos
-                        ? "#E0C271"
-                        : "transparent",
-                      flexShrink: 0,
-                      transition:
-                        "background-color 0.2s ease, border-color 0.2s ease",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
+                  <div style={{ width: "20px", height: "20px", borderRadius: "4px", border: `2px solid ${termosAceitos ? "#E0C271" : inputError ? "#D92B2E" : "#535353"}`, backgroundColor: termosAceitos ? "#E0C271" : "transparent", flexShrink: 0, transition: "background-color 0.2s ease, border-color 0.2s ease", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {termosAceitos && (
                       <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
                         <path
@@ -1014,308 +547,108 @@ export default function Cadastro() {
                       </svg>
                     )}
                   </div>
-
-                  {/* Texto */}
-                  <span
-                    style={{
-                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                      fontWeight: 400,
-                      fontSize: "15px",
-                      color: "#535353",
-                      lineHeight: 1.3,
-                    }}
-                  >
+                  <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "15px", color: inputError && !termosAceitos ? "#D92B2E" : "#535353", lineHeight: 1.3, transition: "color 0.2s ease" }}>
                     Concordo com os{" "}
-                    <a
-                      href="/termos"
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        color: "#535353",
-                        fontWeight: 400,
-                        textDecoration: "underline",
-                      }}
-                    >
-                      Termos de Uso
-                    </a>{" "}
-                    e a{" "}
-                    <a
-                      href="/privacidade"
-                      onClick={(e) => e.stopPropagation()}
-                      style={{
-                        color: "#535353",
-                        fontWeight: 400,
-                        textDecoration: "underline",
-                      }}
-                    >
-                      Política de Privacidade
-                    </a>
-                    .
+                    <a href="/termos" onClick={(e) => e.stopPropagation()} style={{ color: "inherit", textDecoration: "underline" }}>Termos de Uso</a>
+                    {" "}e a{" "}
+                    <a href="/privacidade" onClick={(e) => e.stopPropagation()} style={{ color: "inherit", textDecoration: "underline" }}>Política de Privacidade</a>.
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Mensagem de Erro */}
-            {error && (
-              <div
-                style={{
-                  color: "#FF0000",
-                  fontSize: "16px",
-                  marginBottom: "20px",
-                  textAlign: "center",
-                  fontWeight: 500,
-                }}
-              >
-                {error}
-              </div>
-            )}
-
             {/* Botão Enviar */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: "20px",
-              }}
-            >
-              {" "}
-              {/* LINHA ADICIONADA */}
-              <button
-                onClick={goToNextSection}
-                style={{
-                  backgroundColor: "#FAF9F5",
-                  color: "#272727",
-                  border: "4px solid #272727",
-                  borderRadius: "60px",
-                  width: "400px",
-                  height: "80px",
-                  fontSize: "60px",
-                  fontWeight: 450,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: "20px",
-                  transition: "transform 0.2s ease",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.transform = "scale(1.03)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.transform = "scale(1)")
-                }
-              >
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+              <button onClick={goToNextSection}
+                style={{ backgroundColor: "#FAF9F5", color: "#272727", border: "4px solid #272727", borderRadius: "60px", width: "400px", height: "80px", fontSize: "60px", fontWeight: 450, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", transition: "transform 0.2s ease" }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}>
                 Enviar
               </button>
             </div>
 
-            {/* Divisor "ou" */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                width: "1000px",
-                margin: "0 auto 25px auto",
-              }}
-            >
-              <div
-                style={{
-                  width: "475px",
-                  height: "3px",
-                  backgroundColor: "#C3A85E",
-                }}
-              />
-              <span
-                style={{
-                  margin: "0 15px",
-                  color: "#535353",
-                  fontSize: "25px",
-                }}
-              >
-                ou
-              </span>
-              <div
-                style={{
-                  width: "475px",
-                  height: "3px",
-                  backgroundColor: "#C3A85E",
-                }}
-              />
+            {/* Divisor */}
+            <div style={{ display: "flex", alignItems: "center", width: "1000px", margin: "0 auto 25px auto" }}>
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
+              <span style={{ margin: "0 15px", color: "#535353", fontSize: "25px" }}>ou</span>
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
             </div>
 
             {/* Botão Google */}
-            <button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#272727",
-                color: "#FAF9F5",
-                border: "none",
-                borderRadius: "50px",
-                width: "470px",
-                height: "60px",
-                fontSize: "30px",
-                fontWeight: 400,
-                cursor: "pointer",
-                margin: "0 auto",
-                gap: "12px",
-                transition: "transform 0.2s ease",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = "scale(1.02)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = "scale(1)")
-              }
-            >
-              <Image
-                src="/images/GoogleIcon.svg"
-                alt="Google"
-                width={35}
-                height={35}
-              />
+            <button style={{ display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#272727", color: "#FAF9F5", border: "none", borderRadius: "50px", width: "470px", height: "60px", fontSize: "30px", fontWeight: 400, cursor: "pointer", margin: "0 auto", gap: "12px", transition: "transform 0.2s ease" }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}>
+              <Image src="/images/GoogleIcon.svg" alt="Google" width={35} height={35} />
               Cadastrar-se com Google
             </button>
 
-            <p
-              style={{
-                marginTop: "30px",
-                textAlign: "center",
-                color: "#535353",
-                fontWeight: 500,
-                fontSize: "25px",
-              }}
-            >
+            <p style={{ marginTop: "30px", textAlign: "center", color: "#535353", fontWeight: 500, fontSize: "25px" }}>
               Já tem uma conta?{" "}
-              <a
-                href="/login"
-                style={{
-                  color: "#535353",
-                  fontWeight: 500,
-                  textDecoration: "underline",
-                }}
-              >
-                Entrar
-              </a>
+              <a href="/login" style={{ color: "#535353", fontWeight: 500, textDecoration: "underline" }}>Entrar</a>
             </p>
 
             {/* Botão voltar */}
-            <div
-              onClick={goToPreviousSection}
-              style={{
-                position: "fixed",
-                top: "46px",
-                left: "51px",
-                fontSize: "30px",
-                fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                fontWeight: 500,
-                color: "#272727",
-                cursor: "pointer",
-                userSelect: "none",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.textDecoration = "underline")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.textDecoration = "none")
-              }
-            >
+            <div onClick={goToPreviousSection}
+              style={{ position: "fixed", top: "46px", left: "51px", fontSize: "30px", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, color: "#272727", cursor: "pointer", userSelect: "none" }}
+              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}>
               ← Voltar
             </div>
           </>
         )}
 
-        {/* SEÇÃO 3 */}
+        {/* ── SEÇÃO 3 ── */}
         {section === 3 && (
           <>
-            {/* Texto Celular */}
-            <p
-              style={{
-                fontSize: "35px",
-                fontWeight: 510,
-                color: "#272727",
-                textAlign: "center",
-                marginTop: "5px",
-                marginBottom: "15px",
-              }}
-            >
+            {/* Mensagem de erro flutuante - seção 3 */}
+            <div style={{ position: "relative", height: 0 }}>
+              <p
+                style={{
+                  position: "absolute",
+                  top: "425px",
+                  left: 0,
+                  right: 0,
+                  fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                  fontWeight: 400,
+                  fontSize: "20px",
+                  color: "#D92B2E",
+                  textAlign: "center",
+                  opacity: showError3 ? 1 : 0,
+                  transition: "opacity 0.3s ease",
+                  pointerEvents: "none",
+                  margin: 0,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Verifique sua conta e tente novamente.
+              </p>
+            </div>
+
+            <p style={{ fontSize: "35px", fontWeight: 510, color: "#272727", textAlign: "center", marginTop: "5px", marginBottom: "15px" }}>
               verifique sua conta pelo código enviado pelo celular
             </p>
 
-            {/* Divisor "ou" */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                width: "800px",
-                margin: "0 auto 15px auto",
-              }}
-            >
-              <div
-                style={{
-                  width: "475px",
-                  height: "3px",
-                  backgroundColor: "#C3A85E",
-                }}
-              />
-              <span
-                style={{
-                  margin: "0 15px",
-                  color: "#535353",
-                  fontSize: "25px",
-                }}
-              >
-                ou
-              </span>
-              <div
-                style={{
-                  width: "475px",
-                  height: "3px",
-                  backgroundColor: "#C3A85E",
-                }}
-              />
+            <div style={{ display: "flex", alignItems: "center", width: "800px", margin: "0 auto 15px auto" }}>
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
+              <span style={{ margin: "0 15px", color: "#535353", fontSize: "25px" }}>ou</span>
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
             </div>
 
-            {/* Texto E-mail */}
-            <p
-              style={{
-                fontSize: "35px",
-                fontWeight: 510,
-                color: "#272727",
-                textAlign: "center",
-                margin: "0 auto 30px auto",
-              }}
-            >
+            <p style={{ fontSize: "35px", fontWeight: 510, color: "#272727", textAlign: "center", margin: "0 auto 30px auto" }}>
               verifique sua conta pelo código enviado pelo e-mail
             </p>
 
-            {/* Quadrados de Código (Inputs) */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "24px",
-                marginBottom: "60px",
-              }}
-            >
+            <div style={{ display: "flex", justifyContent: "center", gap: "24px", marginBottom: "60px" }}>
               {[0, 1, 2, 3].map((index) => (
-                <input
-                  key={index}
-                  ref={(el) => {
-                    verificationInputs.current[index] = el;
-                  }}
-                  type="text"
-                  maxLength={1}
-                  value={verificationCode[index]}
-                  onChange={(e) =>
-                    handleVerificationInput(index, e.target.value)
-                  }
+                <input key={index}
+                  ref={(el) => { verificationInputs.current[index] = el; }}
+                  type="text" maxLength={1} value={verificationCode[index]}
+                  onChange={(e) => { handleVerificationInput(index, e.target.value); setShowError3(false); }}
                   onKeyDown={(e) => handleVerificationKeyDown(index, e)}
                   style={{
                     width: "200px",
                     height: "200px",
-                    border: "5px solid #E0C271",
+                    border: `5px solid ${showError3 ? "#D92B2E" : "#E0C271"}`,
                     borderRadius: "30px",
                     backgroundColor: "transparent",
                     fontSize: "60px",
@@ -1325,107 +658,32 @@ export default function Cadastro() {
                     outline: "none",
                     transition: "border-color 0.3s ease",
                   }}
-                  onFocus={(e) => (e.target.style.borderColor = "#272727")}
-                  onBlur={(e) => (e.target.style.borderColor = "#E0C271")}
+                  onFocus={(e) => { if (!showError3) e.target.style.borderColor = "#272727"; }}
+                  onBlur={(e) => { e.target.style.borderColor = showError3 ? "#D92B2E" : "#E0C271"; }}
                 />
               ))}
             </div>
 
-            {(localError || authError) && (
-              <div
-                style={{
-                  marginBottom: "20px",
-                  padding: "16px",
-                  borderRadius: "24px",
-                  backgroundColor: "#FEF2F2",
-                  color: "#B91C1C",
-                  border: "1px solid #FECACA",
-                  textAlign: "center",
-                  width: "400px",
-                  margin: "0 auto 20px auto",
-                }}
-              >
-                {localError || authError}
-              </div>
-            )}
-
             {/* Botão voltar */}
-            <div
-              onClick={goToPreviousSection}
-              style={{
-                position: "fixed",
-                top: "46px",
-                left: "51px",
-                fontSize: "30px",
-                fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                fontWeight: 500,
-                color: "#272727",
-                cursor: "pointer",
-                userSelect: "none",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.textDecoration = "underline")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.textDecoration = "none")
-              }
-            >
+            <div onClick={goToPreviousSection}
+              style={{ position: "fixed", top: "46px", left: "51px", fontSize: "30px", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, color: "#272727", cursor: "pointer", userSelect: "none" }}
+              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}>
               ← Voltar
             </div>
 
             {/* Botão Cadastrar-se */}
-            <button
-              type="button"
-              disabled={loading}
-              style={{
-                display: "flex",
-                backgroundColor: "#E0C271",
-                color: "#FAF9F5",
-                border: "none",
-                borderRadius: "60px",
-                width: "440px",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "80px",
-                fontSize: "60px",
-                fontWeight: 600,
-                cursor: loading ? "not-allowed" : "pointer",
-                transition: "transform 0.2s ease",
-                margin: "0 auto 65px auto",
-                opacity: loading ? 0.7 : 1,
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = "scale(1.03)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = "scale(1)")
-              }
-              onClick={handleSubmit}
-            >
-              {loading ? "Cadastrando..." : "Cadastrar-se"}
+            <button type="button" disabled={loading} className={loading ? "btn-loading" : ""}
+              style={{ display: "flex", backgroundColor: "#E0C271", color: "#FAF9F5", border: "none", borderRadius: "60px", width: "440px", justifyContent: "center", alignItems: "center", height: "80px", fontSize: "60px", fontWeight: 600, cursor: loading ? "default" : "pointer", transition: "transform 0.2s ease", margin: "0 auto 65px auto" }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.transform = "scale(1.03)"; }}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              onClick={handleSubmit}>
+              Cadastrar-se
             </button>
 
-            {/* Link para Entrar */}
-            <div
-              style={{
-                marginTop: "20px",
-                textAlign: "center",
-                color: "#535353",
-                fontWeight: 500,
-                fontSize: "25px",
-              }}
-            >
+            <div style={{ marginTop: "20px", textAlign: "center", color: "#535353", fontWeight: 500, fontSize: "25px" }}>
               Já tem uma conta?{" "}
-              <a
-                href="/login"
-                style={{
-                  color: "#535353",
-                  fontWeight: 500,
-                  textDecoration: "underline",
-                }}
-              >
-                Entrar
-              </a>
+              <a href="/login" style={{ color: "#535353", fontWeight: 500, textDecoration: "underline" }}>Entrar</a>
             </div>
           </>
         )}

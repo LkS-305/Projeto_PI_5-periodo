@@ -1,0 +1,154 @@
+.transactions-root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #faf9f5;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+}
+
+.transactions-title {
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  margin: 0;
+  color: #272727;
+  font-size: 44px;
+  font-weight: 600;
+}
+
+.transactions-tabs {
+  display: flex;
+  gap: 20px;
+  border-bottom: 1px solid #ebd38a;
+}
+
+.transactions-tab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #272727;
+  padding: 10px 0;
+  font-size: 24px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+}
+
+.transactions-tab--active {
+  border-bottom-color: #e0c271;
+  color: #e0c271;
+}
+
+.transactions-hero {
+  border-radius: 14px;
+  background: #f7f0db;
+  border: 2px solid #e0c271;
+  padding: 28px;
+}
+
+.transactions-hero-title {
+  margin: 0;
+  color: #272727;
+  font-size: 64px;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-weight: 600;
+}
+
+.transactions-hero-text {
+  margin: 10px 0 0;
+  color: #272727;
+  font-size: 38px;
+  font-weight: 500;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  max-width: 950px;
+}
+
+.transactions-hero-btn {
+  margin-top: 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #e0c271;
+  color: #272727;
+  font-size: 28px;
+  font-weight: 600;
+  padding: 12px 18px;
+  cursor: pointer;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+}
+
+.transactions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.transactions-card {
+  border-radius: 12px;
+  background: #f6f0df;
+  border: 1px solid #e0c271;
+  padding: 18px;
+}
+
+.transactions-card-title {
+  margin: 0;
+  color: #272727;
+  font-size: 32px;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-weight: 600;
+}
+
+.transactions-card-text {
+  margin: 8px 0 0;
+  color: #272727;
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.transactions-link-btn {
+  margin-top: 12px;
+  border: 0;
+  background: transparent;
+  color: #e0c271;
+  font-size: 28px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+}
+
+@media (max-width: 1400px) {
+  .transactions-hero-title {
+    font-size: 48px;
+  }
+
+  .transactions-hero-text {
+    font-size: 30px;
+  }
+
+  .transactions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .transactions-title {
+    font-size: 34px;
+  }
+
+  .transactions-tab,
+  .transactions-link-btn {
+    font-size: 18px;
+  }
+
+  .transactions-hero-title {
+    font-size: 34px;
+  }
+
+  .transactions-hero-text,
+  .transactions-card-title,
+  .transactions-card-text {
+    font-size: 20px;
+  }
+
+  .transactions-hero-btn {
+    font-size: 18px;
+  }
+}
