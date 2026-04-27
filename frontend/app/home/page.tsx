@@ -229,7 +229,7 @@ export default function Dashboard() {
       {/* ── BARRA DE PESQUISA ── */}
       <div className="home-search-bar">
         <Image
-          src="/images/lupa.svg"
+          src="/images/Lupa.svg"
           alt="Buscar"
           width={50}
           height={50}
@@ -303,7 +303,10 @@ export default function Dashboard() {
               </div>
 
               {/* Box 3 — Explorar catálogo */}
-              <div className="home-card home-card--half">
+              <div
+                className="home-card home-card--half"
+                onClick={() => router.push("/explore")}
+              >
                 <div className="home-card__title-row">
                   <Image
                     src="/images/explore.svg"
@@ -389,7 +392,10 @@ export default function Dashboard() {
               </div>
 
               {/* Box 3 — Financeiro */}
-              <div className="home-card home-card--half">
+              <div
+                className="home-card home-card--half"
+                onClick={() => router.push("/dashboard")}
+              >
                 <div className="home-card__title-row">
                   <Image
                     src="/images/wallet.svg"

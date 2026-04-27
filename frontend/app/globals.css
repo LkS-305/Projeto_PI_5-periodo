@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./messages/messages.css";
 @import "./not-found.css";
+@import "./shared/home-header.css";
 
 @font-face {
   font-family: "SF Pro Text";
@@ -162,6 +163,10 @@ body {
   font-family: var(--font-sf-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden; /* Evita scrollbars quando scale < 1 */
+}
+
+html {
   overflow: hidden;
 }
 

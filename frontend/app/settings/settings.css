@@ -1,0 +1,271 @@
+:root {
+  --settings-bg: #faf9f5;
+  --settings-sidebar-border: #ebd38a;
+  --settings-sidebar-button: #9c834a;
+  --settings-sidebar-button-active: #e1c471;
+  --settings-text-primary: #272727;
+  --settings-text-secondary: #7b7b7b;
+}
+
+.settings-page {
+  display: flex;
+  height: 100vh;
+  min-height: 100vh;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--settings-bg);
+  color: var(--settings-text-primary);
+  font-family: "SF Pro Text", system-ui, sans-serif;
+}
+
+.settings-page .home-header {
+  margin-bottom: 0;
+}
+
+.settings-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.settings-sidebar {
+  display: flex;
+  width: 460px;
+  min-height: 0;
+  flex-direction: column;
+  border-right: 2px solid var(--settings-sidebar-border);
+  background: var(--settings-bg);
+  padding: 40px 20px 20px 20px;
+}
+
+.settings-sidebar__title {
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 44px;
+  font-weight: 700;
+  color: #272727;
+  margin-bottom: 40px;
+}
+
+.settings-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.settings-sidebar__button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: none;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 30px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--settings-sidebar-button);
+  color: #272727;
+  white-space: nowrap;
+}
+
+.settings-sidebar__button span {
+  white-space: nowrap;
+}
+
+.settings-sidebar__button--active {
+  background: var(--settings-sidebar-button-active);
+  font-weight: 600;
+}
+
+.settings-sidebar__button:hover:not(.settings-sidebar__button--active) {
+  opacity: 0.92;
+}
+
+.settings-sidebar__footer {
+  margin-top: auto;
+  padding-bottom: 20px;
+}
+
+.settings-sidebar__logout {
+  background: transparent;
+  border: none;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 30px;
+  font-weight: 500;
+  color: #272727;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-sidebar__logout:hover {
+  text-decoration: underline;
+}
+
+.settings-content {
+  flex: 1;
+  min-height: 0;
+  padding: 40px 60px;
+  overflow-y: auto;
+}
+
+.settings-content__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  gap: 16px;
+}
+
+.settings-content__title {
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 44px;
+  font-weight: 700;
+  color: #272727;
+}
+
+.settings-content__back-btn {
+  background: var(--settings-sidebar-button-active);
+  border: none;
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 30px;
+  font-weight: 500;
+  color: #272727;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.settings-content__back-btn:hover {
+  opacity: 0.85;
+}
+
+.settings-content__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--settings-sidebar-border);
+}
+
+.settings-info-item__label {
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 36px;
+  font-weight: 500;
+  color: #272727;
+  margin: 0 0 4px;
+}
+
+.settings-info-item__value {
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  color: #878787;
+  margin: 0;
+}
+
+.settings-info-item__action {
+  background: transparent;
+  border: none;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 36px;
+  font-weight: 500;
+  color: #272727;
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.settings-info-item__action:hover {
+  color: #000;
+}
+
+@media (max-width: 1100px) {
+  .settings-main {
+    flex-direction: column;
+  }
+
+  .settings-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 2px solid var(--settings-sidebar-border);
+    padding: 24px;
+  }
+
+  .settings-sidebar__title {
+    margin-bottom: 20px;
+    font-size: 34px;
+  }
+
+  .settings-sidebar__nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .settings-sidebar__footer {
+    margin-top: 16px;
+    padding-bottom: 0;
+  }
+
+  .settings-content {
+    padding: 24px;
+  }
+
+  .settings-content__header {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 720px) {
+  .settings-sidebar {
+    padding: 16px;
+  }
+
+  .settings-sidebar__nav {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-sidebar__button {
+    font-size: 22px;
+  }
+
+  .settings-content {
+    padding: 16px;
+  }
+
+  .settings-content__title {
+    font-size: 30px;
+  }
+
+  .settings-info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px 0;
+  }
+
+  .settings-info-item__label {
+    font-size: 24px;
+  }
+
+  .settings-info-item__value,
+  .settings-info-item__action {
+    font-size: 20px;
+  }
+}
