@@ -12,7 +12,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./src/infra/database/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - - ./src/infra/database/populate.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./src/infra/database/populate.sql:/docker-entrypoint-initdb.d/populate.sql
 
   redis:
     image: redis:7-alpine

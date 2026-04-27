@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { LoginRequest, LoginResponse, SignUpRequest } from "@/lib/types/api";
 import { Usuario } from "@/lib/types/user";
-import client from "@/lib/api/client";
+import { apiClient } from "@/lib/api/client";
 import { useNotification } from "@/lib/contexts/NotificationContext";
 
 interface SessionContextValue {
@@ -33,12 +33,44 @@ const SessionContext = createContext<SessionContextValue | undefined>(
 const TOKEN_KEY = "authToken";
 const USER_KEY = "authUser";
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  if (typeof error === "object" && error !== null) {
+    const maybeError = error as {
+      message?: string;
+      erro?: string;
+      data?: { erro?: string; message?: string };
+      response?: { data?: { erro?: string; message?: string } };
+    };
+
+    return (
+      maybeError.response?.data?.erro ||
+      maybeError.response?.data?.message ||
+      maybeError.data?.erro ||
+      maybeError.data?.message ||
+      maybeError.erro ||
+      maybeError.message ||
+      fallback
+    );
+  }
+
+  return fallback;
+}
+
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { notify } = useNotification();
+
+  const getAuthHeaders = useCallback((): Record<string, string> => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }, []);
 
   useEffect(() => {
     const initializeSession = () => {
@@ -48,7 +80,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       if (token && savedUser) {
         try {
           setUser(JSON.parse(savedUser));
-          client.defaults.headers.common.Authorization = `Bearer ${token}`;
         } catch {
           localStorage.removeItem(TOKEN_KEY);
           localStorage.removeItem(USER_KEY);
@@ -65,14 +96,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const persistSession = useCallback((token: string, userData: Usuario) => {
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_KEY, JSON.stringify(userData));
-    client.defaults.headers.common.Authorization = `Bearer ${token}`;
     setUser(userData);
   }, []);
 
   const clearSession = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
-    delete client.defaults.headers.common.Authorization;
     setUser(null);
   }, []);
 
@@ -82,20 +111,17 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       setError(null);
 
       try {
-        const response = await client.post<LoginResponse>(
+        const response = await apiClient.post<LoginResponse>(
           "/users/login",
           credentials,
         );
-        const { token, user: userData } = response.data;
+        const { token, user: userData } = response;
 
         persistSession(token, userData);
         notify("Bem-vindo de volta!", "success");
         return userData;
-      } catch (err: any) {
-        const message =
-          err?.response?.data?.erro ||
-          err?.message ||
-          "Falha ao acessar a conta";
+      } catch (err: unknown) {
+        const message = getErrorMessage(err, "Falha ao acessar a conta");
         setError(message);
         notify(message, "error");
         return null;
@@ -112,7 +138,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       setError(null);
 
       try {
-        const response = await client.post<Usuario>(
+        const response = await apiClient.post<Usuario>(
           "/users/criarUsuario",
           payload,
         );
@@ -120,10 +146,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
           "Conta criada com sucesso. Faça login para continuar.",
           "success",
         );
-        return response.data;
-      } catch (err: any) {
-        const message =
-          err?.response?.data?.erro || err?.message || "Falha ao criar conta";
+        return response;
+      } catch (err: unknown) {
+        const message = getErrorMessage(err, "Falha ao criar conta");
         setError(message);
         notify(message, "error");
         return null;
@@ -148,25 +173,28 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setError(null);
 
     try {
-      const response = await client.post<Usuario>("/users/buscarPorId", {
-        id: user.id,
-      });
+      const response = await apiClient.post<Usuario>(
+        "/users/buscarPorId",
+        {
+          id: user.id,
+        },
+        {
+          headers: getAuthHeaders(),
+        },
+      );
 
-      setUser(response.data);
-      localStorage.setItem(USER_KEY, JSON.stringify(response.data));
-      return response.data;
-    } catch (err: any) {
-      const message =
-        err?.response?.data?.erro ||
-        err?.message ||
-        "Falha ao atualizar perfil";
+      setUser(response);
+      localStorage.setItem(USER_KEY, JSON.stringify(response));
+      return response;
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, "Falha ao atualizar perfil");
       setError(message);
       notify(message, "error");
       return null;
     } finally {
       setLoading(false);
     }
-  }, [notify, user?.id]);
+  }, [getAuthHeaders, notify, user?.id]);
 
   const updateUser = useCallback(
     async (dados: Partial<Usuario>): Promise<Usuario | null> => {
@@ -178,23 +206,23 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       setError(null);
 
       try {
-        const response = await client.post<Usuario>(
+        const response = await apiClient.post<Usuario>(
           "/users/atualizar-usuario",
           {
             id: user.id,
             dados,
           },
+          {
+            headers: getAuthHeaders(),
+          },
         );
 
-        setUser(response.data);
-        localStorage.setItem(USER_KEY, JSON.stringify(response.data));
+        setUser(response);
+        localStorage.setItem(USER_KEY, JSON.stringify(response));
         notify("Perfil atualizado com sucesso.", "success");
-        return response.data;
-      } catch (err: any) {
-        const message =
-          err?.response?.data?.erro ||
-          err?.message ||
-          "Falha ao atualizar perfil";
+        return response;
+      } catch (err: unknown) {
+        const message = getErrorMessage(err, "Falha ao atualizar perfil");
         setError(message);
         notify(message, "error");
         return null;
@@ -202,7 +230,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     },
-    [notify, user?.id],
+    [getAuthHeaders, notify, user?.id],
   );
 
   return (
