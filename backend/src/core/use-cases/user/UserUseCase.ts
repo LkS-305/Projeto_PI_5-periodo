@@ -5,10 +5,12 @@ import { User } from '../../entities/User';
 import { RegisterDto, LoginDto, ChangeForgotPasswordDto, ChangePasswordDto } from '../../dtos/user';
 import {
   ResourceAlreadyExistsError,
+  ResourceNotFoundError,
   UnauthorizedError,
   ValidationError,
 } from '../../errors/AppError';
 import { IMailProvider } from '../../dtos/mail';  
+import { validarUUID } from '../../utils/validate';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -69,6 +71,49 @@ export class LoginUseCase {
 
     const { senha, ...semSenha } = usuario;
     return { token, user: semSenha as Omit<User, 'senha'> };
+  }
+}
+
+export class DeletarUserUseCase {
+  constructor(private userRepository: IUserRepository){}
+
+  async executar(id: string): Promise<boolean>{
+    validarUUID(id, 'ID do user');
+    const user = await this.userRepository.findById(id)
+
+    if (!user) {
+      throw new ResourceNotFoundError('User');
+    }
+
+    await this.userRepository.delete(id);
+    return true;
+  }
+}
+
+export class AcharPorEmail {
+  constructor(private userRepository: IUserRepository) {}
+
+  async executar(email: string): Promise<User | null>{
+    const user = await this.userRepository.findByEmail(email);
+
+    if (!user) {
+      throw new ResourceNotFoundError('User');
+    }
+    return user;
+  }
+}
+
+export class AcharPorId {
+  constructor(private userRepository: IUserRepository) {}
+
+  async executar(id: string): Promise<User | null>{
+    validarUUID(id, 'ID do user');
+    const user = await this.userRepository.findById(id);
+
+    if (!user) {
+      throw new ResourceNotFoundError('User');
+    }
+    return user;
   }
 }
 

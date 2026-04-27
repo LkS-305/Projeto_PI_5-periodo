@@ -7,23 +7,22 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { LoginRequest, LoginResponse, SignUpRequest } from "@/lib/types/api";
-import { Usuario } from "@/lib/types/user";
+import { LoginDto, AuthResponse, RegisterDto } from "@/types/dtos";
+import { User } from "@/types/entities/user";
 import { apiClient } from "@/lib/api/client";
 import { useNotification } from "@/lib/contexts/NotificationContext";
 
 interface SessionContextValue {
-  user: Usuario | null;
+  user: User | null;
   loading: boolean;
   initialized: boolean;
   error: string | null;
   isAuthenticated: boolean;
-  login: (credentials: LoginRequest) => Promise<Usuario | null>;
-  signup: (payload: SignUpRequest) => Promise<Usuario | null>;
+  login: (dados: LoginDto) => Promise<User | null>;
+  signup: (dados: RegisterDto) => Promise<User | null>;
   logout: () => void;
-  refreshUser: () => Promise<Usuario | null>;
-  updateUser: (dados: Partial<Usuario>) => Promise<Usuario | null>;
-  setUser: (user: Usuario | null) => void;
+  refreshUser: () => Promise<User | null>;
+  updateEmail: (email: string) => Promise<boolean>;
 }
 
 const SessionContext = createContext<SessionContextValue | undefined>(
@@ -61,7 +60,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
 }
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<Usuario | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,7 +92,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     initializeSession();
   }, []);
 
-  const persistSession = useCallback((token: string, userData: Usuario) => {
+  const persistSession = useCallback((token: string, userData: User) => {
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_KEY, JSON.stringify(userData));
     setUser(userData);
@@ -106,14 +105,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (credentials: LoginRequest): Promise<Usuario | null> => {
+    async (dados: LoginDto): Promise<User | null> => {
       setLoading(true);
       setError(null);
 
       try {
-        const response = await apiClient.post<LoginResponse>(
-          "/users/login",
-          credentials,
+        const response = await apiClient.post<AuthResponse>(
+          "/user/login",
+          dados,
         );
         const { token, user: userData } = response;
 
@@ -178,7 +177,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         {
           id: user.id,
         },
-        {
+        {:
           headers: getAuthHeaders(),
         },
       );

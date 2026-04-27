@@ -6,7 +6,7 @@ import { usuarioRouter } from '../routes/usuario.routes';
 import { prestadorRouter } from '../routes/prestador.routes';
 import { avaliacaoRouter } from '../routes/avaliacao.routes'
 import { errorHandler } from '../../middlewares/ErrorHandler';
-import { logger } from '../../middlewares/Logger';
+import { logFullCycle } from '../../middlewares/Logger';
 import { globalRateLimit } from '../../middlewares/RateLimit';
 import { categoriaRouter } from '../routes/categoria.routes';
 
@@ -14,13 +14,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
-
-
-app.use((req, res, next) => {
-	console.log(`${new Date().toLocaleTimeString()} ${req.method} ${req.url}`);
-	next();
-});
+app.use(logFullCycle);
 
 app.use('/user', userRouter);
 app.use('/avaliacao', avaliacaoRouter);
@@ -48,7 +42,7 @@ app.get('/health', async (req, res) => {
 
 app.use(errorHandler);
 
-const PORT = 3000;
+const PORT = 3002;
 
 app.listen(PORT, () => {
 	console.log(`\n Server iniciado com sucesso!`);

@@ -11,7 +11,7 @@ export async function loginUser(
 ): Promise<LoginResponse> {
   const response = await client.post<LoginResponse>(
     "/users/login",
-    credentials,
+    credentials, e
   );
   return response.data;
 }

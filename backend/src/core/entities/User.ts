@@ -20,14 +20,14 @@ export class User {
     this.updated_at = new Date();
   }
 
-  public atualizarUsuario(props: Partial<User>): void{
+  public atualizarUser(props: Partial<User>): void{
     this.email = props.email ?? this.email;
     this.senha = props.senha ?? this.senha;
     this.cpf = props.cpf ?? this.cpf;
     this.updated_at = new Date(); 
   }
 
-  atualizarTokens(recovery_token: string, recovery_token_expires: Date): void{
+  public atualizarTokens(recovery_token: string, recovery_token_expires: Date): void{
     this.recovery_token = recovery_token;
     this.recovery_token_expires = recovery_token_expires;
     this.updated_at = new Date();
