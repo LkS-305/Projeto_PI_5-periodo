@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3002';
 
 async function testAPI() {
   console.log("🚀 Iniciando testes da API...\n");

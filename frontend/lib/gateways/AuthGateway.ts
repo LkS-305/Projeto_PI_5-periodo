@@ -1,7 +1,7 @@
 import { apiClient } from '../api/client'; 
 import { AuthResponse, RegisterDto, LoginDto } from '../../types/dtos/user';
 
-export const UserGateway = {
+export const AuthGateway = {
   
   // Chamada no Servidor (para carregar o perfil logado no carregamento da página)
 

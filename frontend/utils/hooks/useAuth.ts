@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { useSession } from "@/lib/contexts/SessionContext";
 import { useNotification } from "@/lib/contexts/NotificationContext";
-import { UserGateway } from "@/lib/gateways/UserGateway"; // O seu Gateway aqui
+import { AuthGateway } from "@/lib/gateways/AuthGateway"; // O seu Gateway aqui
 import { LoginDto, RegisterDto } from "@/types/dtos/user";
 
 export function useAuth() {
@@ -16,7 +16,7 @@ export function useAuth() {
     setIsPending(true);
     try {
       // 1. CHAMA O GATEWAY (Lógica de rede pura)
-      const response = await UserGateway.loginClient(dados);
+      const response = await AuthGateway.loginClient(dados);
       
       // 2. ATUALIZA O ESTADO GLOBAL (Contexto)
       saveSession(response.token, response.user);
@@ -37,7 +37,7 @@ export function useAuth() {
     try {
       // Chama o gateway para criar o usuário
       console.log('Estou no hook, chamando o gateway');
-      const response = await UserGateway.registerClient(dados);
+      const response = await AuthGateway.registerClient(dados);
       notify("Conta criada com sucesso!", "success");
       return response;
     } catch (err: any) {
@@ -60,4 +60,4 @@ export function useAuth() {
     isPending, 
     currentUser: user 
   };
-}
+} 

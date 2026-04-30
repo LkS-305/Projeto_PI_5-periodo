@@ -24,7 +24,7 @@ export class CategoriaController {
   }
   async atualizar(req: Request, res: Response){
     try {
-      const resultado = await this.atualizarCategoria.executar({id: req.body.id, nome: req.body.nome, slug: req.body.slug, icon_url: req.body.icon_url});
+      const resultado = await this.atualizarCategoria.executar({id: req.body.id, nome: req.body.dados.nome, slug: req.body.dados.slug, icon_url: req.body.dados.icon_url});
       return res.status(201).json(resultado);
       
     } catch (erro: any) {

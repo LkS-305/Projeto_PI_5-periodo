@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { useAppScale } from "@/hooks/useAppScale";
+import { useAppScale } from "@/utils/hooks/useAppScale";
 
 export default function Home() {
   // Escala proporcional para sempre renderizar em 1920x1080
