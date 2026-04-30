@@ -34,6 +34,8 @@ async function apiFetch<T>(
     cache: cache || "default",
   };
 
+  console.log('Enviando requisicao com url e config:', url, config);
+
   const response = await fetch(url.toString(), config);
 
   if (!response.ok) {

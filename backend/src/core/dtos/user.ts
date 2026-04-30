@@ -1,18 +1,9 @@
 export type UserType = 'User' | 'Prestador' | 'Usuario' | 'Admin'
 
 export interface RegisterDto {
-  nome?: string,
+  id?: string,
   email: string,
   senha: string,
-  cpf: string,
-  tipo_usuario?: string,
-  role?: string,
-}
-
-export interface RegisterResponseDto {
-  id: string,
-  nome: string,
-  email: string,
   cpf: string,
 }
 
@@ -21,10 +12,9 @@ export interface LoginDto {
   senha: string
 }
 
-export interface LoginResponseDto {
+export interface AuthResponse {
   id: string,
   nome: string,
-  tipo_usuario: UserType,
   token: string,
   refresh_token: string
 }

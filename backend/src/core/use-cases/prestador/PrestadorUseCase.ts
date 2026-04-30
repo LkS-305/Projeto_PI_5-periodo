@@ -28,19 +28,20 @@ export class CriarPrestadorUseCase {
       user_id: dados.user_id,
       nome: dados.nome,
       bio: dados.bio,
-      score: 0,
+      foto_url: dados.foto_url,
     });
 
-    const prestadorCriado = await this.prestadorRepository.create(prestador);
 
-    return prestadorCriado;
+    await this.prestadorRepository.create(prestador);
+
+    return prestador;
   }
 }
 
 export class DeletarPrestadorUseCase {
   constructor(private prestadorRepository: IPrestadorRepository) {}
 
-  async executar(user_id: string) {
+  async executar(user_id: string): Promise<boolean> {
     validarUUID(user_id, 'ID do usuário');
     const prestador = await this.prestadorRepository.findByUserId(user_id);
 
@@ -49,6 +50,7 @@ export class DeletarPrestadorUseCase {
     }
 
     await this.prestadorRepository.delete(user_id);
+    return true;
   }
 }
 
@@ -65,11 +67,11 @@ export class AtualizarPrestadorUseCase {
     if (!prestadorExistente) {
       throw new ResourceNotFoundError('Prestador');
     }
+    const prestadorInstanciado = new Prestador(prestadorExistente);
+    prestadorInstanciado.atualizarPerfil(prestador);
+    await this.prestadorRepository.update(prestadorInstanciado);
 
-    prestadorExistente.atualizarPerfil(prestador);
-    await this.prestadorRepository.update(prestadorExistente);
-
-    return prestadorExistente;
+    return prestadorInstanciado;
   }
 }
 

@@ -1,6 +1,8 @@
 -- Habilita a extensão para UUIDs se necessário
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+\i functions/gerarLogsAuditoria.sql
+\i triggers/audit.sql
 -- Função para atualizar o timestamp de updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -49,7 +51,7 @@ CREATE TABLE IF NOT EXISTS categorias (
     id TEXT PRIMARY KEY,
     nome TEXT NOT NULL,
     slug TEXT NOT NULL,
-    icon_url TEXT NOT NULL,
+    icon_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -75,7 +77,7 @@ CREATE TABLE IF NOT EXISTS servicos (
 CREATE TABLE IF NOT EXISTS avaliacoes (
     id TEXT PRIMARY KEY,
     servico_id TEXT REFERENCES servicos(id),
-    usuario_id TEXT REFERENCES usuarios(user_id),
+    user_id TEXT REFERENCES usuarios(user_id),
     prestador_id TEXT REFERENCES prestadores(user_id),
     listBy TEXT,
     avaliarBy TEXT,
@@ -90,7 +92,7 @@ CREATE TABLE IF NOT EXISTS avaliacoes (
 -- 7. Tabela de Carteiras
 CREATE TABLE IF NOT EXISTS carteiras (
     id TEXT PRIMARY KEY,
-    usuario_id TEXT REFERENCES usuarios(user_id),
+    user_id TEXT REFERENCES usuarios(user_id),
     prestador_id TEXT REFERENCES prestadores(user_id),
     saldo TEXT NOT NULL,
     saldo_bloqueado TEXT,
@@ -139,7 +141,7 @@ CREATE TABLE IF NOT EXISTS mensagens (
 -- 11. Tabela de Notificacoes
 CREATE TABLE IF NOT EXISTS notificacoes (
     id TEXT PRIMARY KEY,
-    usuario_id TEXT NOT NULL REFERENCES usuarios(user_id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES usuarios(user_id) ON DELETE CASCADE,
     titulo TEXT NOT NULL,
     mensagem TEXT NOT NULL,
     tipo TEXT NOT NULL CHECK (tipo IN ('info', 'sucesso', 'alerta')),
@@ -188,12 +190,12 @@ CREATE TABLE IF NOT EXISTS documentos (
 -- 15. Tabela de AuditLogs
 CREATE TABLE IF NOT EXISTS audit_logs (
     id TEXT PRIMARY KEY,
-    usuario_id TEXT REFERENCES usuarios(user_id),
+    user_id TEXT REFERENCES users(id),
     acao TEXT NOT NULL,
     recurso TEXT NOT NULL,
-    recurso_id TEXT,
-    dados_anteriores TEXT,
-    dados_novos TEXT,
+    recurso_id TEXT NOT NULL,
+    dados_anteriores JSONB,
+    dados_novos JSONB,
     ip_origem TEXT,
     user_agent TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

@@ -1,28 +1,20 @@
 "use client";
 
+import { EnderecoGateway } from "@/lib/gateways/EnderecoGateway";
 import { useCallback, useState } from "react";
-import {
-  createEndereco,
-  deleteEndereco,
-  updateEndereco,
-  findEnderecosByUserId,
-  findEnderecosByPrestadorId,
-  findEnderecosByCidade,
-  setEnderecoPrincipal,
-  unsetEnderecoPrincipal,
-} from "@/lib/use-cases/endereco";
-import { Endereco } from "@/lib/types";
+import { Endereco } from "@/types/entities/endereco";
+import { CriarEnderecoDto, AtualizarEnderecoDto, RetornoApi } from '@/types/dtos/endereco';
 
 export function useEndereco() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const create = useCallback(
-    async (data: Omit<Endereco, "id">): Promise<Endereco | null> => {
+    async (data: CriarEnderecoDto): Promise<Endereco | null> => {
       setLoading(true);
       setError(null);
       try {
-        return await createEndereco(data);
+        return await EnderecoGateway.criarEndereco(data);
       } catch (err: any) {
         setError(err?.message || "Erro ao criar endereço");
         return null;
@@ -37,7 +29,7 @@ export function useEndereco() {
     setLoading(true);
     setError(null);
     try {
-      return await deleteEndereco(id);
+      return await EnderecoGateway.deletarEndereco(id);
     } catch (err: any) {
       setError(err?.message || "Erro ao deletar endereço");
       return false;
@@ -49,12 +41,12 @@ export function useEndereco() {
   const update = useCallback(
     async (
       id: string,
-      endereco: Partial<Endereco>,
+      endereco: AtualizarEnderecoDto,
     ): Promise<Endereco | null> => {
       setLoading(true);
       setError(null);
       try {
-        return await updateEndereco(id, endereco);
+        return await EnderecoGateway.atualizarEndereco(id, endereco);
       } catch (err: any) {
         setError(err?.message || "Erro ao atualizar endereço");
         return null;
@@ -70,7 +62,7 @@ export function useEndereco() {
       setLoading(true);
       setError(null);
       try {
-        return await findEnderecosByUserId(user_id);
+        return await EnderecoGateway.getByUserId(user_id);
       } catch (err: any) {
         setError(err?.message || "Erro ao buscar endereços do usuário");
         return null;
@@ -86,7 +78,7 @@ export function useEndereco() {
       setLoading(true);
       setError(null);
       try {
-        return await findEnderecosByPrestadorId(prestador_id);
+        return await EnderecoGateway.getByPrestadorId(prestador_id);
       } catch (err: any) {
         setError(err?.message || "Erro ao buscar endereços do prestador");
         return null;
@@ -102,7 +94,7 @@ export function useEndereco() {
       setLoading(true);
       setError(null);
       try {
-        return await findEnderecosByCidade(cidade);
+        return await EnderecoGateway.getByCity(cidade);
       } catch (err: any) {
         setError(err?.message || "Erro ao buscar endereços por cidade");
         return null;
@@ -114,14 +106,14 @@ export function useEndereco() {
   );
 
   const setPrincipal = useCallback(
-    async (id: string): Promise<Endereco | null> => {
+    async (id: string): Promise<boolean> => {
       setLoading(true);
       setError(null);
       try {
-        return await setEnderecoPrincipal(id);
+        return await EnderecoGateway.setPrincipal(id);
       } catch (err: any) {
         setError(err?.message || "Erro ao definir endereço principal");
-        return null;
+        return false;
       } finally {
         setLoading(false);
       }
@@ -130,14 +122,14 @@ export function useEndereco() {
   );
 
   const unsetPrincipal = useCallback(
-    async (id: string): Promise<Endereco | null> => {
+    async (id: string): Promise<boolean> => {
       setLoading(true);
       setError(null);
       try {
-        return await unsetEnderecoPrincipal(id);
+        return await EnderecoGateway.unsetPrincipal(id);
       } catch (err: any) {
         setError(err?.message || "Erro ao remover endereço principal");
-        return null;
+        return false;
       } finally {
         setLoading(false);
       }

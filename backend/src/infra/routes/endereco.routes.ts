@@ -49,7 +49,7 @@ enderecoRouter.post("/criarEndereco", (req, res) =>
 enderecoRouter.delete("/deletarEndereco", (req, res) =>
   enderecoController.delete(req, res),
 );
-enderecoRouter.patch("/atualizarEndereco", (req, res) =>
+enderecoRouter.patch("/editarEndereco", (req, res) =>
   enderecoController.update(req, res),
 );
 enderecoRouter.get("/acharPorUserId", (req, res) =>

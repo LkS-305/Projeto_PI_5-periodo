@@ -36,6 +36,7 @@ async function apiServerFetch<T>(
     next: next || { revalidate: 0 }, 
   };
 
+  console.log('Enviando requisicao com url e config:', url, config);
   const response = await fetch(url.toString(), config);
 
   if (!response.ok) {
@@ -49,5 +50,6 @@ export const apiServer = {
   get: <T>(endpoint: string, options?: RequestOptions) => apiServerFetch<T>(endpoint, 'GET', options),
   post: <T>(endpoint: string, body: any, options?: RequestOptions) => apiServerFetch<T>(endpoint, 'POST', { ...options, body }),
   put: <T>(endpoint: string, body: any, options?: RequestOptions) => apiServerFetch<T>(endpoint, 'PUT', { ...options, body }),
-  delete: <T>(endpoint: string, options?: RequestOptions) => apiServerFetch<T>(endpoint, 'DELETE', options),
+   patch: <T>(endpoint: string, body: any, options?: RequestOptions) => apiServerFetch<T>(endpoint, 'PATCH', { ...options, body }),
+  delete: <T>(endpoint: string, body: any, options?: RequestOptions) => apiServerFetch<T>(endpoint, 'DELETE', options),
 };
