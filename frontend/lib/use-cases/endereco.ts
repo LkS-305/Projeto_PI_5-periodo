@@ -1,5 +1,5 @@
 import client from '@/lib/api/client';
-import { Endereco } from '@/lib/types';
+import { Endereco } from '@/types/entities/endereco';
 
 export async function createEndereco(data: Omit<Endereco, 'id'>): Promise<Endereco> {
   const response = await client.post<Endereco>('/endereco/criarEndereco', data);

@@ -1,5 +1,5 @@
 import client from "@/lib/api/client";
-import { Usuario } from "@/lib/types";
+import { Usuario } from "@/types/entities/usuario";
 
 export async function getUserById(id: string): Promise<Usuario> {
   const response = await client.post<Usuario>("/users/buscarPorId", { id });
