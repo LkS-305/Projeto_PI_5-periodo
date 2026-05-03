@@ -1,17 +1,27 @@
-export class AuditLog {
-  public readonly id?: string;
-  public usuario_id?: string; // Pode ser nulo se for uma ação de visitante
-  public acao!: string;       // Ex: "UPDATE_PRECO", "LOGIN_FAIL"
-  public recurso!: string;    // Tabela ou Entidade afetada
-  public recurso_id?: string; // ID do registro alterado
-  public dados_anteriores?: object; // JSON com o estado antes da mudança
-  public dados_novos?: object;      // JSON com o estado depois da mudança
-  public ip_origem?: string;
-  public user_agent?: string; // Navegador/App que realizou a ação
-  public created_at?: Date;
+import { randomUUID } from "crypto";
 
-  constructor(props: Omit<AuditLog, 'id' | 'created_at'>, id?: string) {
-    Object.assign(this, props);
-    this.id = id;
+export class AuditLog {
+  public readonly id: string;
+  public user_id: string; 
+  public acao: string;     
+  public recurso: string;  
+  public recurso_id: string; 
+  public dados_anteriores?: object; 
+  public dados_novos?: object;
+  public ip_origem?: string;
+  public user_agent?: string; 
+  public readonly created_at: Date;
+
+  constructor(props: AuditLog) {
+    this.id = props.id ?? randomUUID();
+    this.user_id = props.user_id;
+    this.acao = props.acao;
+    this.recurso = props.recurso;
+    this.recurso_id = props.recurso_id;
+    this.dados_anteriores = props.dados_anteriores;
+    this.dados_novos = props.dados_novos;
+    this.ip_origem = props.ip_origem;
+    this.user_agent = props.user_agent;
+    this.created_at = new Date();
   }
 }

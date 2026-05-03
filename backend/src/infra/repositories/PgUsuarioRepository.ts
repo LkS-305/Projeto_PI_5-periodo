@@ -36,12 +36,9 @@ export class PgUsuarioRepository implements IUsuarioRepository {
    }
   }
 
-  async delete(id: string): Promise<void> {
-    const { rows } = await pool.query(
-      "DELETE * FROM usuarios WHERE user_id = $1 RETURNING *",
-      [id],
-    );
-    return rows[0];
+  async delete(user_id: string): Promise<void> {
+    const query = "DELETE FROM usuarios WHERE user_id = $1";
+    await pool.query(query, [user_id]);
   }
 
   async update(dados: Usuario): Promise<void> {
@@ -64,12 +61,10 @@ export class PgUsuarioRepository implements IUsuarioRepository {
   }
 
   async findByUserId(user_id: string): Promise<Usuario | null> {
-    console.log('procurando no banco pelpo user_id: ', user_id);
     const consulta = "SELECT * FROM usuarios WHERE user_id = $1"; // Sem vírgula, sem RETURNING
   
 try {
     const { rows } = await pool.query(consulta, [user_id]);
-      console.log('aaaaaaaa',rows[0]);
     return rows[0] || null;
   } catch (error: any) {
     // Esse log vai aparecer no terminal onde o SERVIDOR (npm run dev) está rodando

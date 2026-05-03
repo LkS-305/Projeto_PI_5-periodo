@@ -1,126 +1,63 @@
+// hooks/useAuth.ts
 "use client";
 
-import { useCallback, useState } from "react";
-import {
-  loginUser,
-  signUpUser,
-  fetchUserById,
-  fetchUserByEmail,
-  updateUser,
-  deleteUser,
-} from "@/lib/use-cases/auth";
-import {
-  LoginRequest,
-  LoginResponse,
-  SignUpRequest,
-  Usuario,
-} from "@/lib/types";
+import { useState } from "react";
+import { useSession } from "@/lib/contexts/SessionContext";
+import { useNotification } from "@/lib/contexts/NotificationContext";
+import { AuthGateway } from "@/lib/gateways/AuthGateway"; // O seu Gateway aqui
+import { LoginDto, RegisterDto } from "@/types/dtos/user";
 
 export function useAuth() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
+  const { saveSession, clearSession, user } = useSession();
+  const { notify } = useNotification();
 
-  const login = useCallback(
-    async (credentials: LoginRequest): Promise<LoginResponse | null> => {
-      setLoading(true);
-      setError(null);
-      try {
-        return await loginUser(credentials);
-      } catch (err: any) {
-        setError(err?.message || "Falha ao efetuar login");
-        return null;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
-
-  const signUp = useCallback(
-    async (payload: SignUpRequest): Promise<Usuario | null> => {
-      setLoading(true);
-      setError(null);
-      try {
-        return await signUpUser(payload);
-      } catch (err: any) {
-        setError(err?.message || "Falha ao criar conta");
-        return null;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
-
-  const findUserById = useCallback(
-    async (id: string): Promise<Usuario | null> => {
-      setLoading(true);
-      setError(null);
-      try {
-        return await fetchUserById(id);
-      } catch (err: any) {
-        setError(err?.message || "Falha ao buscar usuário");
-        return null;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
-
-  const findUserByEmail = useCallback(
-    async (email: string): Promise<Usuario | null> => {
-      setLoading(true);
-      setError(null);
-      try {
-        return await fetchUserByEmail(email);
-      } catch (err: any) {
-        setError(err?.message || "Falha ao buscar usuário por email");
-        return null;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
-
-  const update = useCallback(
-    async (id: string, dados: Partial<Usuario>): Promise<Usuario | null> => {
-      setLoading(true);
-      setError(null);
-      try {
-        return await updateUser(id, dados);
-      } catch (err: any) {
-        setError(err?.message || "Falha ao atualizar usuário");
-        return null;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
-
-  const remove = useCallback(async (id: string): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
+  const login = async (dados: LoginDto) => {
+    setIsPending(true);
     try {
-      return await deleteUser(id);
+      // 1. CHAMA O GATEWAY (Lógica de rede pura)
+      const response = await AuthGateway.loginClient(dados);
+      
+      // 2. ATUALIZA O ESTADO GLOBAL (Contexto)
+      saveSession(response.token, response.user);
+      
+      // 3. NOTIFICA O USUÁRIO (UI)
+      notify("Bem-vindo de volta!", "success");
+      return response.user;
     } catch (err: any) {
-      setError(err?.message || "Falha ao deletar usuário");
-      return false;
+      notify(err.message || "Falha no login", "error");
+      return null;
     } finally {
-      setLoading(false);
+      setIsPending(false);
     }
-  }, []);
-
-  return {
-    loading,
-    error,
-    login,
-    signUp,
-    findUserById,
-    findUserByEmail,
-    update,
-    remove,
   };
-}
+
+  const register = async (dados: RegisterDto) => {
+    setIsPending(true);
+    try {
+      // Chama o gateway para criar o usuário
+      console.log('Estou no hook, chamando o gateway');
+      const response = await AuthGateway.registerClient(dados);
+      notify("Conta criada com sucesso!", "success");
+      return response;
+    } catch (err: any) {
+      notify(err.message || "Falha ao registrar", "error");
+      return null;
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const logout = () => {
+    clearSession();
+    notify("Você saiu do sistema", "info");
+  };
+
+  return { 
+    login, 
+    register, 
+    logout, 
+    isPending, 
+    currentUser: user 
+  };
+} 

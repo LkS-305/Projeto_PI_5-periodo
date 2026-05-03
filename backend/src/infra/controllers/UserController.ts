@@ -1,5 +1,5 @@
 import { Response, Request } from 'express';
-import { RegisterUseCase, LoginUseCase, ForgotPassword, ChangePassword } from '../../core/use-cases/user/UserUseCase';
+import { RegisterUseCase, LoginUseCase, DeletarUserUseCase, AcharPorEmail, AcharPorId, ForgotPassword, ChangePassword } from '../../core/use-cases/user/UserUseCase';
 import { AppError } from '../../core/errors/AppError';
 import { exigirCampos } from '../../core/utils/validate';
 
@@ -7,6 +7,9 @@ export class UserController {
   constructor(
     private registerUC: RegisterUseCase,
     private loginUC: LoginUseCase,
+    private deletarUC: DeletarUserUseCase,
+    private acharPorEmail: AcharPorEmail,
+    private acharPorId: AcharPorId,
     private forgotPasswordUC: ForgotPassword,
     private changePasswordUC: ChangePassword,
   ) {}
@@ -14,7 +17,6 @@ export class UserController {
   async registrar(req: Request, res: Response) {
     try {
       exigirCampos(req.body, ['email', 'senha', 'cpf']);
-      console.log('passou dos campos');
       const resultado = await this.registerUC.executar(req.body);
       return res.status(200).json(resultado);
     } catch (erro: unknown) {
@@ -33,6 +35,48 @@ export class UserController {
       return res.status(500).json({ status: 'error', message: 'Erro interno no servidor.' });
     }
   }
+
+  async delete(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(500).json({ status: 'error', message: 'User nao identifacado p0elo token' });
+      }
+      if (req.user.id != req.body.id) {
+        return res.status(500).json({ status: 'error', message: 'user tentando apagar outro user' });
+      }
+      const resultado = await this.deletarUC.executar(req.body.id);
+      return res.status(200).json(resultado);
+    } catch (erro: unknown) {
+      if (erro instanceof AppError) return res.status(erro.statusCode).json({ status: 'error', message: erro.message });
+      return res.status(500).json({ status: 'error', message: 'Erro interno no servidor.' });
+    }
+  }
+
+
+  async findByEmail(req: Request, res: Response) {
+    try {
+      exigirCampos(req.body, ['email']);
+      const resultado = await this.loginUC.executar(req.body.email);
+      return res.status(200).json(resultado);
+    } catch (erro: unknown) {
+      if (erro instanceof AppError) return res.status(erro.statusCode).json({ status: 'error', message: erro.message });
+      return res.status(500).json({ status: 'error', message: 'Erro interno no servidor.' });
+    }
+  }
+
+
+
+  async findById(req: Request, res: Response) {
+    try {
+      exigirCampos(req.body, ['id']);
+      const resultado = await this.loginUC.executar(req.body.id);
+      return res.status(200).json(resultado);
+    } catch (erro: unknown) {
+      if (erro instanceof AppError) return res.status(erro.statusCode).json({ status: 'error', message: erro.message });
+      return res.status(500).json({ status: 'error', message: 'Erro interno no servidor.' });
+    }
+  }
+
 
   async forgotPassword(req: Request, res: Response) {
     try {

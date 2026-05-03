@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { NotificationProvider } from "@/lib/contexts/NotificationContext";
-import { SessionProvider } from "@/lib/contexts/AuthContext";
+import { SessionProvider } from "@/lib/contexts/SessionContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { NotificationCenter } from "@/components/NotificationCenter";
 
