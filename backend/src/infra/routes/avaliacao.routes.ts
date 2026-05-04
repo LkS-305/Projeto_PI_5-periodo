@@ -17,8 +17,8 @@ const avaliacaoController = new AvaliacaoController(criarAvaliacaoUC, atualizarA
 
 
 avaliacaoRouter.post('/criarAvaliacao', (req, res) => avaliacaoController.create(req, res));
-avaliacaoRouter.get('/deletarAvaliacao', (req,res) => avaliacaoController.delete(req,res));
-avaliacaoRouter.get('/atualizar-avaliacao', (req,res) => avaliacaoController.update(req,res));
+avaliacaoRouter.delete('/deletarAvaliacao', (req,res) => avaliacaoController.delete(req,res));
+avaliacaoRouter.patch('/atualizar-avaliacao', (req,res) => avaliacaoController.update(req,res));
 avaliacaoRouter.get('/listarAvaliacoes', (req,res) => avaliacaoController.listBy(req,res));
 
 export { avaliacaoRouter };

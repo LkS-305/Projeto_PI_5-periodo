@@ -1,5 +1,5 @@
 import client from "@/lib/api/client";
-import { Prestador } from "@/lib/types";
+import { Prestador } from "@/types/entities/prestador";
 
 export async function createPrestador(data: {
   user_id: string;

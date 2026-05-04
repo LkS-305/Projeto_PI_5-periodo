@@ -7,7 +7,8 @@ import {
   deleteAvaliacao,
   listAvaliacoes,
 } from "@/lib/use-cases/avaliacao";
-import { Avaliacao, AvaliarBy } from "@/lib/types";
+import { Avaliacao } from "@/types/entities/avaliacao";
+import { AvaliarBy } from "@/types/dtos/avaliacao";
 
 export function useAvaliacao() {
   const [loading, setLoading] = useState(false);

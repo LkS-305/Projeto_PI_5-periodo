@@ -1,6 +1,8 @@
 import { CriarServicoDto } from "../dtos/servico";
 import { randomUUID } from "crypto";
 
+export type ServicoStatus = 'criado' | 'emAndamento' | 'pendente' | 'aceito' | 'recusado' | 'cancelado' | 'finalizado';
+
 export class Servico {
   public readonly id: string;
   public user_id: string; // FK para Usuário (Cliente)
@@ -10,6 +12,7 @@ export class Servico {
   public data_inicio: Date;
   public duracao: string;
   public categoria: string;
+  public status: ServicoStatus;
   public nota_usuario?: number;
   public nota_prestador?: number;
   public nota?: number;
@@ -25,6 +28,7 @@ export class Servico {
     this.data_inicio = props.data_inicio;
     this.duracao = props.duracao;
     this.categoria = props.categoria;
+    this.status = 'criado'; // Valor padrão
     this.created_at = new Date();
     this.updated_at = new Date();
   }

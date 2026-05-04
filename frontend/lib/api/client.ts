@@ -53,6 +53,8 @@ export const apiClient = {
     apiFetch<T>(endpoint, "POST", { ...options, body }),
   put: <T>(endpoint: string, body: any, options?: RequestOptions) =>
     apiFetch<T>(endpoint, "PUT", { ...options, body }),
+  patch: <T>(endpoint: string, body: any, options?: RequestOptions) =>
+    apiFetch<T>(endpoint, "PATCH", { ...options, body }),
   delete: <T>(endpoint: string, options?: RequestOptions) =>
     apiFetch<T>(endpoint, "DELETE", options),
 };
