@@ -1,6 +1,6 @@
 import { IServicoRepository } from '../../repositories/IServicoRepository';
-import { CriarServicoDto, ServicoStatus } from '../../dtos/servico';
-import { Servico } from '../../entities/Servico';
+import { CriarServicoDto } from '../../dtos/servico';
+import { Servico, ServicoStatus } from '../../entities/Servico';
 import { ResourceNotFoundError, ValidationError } from '../../errors/AppError';
 import { validarUUID, validarTexto, sanitizarTexto } from '../../utils/validate';
 

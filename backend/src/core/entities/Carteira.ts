@@ -21,7 +21,7 @@ export class Carteira {
   public saldo_bloqueado?: string;
   public ultima_transacao_id?: string;
   public metodos_de_pagamento?: PagamentosAceitados;
-  public stauts: CarteiraStatus;
+  public status: CarteiraStatus;
   public readonly created_at?: Date;
   public readonly updated_at?: Date;
 
@@ -29,7 +29,7 @@ export class Carteira {
     this.id = id;
     this.saldo = props.saldo;
     this.usuario_id = props.usuario_id;
-    this.stauts = props.stauts;
+    this.status = props.status;
     this.metodos_de_pagamento = props.metodos_de_pagamento;
   }
 }

@@ -8,7 +8,7 @@ import {
   getServicosByPrestadorId,
   updateServicoStatus,
 } from "@/lib/use-cases/servico";
-import { Servico } from "@/lib/types";
+import { Servico } from "@/types/entities/servico";
 
 export function useServico() {
   const [loading, setLoading] = useState(false);

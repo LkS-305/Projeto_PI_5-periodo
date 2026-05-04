@@ -10,7 +10,7 @@ import {
   updateCarteiraStatus,
   updateMetodosDePagamento,
 } from "@/lib/use-cases/carteira";
-import { Carteira, CarteiraStatus, PagamentosAceitos } from "@/lib/types";
+import { CarteiraStatus, Cartao, PagamentosAceitados, Carteira } from "@/types/entities/carteira";
 
 export function useCarteira() {
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ export function useCarteira() {
       usuario_id?: string;
       prestador_id?: string;
       saldo: string;
-      metodos_de_pagamento?: PagamentosAceitos;
+      metodos_de_pagamento?: PagamentosAceitados;
       status: CarteiraStatus;
     }): Promise<Carteira | null> => {
       setLoading(true);
@@ -118,7 +118,7 @@ export function useCarteira() {
   const updatePaymentMethods = useCallback(
     async (
       id: string,
-      metodos_de_pagamento: PagamentosAceitos,
+      metodos_de_pagamento: PagamentosAceitados,
     ): Promise<Carteira | null> => {
       setLoading(true);
       setError(null);
