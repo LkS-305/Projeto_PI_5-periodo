@@ -8,12 +8,3 @@ export interface CriarDocumentoDto {
     selfie_url: string,
     verificacaoStatus: verificacaoStatus
 }
-
-
-export interface AtualizarDocumentoDto {
-    user_id: string;
-    tipo: tipoDocumento;
-    documento_url: string,
-    selfie_url: string,
-    verificacaoStatus: verificacaoStatus
-}

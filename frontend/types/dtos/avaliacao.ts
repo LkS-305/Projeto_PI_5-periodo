@@ -1,11 +1,22 @@
-export type AvaliarBy = 'usuario' | 'prestador' | 'servico' | 'avaliacao';
+export type destinatario = 'usuario' | 'prestador' | 'servico' | 'avaliacao';
 
 export interface CriarAvaliacaoDto {
-    servico_id?: string,
-    usuario_id?: string,
-    prestador_id?: string,
-    nota: string,
-    comentario?: string,
-    media?: string,
-    destinatario: AvaliarBy,
+  servico_id: string | undefined,
+  usuario_id: string | undefined,
+  prestador_id: string | undefined,
+  nota: number,
+  comentario: string | undefined,
+  media: string | undefined,
+  destinatario: destinatario,
+
+}
+
+export interface AtualizarAvaliacaoDto {
+  servico_id: string | undefined,
+  usuario_id: string | undefined,
+  prestador_id: string | undefined,
+  nota: number,
+  comentario: string | undefined,
+  media: string | undefined,
+  destinatario: destinatario,
 }

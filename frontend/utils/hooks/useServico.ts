@@ -1,34 +1,41 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import {
-  createServico,
-  getServicoById,
-  getServicosByUserId,
-  getServicosByPrestadorId,
-  updateServicoStatus,
-} from "@/lib/use-cases/servico";
+
+
 import { Servico } from "@/types/entities/servico";
+import { AtualizarServicoDto, CriarServicoDto } from "@/types/dtos/servico";
+import { ServicoGateway } from "@/lib/gateways/ServicoGateway";
 
 export function useServico() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const create = useCallback(
-    async (data: {
-      user_id: string;
-      prestador_id: string;
-      endereco_id: string;
-      titulo: string;
-      categoria: string;
-    }): Promise<Servico | null> => {
+    async (data: CriarServicoDto): Promise<Servico | null> => {
       setLoading(true);
       setError(null);
       try {
-        return await createServico(data);
+        return await ServicoGateway.criarServico(data);
       } catch (err: any) {
         setError(err?.message || "Erro ao criar serviço");
         return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const updateServico = useCallback(
+    async (id: string, dados: AtualizarServicoDto): Promise<boolean> => {
+      setLoading(true);
+      setError(null);
+      try {
+        return await ServicoGateway.atualizarServico(id, dados) ? true : false;
+      } catch (err: any) {
+        setError(err?.message || "Erro ao atualizar status do serviço");
+        return false;
       } finally {
         setLoading(false);
       }
@@ -40,7 +47,7 @@ export function useServico() {
     setLoading(true);
     setError(null);
     try {
-      return await getServicoById(id);
+      return await ServicoGateway.getById(id);
     } catch (err: any) {
       setError(err?.message || "Erro ao buscar serviço");
       return null;
@@ -54,7 +61,7 @@ export function useServico() {
       setLoading(true);
       setError(null);
       try {
-        return await getServicosByUserId(user_id);
+        return await ServicoGateway.getByUserId(user_id);
       } catch (err: any) {
         setError(err?.message || "Erro ao buscar serviços do usuário");
         return null;
@@ -70,7 +77,7 @@ export function useServico() {
       setLoading(true);
       setError(null);
       try {
-        return await getServicosByPrestadorId(prestador_id);
+        return await ServicoGateway.getByPrestadorId(prestador_id);
       } catch (err: any) {
         setError(err?.message || "Erro ao buscar serviços do prestador");
         return null;
@@ -81,21 +88,6 @@ export function useServico() {
     [],
   );
 
-  const updateStatus = useCallback(
-    async (id: string, dados: Partial<Servico>): Promise<Servico | null> => {
-      setLoading(true);
-      setError(null);
-      try {
-        return await updateServicoStatus(id, dados);
-      } catch (err: any) {
-        setError(err?.message || "Erro ao atualizar status do serviço");
-        return null;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
 
   return {
     loading,
@@ -104,6 +96,6 @@ export function useServico() {
     fetchById,
     fetchByUserId,
     fetchByPrestadorId,
-    updateStatus,
+    updateServico,
   };
 }

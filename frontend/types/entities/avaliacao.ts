@@ -1,14 +1,13 @@
-import { AvaliarBy } from "@/types/dtos/avaliacao";
-
-export interface Avaliacao {
-  id: string,
-  servico_id?: string,
-  usuario_id?: string,
-  prestador_id?: string, 
-  nota: string,
-  comentario?: string,
-  media?: string,
-  destinatario: AvaliarBy,
-  created_at: Date,
-  updated_at: Date,
+import { destinatario } from '../dtos/avaliacao';
+export interface Avaliacao {  
+ id: string;
+ servico_id: string | undefined;
+ usuario_id: string | undefined;
+ prestador_id: string | undefined;
+ destinatario: destinatario;
+ nota: number;
+ comentario: string | undefined;
+ media: string | undefined;
+ created_at: Date;
+ upadted_at: Date;
 }
