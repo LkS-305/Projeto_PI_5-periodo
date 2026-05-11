@@ -6,6 +6,7 @@ import { ServicoController } from "../controllers/ServicoController";
 
 import {
   CriarServicoUseCase,
+  DeletarServicoUseCase,
   PesquisarServicoId,
   PesquisarServicoUserId,
   PesquisarServicoPrestadorId,
@@ -18,37 +19,46 @@ const servicoRepo = new PgServicoRepository();
 const agendamentoRepo = new PgAgendamentosRepository();
 const transacaoRepo = new PgTransacaoRepository();
 
-const criarServicoUseCase = new CriarServicoUseCase(servicoRepo);
+const criarServicoUC = new CriarServicoUseCase(servicoRepo);
+const deletarServicoUC = new DeletarServicoUseCase(servicoRepo);
 const pesquisarServicoId = new PesquisarServicoId(servicoRepo);
 const pesquisarServicoUserId = new PesquisarServicoUserId(servicoRepo);
 const pesquisarServicoPrestadorId = new PesquisarServicoPrestadorId(
   servicoRepo,
 );
 
-const updateStatusUseCase = new UpdateStatusUseCase(servicoRepo);
+const updateStatusUC = new UpdateStatusUseCase(servicoRepo);
 
 const servicoController = new ServicoController(
-  criarServicoUseCase,
+  criarServicoUC,
   pesquisarServicoId,
   pesquisarServicoUserId,
   pesquisarServicoPrestadorId,
-  updateStatusUseCase,
+  updateStatusUC,
 );
 
-servicoRouter.post("/criar-servico", (req, res) =>
+servicoRouter.post("/criarServico", (req, res) =>
   servicoController.create(req, res),
 );
-servicoRouter.get("/acharPorId", (req, res) =>
-  servicoController.findById(req, res),
-);
-servicoRouter.get("/acharPorUserId", (req, res) =>
-  servicoController.findByUserId(req, res),
-);
-servicoRouter.get("/acharPorPretadorId", (req, res) =>
-  servicoController.findByPrestadorId(req, res),
-);
+
 servicoRouter.patch("/atualizarServico", (req, res) =>
   servicoController.updateStatus(req, res),
+);
+
+servicoRouter.delete("/deletarServico", (req, res) =>
+  servicoController.delete(req, res),
+);
+
+servicoRouter.get("/buscarPorId", (req, res) =>
+  servicoController.findById(req, res),
+);
+
+servicoRouter.get("/buscarPorUserId", (req, res) =>
+  servicoController.findByUserId(req, res),
+);
+
+servicoRouter.get("/buscarPorPretadorId", (req, res) =>
+  servicoController.findByPrestadorId(req, res),
 );
 
 export { servicoRouter };

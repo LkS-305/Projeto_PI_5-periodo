@@ -1,22 +1,22 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { AvaliacaoGateway } from "@/lib/gateways/AvaliacaoGateway";
-import { Avaliacao } from "@/types/entities/avaliacao";
-import { CriarAvaliacaoDto, AtualizarAvaliacaoDto, destinatario } from "@/types/dtos/avaliacao";
+import { AgendamentoGateway } from "@/lib/gateways/AgendamentoGateway";
+import { Agendamento } from "@/types/entities/agendamento";
+import { CriarAgendamentoDto, AtualizarAgendamentoDto } from "@/types/dtos/agendamento";
 
-export function useAvaliacao() {
+export function useAgendamento() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const create = useCallback(
-    async (data: CriarAvaliacaoDto): Promise<Avaliacao | null> => {
+    async (data: CriarAgendamentoDto): Promise<Agendamento | null> => {
       setLoading(true);
       setError(null);
       try {
-        return await AvaliacaoGateway.criarAvaliacao(data);
+        return await AgendamentoGateway.criarAgendamento(data);
       } catch (err: any) {
-        setError(err?.message || "Erro ao criar avaliação");
+        setError(err?.message || "Erro ao criar agendamento");
         return null;
       } finally {
         setLoading(false);
@@ -28,14 +28,14 @@ export function useAvaliacao() {
   const update = useCallback(
     async (
       id: string,
-      dados: AtualizarAvaliacaoDto,
-    ): Promise<Avaliacao | null> => {
+      dados: AtualizarAgendamentoDto,
+    ): Promise<Agendamento | null> => {
       setLoading(true);
       setError(null);
       try {
-        return await AvaliacaoGateway.atualizarAvaliacao(id, dados);
+        return await AgendamentoGateway.atualizarAgendamento(id, dados);
       } catch (err: any) {
-        setError(err?.message || "Erro ao atualizar avaliação");
+        setError(err?.message || "Erro ao atualizar agendamento");
         return null;
       } finally {
         setLoading(false);
@@ -48,23 +48,23 @@ export function useAvaliacao() {
     setLoading(true);
     setError(null);
     try {
-      return await AvaliacaoGateway.deletarAvaliacao(id);
+      return await AgendamentoGateway.deletarAgendamento(id);
     } catch (err: any) {
-      setError(err?.message || "Erro ao excluir avaliação");
+      setError(err?.message || "Erro ao excluir agendamento");
       return false;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const listByServico = useCallback(
-    async (servico_id: string): Promise<Avaliacao[] | null> => {
+  const listById = useCallback(
+    async (agendamento_id: string): Promise<Agendamento | null> => {
       setLoading(true);
       setError(null);
       try {
-        return await AvaliacaoGateway.getByServico(servico_id);
+        return await AgendamentoGateway.getById(agendamento_id);
       } catch (err: any) {
-        setError(err?.message || "Erro ao listar avaliações por servico");
+        setError(err?.message || "Erro ao listar agendamentos por servico");
         return null;
       } finally {
         setLoading(false);
@@ -74,13 +74,13 @@ export function useAvaliacao() {
   );
 
   const listByUser = useCallback(
-    async (user_id: string): Promise<Avaliacao[] | null> => {
+    async (user_id: string): Promise<Agendamento[] | null> => {
       setLoading(true);
       setError(null);
       try {
-        return await AvaliacaoGateway.getByUserId(user_id);
+        return await AgendamentoGateway.getByUserId(user_id);
       } catch (err: any) {
-        setError(err?.message || "Erro ao listar avaliações por usuario");
+        setError(err?.message || "Erro ao listar agendamentos por usuario");
         return null;
       } finally {
         setLoading(false);
@@ -90,13 +90,13 @@ export function useAvaliacao() {
   );
 
   const listByPrestador = useCallback(
-    async (prestador_id: string): Promise<Avaliacao[] | null> => {
+    async (prestador_id: string): Promise<Agendamento[] | null> => {
       setLoading(true);
       setError(null);
       try {
-        return await AvaliacaoGateway.getByPrestadorId(prestador_id);
+        return await AgendamentoGateway.getByPrestadorId(prestador_id);
       } catch (err: any) {
-        setError(err?.message || "Erro ao listar avaliações por prestador");
+        setError(err?.message || "Erro ao listar agendamentos por prestador");
         return null;
       } finally {
         setLoading(false);
@@ -111,7 +111,7 @@ export function useAvaliacao() {
     create,
     update,
     remove,
-    listByServico,
+    listById,
     listByUser,
     listByPrestador
   };
