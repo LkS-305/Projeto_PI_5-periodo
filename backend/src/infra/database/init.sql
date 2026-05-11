@@ -62,13 +62,17 @@ CREATE TABLE IF NOT EXISTS servicos (
     user_id TEXT NOT NULL REFERENCES usuarios(user_id) ON DELETE CASCADE,
     prestador_id TEXT NOT NULL REFERENCES prestadores(user_id) ON DELETE CASCADE,
     titulo TEXT NOT NULL,
+    descricao TEXT,
+    imagem TEXT,
     preco_acordado DECIMAL(10, 2) NOT NULL,
     data_inicio TIMESTAMP WITH TIME ZONE NOT NULL,
     duracao TEXT NOT NULL,
     categoria TEXT NOT NULL,
+    ativo BOOLEAN DEFAULT TRUE,
     nota_usuario INTEGER,
     nota_prestador INTEGER,
-    nota INTEGER,
+    nota NUMERIC(3, 1),
+    total_avaliacoes INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -92,7 +96,7 @@ CREATE TABLE IF NOT EXISTS avaliacoes (
 -- 7. Tabela de Carteiras
 CREATE TABLE IF NOT EXISTS carteiras (
     id TEXT PRIMARY KEY,
-    user_id TEXT REFERENCES usuarios(user_id),
+    usuario_id TEXT REFERENCES usuarios(user_id),
     prestador_id TEXT REFERENCES prestadores(user_id),
     saldo TEXT NOT NULL,
     saldo_bloqueado TEXT,
@@ -141,7 +145,7 @@ CREATE TABLE IF NOT EXISTS mensagens (
 -- 11. Tabela de Notificacoes
 CREATE TABLE IF NOT EXISTS notificacoes (
     id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL REFERENCES usuarios(user_id) ON DELETE CASCADE,
+    usuario_id TEXT NOT NULL REFERENCES usuarios(user_id) ON DELETE CASCADE,
     titulo TEXT NOT NULL,
     mensagem TEXT NOT NULL,
     tipo TEXT NOT NULL CHECK (tipo IN ('info', 'sucesso', 'alerta')),
@@ -202,12 +206,12 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 );
 
 -- Gatilhos para Updated_at
-CREATE TRIGGER update_users_modtime BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-CREATE TRIGGER update_usuarios_modtime BEFORE UPDATE ON usuarios FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-CREATE TRIGGER update_prestadores_modtime BEFORE UPDATE ON prestadores FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-CREATE TRIGGER update_servicos_modtime BEFORE UPDATE ON servicos FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-CREATE TRIGGER update_categorias_modtime BEFORE UPDATE ON categorias FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-CREATE TRIGGER update_avaliacoes_modtime BEFORE UPDATE ON avaliacoes FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-CREATE TRIGGER update_carteiras_modtime BEFORE UPDATE ON carteiras FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-CREATE TRIGGER update_transacoes_modtime BEFORE UPDATE ON transacoes FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-CREATE TRIGGER update_agendamentos_modtime BEFORE UPDATE ON agendamentos FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+CREATE OR REPLACE TRIGGER update_users_modtime BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+CREATE OR REPLACE TRIGGER update_usuarios_modtime BEFORE UPDATE ON usuarios FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+CREATE OR REPLACE TRIGGER update_prestadores_modtime BEFORE UPDATE ON prestadores FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+CREATE OR REPLACE TRIGGER update_servicos_modtime BEFORE UPDATE ON servicos FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+CREATE OR REPLACE TRIGGER update_categorias_modtime BEFORE UPDATE ON categorias FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+CREATE OR REPLACE TRIGGER update_avaliacoes_modtime BEFORE UPDATE ON avaliacoes FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+CREATE OR REPLACE TRIGGER update_carteiras_modtime BEFORE UPDATE ON carteiras FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+CREATE OR REPLACE TRIGGER update_transacoes_modtime BEFORE UPDATE ON transacoes FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+CREATE OR REPLACE TRIGGER update_agendamentos_modtime BEFORE UPDATE ON agendamentos FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
