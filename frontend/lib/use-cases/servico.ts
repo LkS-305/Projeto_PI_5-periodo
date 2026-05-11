@@ -1,5 +1,20 @@
-import client from "@/lib/api/client";
-import { Servico } from "@/lib/types";
+import { apiClient } from "@/lib/api/client";
+import { Servico } from "@/types/entities/servico";
+
+export async function getAllServicos(): Promise<Servico[]> {
+  return apiClient.get<Servico[]>("/servico/listarTodos");
+}
+
+export interface ServicoStats {
+  ativos: number;
+  agendamentos_semana: number;
+  receita_mensal: string;
+  avaliacao_media: string;
+}
+
+export async function getServicoStats(): Promise<ServicoStats> {
+  return apiClient.get<ServicoStats>("/servico/stats");
+}
 
 export async function createServico(data: {
   user_id: string;

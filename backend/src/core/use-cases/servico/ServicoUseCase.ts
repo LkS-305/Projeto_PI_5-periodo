@@ -111,6 +111,18 @@ export class PesquisarServicoPrestadorId {
 }
 
 
+export class ListarServicosUseCase {
+  constructor(private servicoRepository: IServicoRepository) {}
+
+  async executar(): Promise<Servico[]> {
+    return this.servicoRepository.findAll();
+  }
+
+  async stats() {
+    return this.servicoRepository.getStats();
+  }
+}
+
 export class UpdateStatusUseCase {
   constructor(
     private servicoRepository: IServicoRepository

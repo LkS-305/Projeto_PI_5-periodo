@@ -9,6 +9,7 @@ import { errorHandler } from '../../middlewares/ErrorHandler';
 import { logFullCycle } from '../../middlewares/Logger';
 import { globalRateLimit } from '../../middlewares/RateLimit';
 import { categoriaRouter } from '../routes/categoria.routes';
+import { servicoRouter } from '../routes/servico.routes';
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/avaliacao', avaliacaoRouter);
 app.use('/usuario', usuarioRouter);
 app.use('/prestador', prestadorRouter);
 app.use('/categoria', categoriaRouter);
+app.use('/servico', servicoRouter);
 
  
 app.get('/health', async (req, res) => {
