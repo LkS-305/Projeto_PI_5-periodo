@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
-import { CriarServicoUseCase,  PesquisarServicoId, PesquisarServicoUserId, PesquisarServicoPrestadorId, UpdateStatusUseCase } from '../../core/use-cases/servico/ServicoUseCase';
+import { CriarServicoUseCase, ListarServicosUseCase, PesquisarServicoId, PesquisarServicoUserId, PesquisarServicoPrestadorId, UpdateStatusUseCase } from '../../core/use-cases/servico/ServicoUseCase';
 
 
 export class ServicoController {
   constructor(
     private criarServicoUseCase: CriarServicoUseCase,
+    private listarServicosUseCase: ListarServicosUseCase,
     private pesquisarServicoId: PesquisarServicoId,
     private pesquisarServicoUserId: PesquisarServicoUserId,
     private pesquisarServicoPrestadorId: PesquisarServicoPrestadorId,
@@ -12,6 +13,24 @@ export class ServicoController {
 
   ){} 
 
+
+  async listAll(req: Request, res: Response) {
+    try {
+      const resultado = await this.listarServicosUseCase.executar();
+      return res.status(200).json(resultado);
+    } catch (erro: any) {
+      return res.status(400).json({ erro: erro.message });
+    }
+  }
+
+  async stats(req: Request, res: Response) {
+    try {
+      const resultado = await this.listarServicosUseCase.stats();
+      return res.status(200).json(resultado);
+    } catch (erro: any) {
+      return res.status(400).json({ erro: erro.message });
+    }
+  }
 
   async create(req: Request, res: Response) {
       try {

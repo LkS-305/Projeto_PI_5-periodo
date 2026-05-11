@@ -1,79 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Layout, Container } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/Button";
 import { StatCard } from "@/components/StatCard";
+import { getAllServicos, getServicoStats, ServicoStats } from "@/lib/use-cases/servico";
+import { Servico } from "@/types/entities/servico";
+
+const CATEGORY_ICONS: Record<string, string> = {
+  Cabelo: "✂️",
+  Unhas: "💅",
+  Barba: "🪒",
+  Limpeza: "🧹",
+  Encanador: "🔧",
+  "Manutenção Elétrica": "⚡",
+  "TI e Suporte": "💻",
+  "Aulas Particulares": "📚",
+  "Beleza e Estética": "💄",
+};
 
 export default function ServicesPage() {
+  const [servicos, setServicos] = useState<Servico[]>([]);
+  const [stats, setStats] = useState<ServicoStats | null>(null);
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const mockServices = [
-    {
-      id: "1",
-      title: "Corte de Cabelo Masculino Completo",
-      description:
-        "Corte moderno com acabamento profissional, lavagem e finalização.",
-      category: "Cabelo",
-      price: 45.0,
-      duration: 60,
-      rating: 4.8,
-      reviews: 24,
-      active: true,
-      image: "✂️",
-    },
-    {
-      id: "2",
-      title: "Manicure e Pedicure Spa",
-      description:
-        "Tratamento completo para unhas com esmaltação e massagem relaxante.",
-      category: "Unhas",
-      price: 80.0,
-      duration: 90,
-      rating: 4.9,
-      reviews: 18,
-      active: true,
-      image: "💅",
-    },
-    {
-      id: "3",
-      title: "Barba Completa com Design",
-      description:
-        "Aparação, modelagem e finalização da barba com produtos premium.",
-      category: "Barba",
-      price: 35.0,
-      duration: 45,
-      rating: 4.7,
-      reviews: 31,
-      active: false,
-      image: "🪒",
-    },
-    {
-      id: "4",
-      title: "Coloração Capilar Profissional",
-      description:
-        "Coloração completa ou mechas com produtos de alta qualidade.",
-      category: "Cabelo",
-      price: 120.0,
-      duration: 180,
-      rating: 4.6,
-      reviews: 12,
-      active: true,
-      image: "🎨",
-    },
-  ];
+  useEffect(() => {
+    Promise.all([getAllServicos(), getServicoStats()])
+      .then(([s, st]) => { setServicos(s); setStats(st); })
+      .catch((err) => setError(err.message ?? "Erro ao carregar serviços"))
+      .finally(() => setLoading(false));
+  }, []);
 
   const categories = [
     "all",
-    ...Array.from(new Set(mockServices.map((s) => s.category))),
+    ...Array.from(new Set(servicos.map((s) => s.categoria))),
   ];
 
-  const filteredServices =
+  const filtered =
     categoryFilter === "all"
-      ? mockServices
-      : mockServices.filter((service) => service.category === categoryFilter);
+      ? servicos
+      : servicos.filter((s) => s.categoria === categoryFilter);
 
   return (
     <Layout>
@@ -89,17 +59,17 @@ export default function ServicesPage() {
         />
 
         <div className="grid gap-6 md:grid-cols-4">
-          <StatCard title="Serviços ativos" value="12" accent="blue">
+          <StatCard title="Serviços ativos" value={stats ? String(stats.ativos) : "—"} accent="blue">
             Publicados e disponíveis
           </StatCard>
-          <StatCard title="Esta semana" value="8" accent="green">
+          <StatCard title="Esta semana" value={stats ? String(stats.agendamentos_semana) : "—"} accent="green">
             Agendamentos realizados
           </StatCard>
-          <StatCard title="Receita mensal" value="R$ 2.340" accent="purple">
+          <StatCard title="Receita mensal" value={stats ? `R$ ${Number(stats.receita_mensal).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"} accent="purple">
             Faturamento total
           </StatCard>
-          <StatCard title="Avaliação média" value="4.8" accent="yellow">
-            ⭐ Baseada em 156 reviews
+          <StatCard title="Avaliação média" value={stats?.avaliacao_media ?? "—"} accent="yellow">
+            ⭐ Baseada em {servicos.reduce((acc, s) => acc + (s.total_avaliacoes ?? 0), 0)} reviews
           </StatCard>
         </div>
 
@@ -117,9 +87,7 @@ export default function ServicesPage() {
               {categories.map((category) => (
                 <Button
                   key={category}
-                  variant={
-                    categoryFilter === category ? "primary" : "secondary"
-                  }
+                  variant={categoryFilter === category ? "primary" : "secondary"}
                   size="sm"
                   onClick={() => setCategoryFilter(category)}
                 >
@@ -129,69 +97,89 @@ export default function ServicesPage() {
             </div>
           </div>
 
-          <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredServices.map((service) => (
-              <div
-                key={service.id}
-                className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all hover:shadow-lg"
-              >
-                <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 p-8">
-                  <div className="flex h-full items-center justify-center text-6xl">
-                    {service.image}
+          {loading && (
+            <div className="mt-12 text-center text-slate-500">
+              Carregando serviços...
+            </div>
+          )}
+
+          {error && (
+            <div className="mt-12 text-center text-red-500">{error}</div>
+          )}
+
+          {!loading && !error && (
+            <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((servico) => (
+                <div
+                  key={servico.id}
+                  className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all hover:shadow-lg"
+                >
+                  <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 p-8">
+                    <div className="flex h-full items-center justify-center text-6xl">
+                      {servico.imagem ?? CATEGORY_ICONS[servico.categoria] ?? "🛠️"}
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-slate-900 group-hover:text-slate-700">
+                          {servico.titulo}
+                        </h3>
+                        {servico.descricao && (
+                          <p className="mt-1 text-sm text-slate-600 line-clamp-2">
+                            {servico.descricao}
+                          </p>
+                        )}
+                      </div>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                          servico.ativo
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {servico.ativo ? "Ativo" : "Inativo"}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-sm text-slate-600">
+                        {servico.nota != null ? (
+                          <>
+                            <span>⭐</span>
+                            <span className="font-medium">{servico.nota}</span>
+                            {servico.total_avaliacoes != null && (
+                              <span>({servico.total_avaliacoes})</span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-slate-400">Sem avaliação</span>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-semibold text-slate-900">
+                          R$ {Number(servico.preco_acordado).toFixed(2)}
+                        </p>
+                        <p className="text-xs text-slate-500">{servico.duracao}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex gap-2">
+                      <Button size="sm" variant="secondary" className="flex-1">
+                        Editar
+                      </Button>
+                      <Button size="sm" variant="secondary" className="flex-1">
+                        Duplicar
+                      </Button>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          )}
 
-                <div className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-slate-900 group-hover:text-slate-700">
-                        {service.title}
-                      </h3>
-                      <p className="mt-1 text-sm text-slate-600 line-clamp-2">
-                        {service.description}
-                      </p>
-                    </div>
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                        service.active
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {service.active ? "Ativo" : "Inativo"}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-sm text-slate-600">
-                      <span>⭐</span>
-                      <span className="font-medium">{service.rating}</span>
-                      <span>({service.reviews})</span>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-semibold text-slate-900">
-                        R$ {service.price.toFixed(2)}
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        {service.duration}min
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex gap-2">
-                    <Button size="sm" variant="secondary" className="flex-1">
-                      Editar
-                    </Button>
-                    <Button size="sm" variant="secondary" className="flex-1">
-                      Duplicar
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {filteredServices.length === 0 && (
+          {!loading && !error && filtered.length === 0 && (
             <div className="mt-12 text-center">
               <div className="mx-auto h-24 w-24 text-slate-400">🔍</div>
               <h3 className="mt-4 text-lg font-medium text-slate-900">

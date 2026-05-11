@@ -6,6 +6,7 @@ import { ServicoController } from "../controllers/ServicoController";
 
 import {
   CriarServicoUseCase,
+  ListarServicosUseCase,
   PesquisarServicoId,
   PesquisarServicoUserId,
   PesquisarServicoPrestadorId,
@@ -19,22 +20,27 @@ const agendamentoRepo = new PgAgendamentosRepository();
 const transacaoRepo = new PgTransacaoRepository();
 
 const criarServicoUseCase = new CriarServicoUseCase(servicoRepo);
+const listarServicosUseCase = new ListarServicosUseCase(servicoRepo);
 const pesquisarServicoId = new PesquisarServicoId(servicoRepo);
 const pesquisarServicoUserId = new PesquisarServicoUserId(servicoRepo);
-const pesquisarServicoPrestadorId = new PesquisarServicoPrestadorId(
-  servicoRepo,
-);
-
+const pesquisarServicoPrestadorId = new PesquisarServicoPrestadorId(servicoRepo);
 const updateStatusUseCase = new UpdateStatusUseCase(servicoRepo);
 
 const servicoController = new ServicoController(
   criarServicoUseCase,
+  listarServicosUseCase,
   pesquisarServicoId,
   pesquisarServicoUserId,
   pesquisarServicoPrestadorId,
   updateStatusUseCase,
 );
 
+servicoRouter.get("/listarTodos", (req, res) =>
+  servicoController.listAll(req, res),
+);
+servicoRouter.get("/stats", (req, res) =>
+  servicoController.stats(req, res),
+);
 servicoRouter.post("/criar-servico", (req, res) =>
   servicoController.create(req, res),
 );

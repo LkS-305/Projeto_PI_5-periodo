@@ -7,10 +7,21 @@ export async function runMigrations() {
   try {
     await createDatabaseIfNotExists();
 
-    const sqlPath = path.join(__dirname, './init.sql');
-    const sql = fs.readFileSync(sqlPath, 'utf8');
+    const files = [
+      './functions/gerarLogsAuditoria.sql',
+      './init.sql',
+      './triggers/audit.sql',
+    ];
 
-    await pool.query(sql);
+    for (const file of files) {
+      const sqlPath = path.join(__dirname, file);
+      let sql = fs.readFileSync(sqlPath, 'utf8');
+      // Remove psql meta-commands (\i ...) que não funcionam via pool.query
+      sql = sql.replace(/^\\i\s+.+$/gm, '');
+      await pool.query(sql);
+      console.log(`✅ Executado: ${file}`);
+    }
+
     console.log("Tabelas criadas/verificadas com sucesso!");
   } catch (err) {
     console.error("Erro ao rodar migrações:", err);

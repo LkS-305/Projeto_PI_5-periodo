@@ -15,7 +15,7 @@ export const logFullCycle = (req: Request, res: Response, next: NextFunction) =>
     // --- LOG DE ENTRADA ---
     console.log(`\n${magenta}>>> [${timestamp}] REQUISIÇÃO${reset}`);
     console.log(`${cyan}${req.method}${reset} ${req.url}`);
-    if (Object.keys(req.body).length > 0) {
+    if (req.body && Object.keys(req.body).length > 0) {
         console.log(`${yellow}Body (In):${reset}`, JSON.stringify(req.body, null, 2));
     }
 

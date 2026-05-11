@@ -25,6 +25,23 @@ export class PgServicoRepository implements IServicoRepository {
     return rows[0];
   }
 
+  async findAll(): Promise<Servico[]> {
+    const { rows } = await pool.query("SELECT * FROM servicos ORDER BY created_at DESC");
+    return rows;
+  }
+
+  async getStats() {
+    const { rows } = await pool.query(`
+      SELECT
+        (SELECT COUNT(*) FROM servicos WHERE ativo = true)::int                          AS ativos,
+        (SELECT COUNT(*) FROM agendamentos WHERE created_at >= NOW() - INTERVAL '7 days')::int AS agendamentos_semana,
+        (SELECT COALESCE(SUM(valor::numeric), 0) FROM transacoes
+          WHERE created_at >= DATE_TRUNC('month', NOW()))::numeric(10,2)                 AS receita_mensal,
+        (SELECT ROUND(AVG(nota), 1) FROM servicos WHERE nota IS NOT NULL)::numeric(3,1)  AS avaliacao_media
+    `);
+    return rows[0];
+  }
+
   async updateStatus(id: string, status: string): Promise<void> {
     await pool.query("UPDATE servicos SET status = $1 WHERE id = $2", [
       status,

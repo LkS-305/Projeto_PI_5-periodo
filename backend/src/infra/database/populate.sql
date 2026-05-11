@@ -10,8 +10,7 @@ INSERT INTO categorias (id, nome, slug, icon_url) VALUES
 (gen_random_uuid()::text, 'Beleza e Estética', 'beleza', 'https://cdn.icon/beleza.png'),
 (gen_random_uuid()::text, 'TI e Suporte', 'ti-suporte', 'https://cdn.icon/ti.png');
 
--- 2. Popular Users (Senha em texto plano apenas para exemplo, use hash em app real)
--- Vamos criar 10 usuários, onde alguns serão apenas clientes e outros prestadores.
+-- 2. Popular Users
 INSERT INTO users (id, email, senha, cpf) VALUES
 ('u1', 'joao@email.com', 'hash_senha_1', '111.111.111-11'),
 ('u2', 'maria@email.com', 'hash_senha_2', '222.222.222-22'),
@@ -45,11 +44,12 @@ INSERT INTO enderecos (id, user_id, rotulo, logradouro, numero, bairro, cidade, 
 (gen_random_uuid()::text, 'u2', 'Trabalho', 'Av. Paulista', '1000', 'Bela Vista', 'São Paulo', 'SP', '01310-100', TRUE),
 (gen_random_uuid()::text, 'u6', 'Casa', 'Rua Bahia', '45', 'Centro', 'Sumaré', 'SP', '13170-000', TRUE);
 
--- 6. Popular Serviços (Histórico de serviços realizados)
-INSERT INTO servicos (id, user_id, prestador_id, titulo, preco_acordado, data_inicio, duracao, categoria, nota) VALUES
-('s1', 'u1', 'u3', 'Troca de torneira cozinha', 150.00, NOW() - INTERVAL '10 days', '2h', 'Encanador', 5),
-('s2', 'u2', 'u4', 'Limpeza Geral Apartamento', 250.00, NOW() - INTERVAL '5 days', '6h', 'Limpeza', 5),
-('s3', 'u6', 'u5', 'Instalação de Chuveiro', 80.00, NOW() - INTERVAL '2 days', '1h', 'Manutenção Elétrica', 4);
+-- 6. Popular Serviços de Beleza (exemplos do catálogo services/page.tsx)
+INSERT INTO servicos (id, user_id, prestador_id, titulo, descricao, imagem, preco_acordado, data_inicio, duracao, categoria, ativo, nota, total_avaliacoes) VALUES
+('s4', 'u1', 'u4', 'Corte de Cabelo Masculino Completo', 'Corte moderno com acabamento profissional, lavagem e finalização.',   '✂️',  45.00,  NOW() + INTERVAL '3 days', '60min',  'Cabelo', TRUE,  4.8, 24),
+('s5', 'u2', 'u4', 'Manicure e Pedicure Spa',            'Tratamento completo para unhas com esmaltação e massagem relaxante.', '💅',  80.00,  NOW() + INTERVAL '5 days', '90min',  'Unhas',  TRUE,  4.9, 18),
+('s6', 'u6', 'u4', 'Barba Completa com Design',          'Aparação, modelagem e finalização da barba com produtos premium.',    '🪒',  35.00,  NOW() + INTERVAL '1 day',  '45min',  'Barba',  FALSE, 4.7, 31),
+('s7', 'u7', 'u4', 'Coloração Capilar Profissional',     'Coloração completa ou mechas com produtos de alta qualidade.',       '🎨', 120.00, NOW() + INTERVAL '7 days', '180min', 'Cabelo', TRUE,  4.6, 12);
 
 -- 7. Popular Carteiras
 INSERT INTO carteiras (id, usuario_id, prestador_id, saldo, status) VALUES
@@ -61,9 +61,9 @@ INSERT INTO carteiras (id, usuario_id, prestador_id, saldo, status) VALUES
 
 -- 8. Popular Transações
 INSERT INTO transacoes (id, servico_id, tipo, status, valor, metodo_pagamento) VALUES
-(gen_random_uuid()::text, 's1', 'pagamento', 'concluido', '150.00', 'pix'),
-(gen_random_uuid()::text, 's2', 'pagamento', 'concluido', '250.00', 'cartao_credito'),
-(gen_random_uuid()::text, 's3', 'pagamento', 'pendente', '80.00', 'saldo_carteira');
+(gen_random_uuid()::text, 's4', 'pagamento', 'concluido', '45.00',  'pix'),
+(gen_random_uuid()::text, 's5', 'pagamento', 'concluido', '80.00',  'cartao_credito'),
+(gen_random_uuid()::text, 's7', 'pagamento', 'pendente',  '120.00', 'saldo_carteira');
 
 -- 9. Popular Agendamentos
 INSERT INTO agendamentos (id, user_id, prestador_id, dia_semana, hora_inicio, hora_fim) VALUES
@@ -73,10 +73,10 @@ INSERT INTO agendamentos (id, user_id, prestador_id, dia_semana, hora_inicio, ho
 
 -- 10. Popular Notificações
 INSERT INTO notificacoes (id, usuario_id, titulo, mensagem, tipo) VALUES
-(gen_random_uuid()::text, 'u1', 'Serviço Concluído', 'Pedro Reparos finalizou a troca de torneira.', 'sucesso'),
-(gen_random_uuid()::text, 'u2', 'Novo Agendamento', 'Ana Limpezas confirmou seu horário para quarta-feira.', 'info');
+(gen_random_uuid()::text, 'u1', 'Serviço Concluído', 'Corte de cabelo finalizado com sucesso.', 'sucesso'),
+(gen_random_uuid()::text, 'u2', 'Novo Agendamento', 'Manicure confirmada para esta semana.', 'info');
 
 -- 11. Popular Mensagens
 INSERT INTO mensagens (id, servico_id, remetente_id, conteudo, tipo_midia) VALUES
-(gen_random_uuid()::text, 's1', 'u1', 'Olá Pedro, você já está chegando?', 'texto'),
-(gen_random_uuid()::text, 's1', 'u3', 'Sim, em 10 minutos chego aí.', 'texto');
+(gen_random_uuid()::text, 's4', 'u1', 'Olá, qual horário está disponível?', 'texto'),
+(gen_random_uuid()::text, 's4', 'u4', 'Temos horário amanhã às 10h!', 'texto');

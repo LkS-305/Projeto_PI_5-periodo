@@ -1,56 +1,55 @@
-CREATE TRIGGER trg_audit_users
+CREATE OR REPLACE TRIGGER trg_audit_users
 AFTER INSERT OR UPDATE OR DELETE ON users
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_usuarios
+CREATE OR REPLACE TRIGGER trg_audit_usuarios
 AFTER INSERT OR UPDATE OR DELETE ON usuarios
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_prestadores
+CREATE OR REPLACE TRIGGER trg_audit_prestadores
 AFTER INSERT OR UPDATE OR DELETE ON prestadores
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_documentos
+CREATE OR REPLACE TRIGGER trg_audit_documentos
 AFTER INSERT OR UPDATE OR DELETE ON documentos
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_enderecos
+CREATE OR REPLACE TRIGGER trg_audit_enderecos
 AFTER INSERT OR UPDATE OR DELETE ON enderecos
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_categorias
+CREATE OR REPLACE TRIGGER trg_audit_categorias
 AFTER INSERT OR UPDATE OR DELETE ON categorias
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_servicos
+CREATE OR REPLACE TRIGGER trg_audit_servicos
 AFTER INSERT OR UPDATE OR DELETE ON servicos
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_avaliacoes
+CREATE OR REPLACE TRIGGER trg_audit_avaliacoes
 AFTER INSERT OR UPDATE OR DELETE ON avaliacoes
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_agendamentos
+CREATE OR REPLACE TRIGGER trg_audit_agendamentos
 AFTER INSERT OR UPDATE OR DELETE ON agendamentos
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_carteiras
+CREATE OR REPLACE TRIGGER trg_audit_carteiras
 AFTER INSERT OR UPDATE OR DELETE ON carteiras
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_transacoes
+CREATE OR REPLACE TRIGGER trg_audit_transacoes
 AFTER INSERT OR UPDATE OR DELETE ON transacoes
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_recibos
+CREATE OR REPLACE TRIGGER trg_audit_recibos
 AFTER INSERT OR UPDATE OR DELETE ON recibos
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_mensagens
+CREATE OR REPLACE TRIGGER trg_audit_mensagens
 AFTER INSERT OR UPDATE OR DELETE ON mensagens
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
 
-CREATE TRIGGER trg_audit_notificacoes
+CREATE OR REPLACE TRIGGER trg_audit_notificacoes
 AFTER INSERT OR UPDATE OR DELETE ON notificacoes
 FOR EACH ROW EXECUTE FUNCTION func_gerar_log_auditoria();
-
