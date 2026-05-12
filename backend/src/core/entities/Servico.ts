@@ -18,6 +18,8 @@ export class Servico {
   public nota_usuario?: number;
   public nota_prestador?: number;
   public nota?: number;
+  public url_fotos?: string;
+  public readonly created_at: Date;
   public readonly updated_at: Date;
 
   constructor(props: CriarServicoDto, id?: string) {
@@ -31,7 +33,8 @@ export class Servico {
     this.data_inicio = props.data_inicio;
     this.duracao = props.duracao;
     this.categoria = props.categoria;
-    this.status = 'criado'; // Valor padrão
+    this.status = props.status;
+    this.created_at = new Date();
     this.updated_at = new Date();
   }
 

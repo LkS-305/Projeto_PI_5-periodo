@@ -1,7 +1,5 @@
 import { Router } from "express";
 import { PgServicoRepository } from "../repositories/PgServicoRepository";
-import { PgTransacaoRepository } from "../repositories/PgTransacaoRepository";
-import { PgAgendamentosRepository } from "../repositories/PgAgendamentosRepository";
 import { ServicoController } from "../controllers/ServicoController";
 
 import {
