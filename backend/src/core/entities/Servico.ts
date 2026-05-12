@@ -7,8 +7,12 @@ export class Servico {
   public prestador_id: string; // FK para Prestador
   public categoria_id: string;
   public titulo: string;
+  public descricao: string;
   public preco_acordado: number;
+  public data_inicio: Date; // data acordada entre ambos, inserida pelo prestador
+  public nova_data?: Date;
   public status: ServicoStatus;
+  public url_fotos?: string;
   public nota_usuario: number | undefined;
   public nota_prestador: number | undefined;
   public nota: number | undefined;
@@ -21,9 +25,24 @@ export class Servico {
     this.prestador_id = props.prestador_id;
     this.categoria_id = props.categoria_id;
     this.titulo = props.titulo;
+    this.descricao = props.descricao;
     this.preco_acordado = props.preco_acordado;
+    this.data_inicio = props.data_inicio;
     this.status = props.status;
     this.created_at = new Date();
     this.updated_at = new Date();
+  }
+
+
+  public atualizarData(nova_data?: Date, aceito?: boolean): void{
+    
+    if (!this.nova_data) {
+      this.nova_data = nova_data;
+    } else {
+        if (aceito == true) {
+          this.data_inicio = this.nova_data;
+          this.nova_data = undefined;
+        }
+    }
   }
 }

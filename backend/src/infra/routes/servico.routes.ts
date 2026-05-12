@@ -45,10 +45,6 @@ servicoRouter.patch("/atualizarServico", (req, res) =>
   servicoController.updateStatus(req, res),
 );
 
-servicoRouter.delete("/deletarServico", (req, res) =>
-  servicoController.delete(req, res),
-);
-
 servicoRouter.get("/buscarPorId", (req, res) =>
   servicoController.findById(req, res),
 );

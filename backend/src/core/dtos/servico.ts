@@ -5,7 +5,9 @@ export interface CriarServicoDto {
     prestador_id: string,
     categoria_id: string,
     titulo: string,
+    descricao: string,
     preco_acordado: number,
+    data_inicio: Date,
     status: ServicoStatus
 }
 
