@@ -9,13 +9,13 @@ export class PgServicoRepository implements IServicoRepository {
 
     const consultaServico = `
       INSERT INTO servicos (
-        id, user_id, prestador_id, id_agendamento, id_transacao, titulo, categoria
+        id, usuario_id, prestador_id, id_agendamento, id_transacao, titulo, categoria
       ) VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
 
     const valoresServico = [
-      servico.user_id,
+      servico.usuario_id,
       servico.prestador_id,
       servico.titulo,
       servico.categoria,
@@ -58,7 +58,7 @@ export class PgServicoRepository implements IServicoRepository {
 
   async findByUserId(usuario_id: string): Promise<Servico[] | null> {
     const { rows } = await pool.query(
-      "SELECT * FROM servicos WHERE user_id = $1",
+      "SELECT * FROM servicos WHERE usuario_id = $1",
       [usuario_id],
     );
     return rows;
