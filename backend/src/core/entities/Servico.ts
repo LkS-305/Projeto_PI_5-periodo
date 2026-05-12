@@ -14,6 +14,7 @@ export class Servico {
   public duracao: string;
   public categoria: string;
   public status: ServicoStatus;
+  public url_fotos?: string;
   public nota_usuario?: number;
   public nota_prestador?: number;
   public nota?: number;

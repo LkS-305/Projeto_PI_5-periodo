@@ -9,7 +9,8 @@ export class ServicoController {
     private pesquisarServicoId: PesquisarServicoId,
     private pesquisarServicoUserId: PesquisarServicoUserId,
     private pesquisarServicoPrestadorId: PesquisarServicoPrestadorId,
-    private updateStatusServico: UpdateStatusUseCase
+    private updateStatusServico: UpdateStatusUseCase,
+    private updateServico: UpdateServicoUseCase,
 
   ){} 
 
@@ -85,5 +86,14 @@ export class ServicoController {
       return res.status(400).json({erro: erro.message});
     }
   }
-}
 
+  async updateServico (req: Request, res: Response) {
+      try {
+      const resultado = await this.updateServico.executar(req.body.id, req.body.status);  
+      return res.status(200).json(resultado);
+    } 
+      catch (erro: any) {
+      return res.status(400).json({erro: erro.message});
+    }
+}
+}

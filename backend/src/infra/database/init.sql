@@ -68,12 +68,14 @@ CREATE TABLE IF NOT EXISTS servicos (
     duracao TEXT NOT NULL,
     categoria TEXT NOT NULL,
     status TEXT,
+    url_imagem TEXT,
     nota_usuario NUMERIC(3, 1),
     nota_prestador NUMERIC(3, 1),
     nota NUMERIC(3, 1),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
 
 -- 6. Tabela de Avaliacoes
 CREATE TABLE IF NOT EXISTS avaliacoes (

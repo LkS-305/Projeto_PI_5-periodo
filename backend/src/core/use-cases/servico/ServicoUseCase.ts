@@ -161,7 +161,7 @@ export class AtualizarServicoUseCase{
       validarDuracao(dados.duracao);
     }
 
-    await this.servicoRepository.updateServico(dados);
+    return await this.servicoRepository.updateServico(dados);
   }
 
 }
