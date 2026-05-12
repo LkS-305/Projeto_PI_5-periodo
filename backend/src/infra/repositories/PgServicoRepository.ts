@@ -1,7 +1,8 @@
 import { IServicoRepository } from "../../core/repositories/IServicoRepository";
 import { Servico } from "../../core/entities/Servico";
-import { CriarServicoDto } from "../../core/dtos/servico";
+import { AtualizarStatusServicoDto, AtualizarServicoDto, CriarServicoDto } from "../../core/dtos/servico";
 import { pool } from "../database/postgres";
+import { AtualizarStatus } from "../../core/use-cases/financeiro/CarteiraUseCase";
 
 export class PgServicoRepository implements IServicoRepository {
   async create(servico: CriarServicoDto, transaction?: any): Promise<Servico> {
@@ -42,10 +43,10 @@ export class PgServicoRepository implements IServicoRepository {
     return rows[0];
   }
 
-  async updateStatus(id: string, status: string): Promise<void> {
+  async updateStatus(servico: AtualizarStatusServicoDto): Promise<void> {
     await pool.query("UPDATE servicos SET status = $1 WHERE id = $2", [
-      status,
-      id,
+      servico.status,
+      servico.id,
     ]);
   }
 
@@ -70,5 +71,12 @@ export class PgServicoRepository implements IServicoRepository {
       [prestador_id],
     );
     return rows;
+  }
+
+  async updateServico(servico: AtualizarServicoDto): Promise<void> {
+    await pool.query(
+      "UPDATE servicos SET titulo = $1, categoria = $2 WHERE id = $3",
+      [servico.titulo, servico.categoria, servico.id]
+    );
   }
 }
