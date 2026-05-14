@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { CriarServicoUseCase, ListarServicosUseCase, PesquisarServicoId, PesquisarServicoUserId, PesquisarServicoPrestadorId, UpdateStatusUseCase } from '../../core/use-cases/servico/ServicoUseCase';
+import { CriarServicoUseCase, ListarServicosUseCase, PesquisarServicoId, PesquisarServicoUserId, PesquisarServicoPrestadorId, AtualizarStatusUseCase, AtualizarServicoUseCase } from '../../core/use-cases/servico/ServicoUseCase';
 
 
 export class ServicoController {
@@ -9,8 +9,8 @@ export class ServicoController {
     private pesquisarServicoId: PesquisarServicoId,
     private pesquisarServicoUserId: PesquisarServicoUserId,
     private pesquisarServicoPrestadorId: PesquisarServicoPrestadorId,
-    private updateStatusServico: UpdateStatusUseCase,
-    private updateServico: UpdateServicoUseCase,
+    private atualizarStatusServico: AtualizarStatusUseCase,
+    private atualizarServico: AtualizarServicoUseCase,
 
   ){} 
 
@@ -77,9 +77,9 @@ export class ServicoController {
   }
 
 
- async updateStatus (req: Request, res: Response) {
+  async updateStatus (req: Request, res: Response) {
       try {
-      const resultado = await this.updateStatusServico.executar(req.body.id, req.body.status);
+      const resultado = await this.atualizarStatusServico.executar(req.body);
       return res.status(200).json(resultado);
     } 
       catch (erro: any) {
@@ -89,11 +89,11 @@ export class ServicoController {
 
   async updateServico (req: Request, res: Response) {
       try {
-      const resultado = await this.updateServico.executar(req.body.id, req.body.status);  
+      const resultado = await this.atualizarServico.executar(req.body);  
       return res.status(200).json(resultado);
     } 
       catch (erro: any) {
       return res.status(400).json({erro: erro.message});
     }
-}
+  }
 }
