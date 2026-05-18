@@ -1,7 +1,8 @@
 import { IServicoRepository } from "../../core/repositories/IServicoRepository";
 import { Servico } from "../../core/entities/Servico";
-import { CriarServicoDto } from "../../core/dtos/servico";
+import { AtualizarStatusServicoDto, AtualizarServicoDto, CriarServicoDto } from "../../core/dtos/servico";
 import { pool } from "../database/postgres";
+import { AtualizarStatus } from "../../core/use-cases/financeiro/CarteiraUseCase";
 
 export class PgServicoRepository implements IServicoRepository {
   async create(servico: CriarServicoDto, transaction?: any): Promise<Servico> {
@@ -9,13 +10,13 @@ export class PgServicoRepository implements IServicoRepository {
 
     const consultaServico = `
       INSERT INTO servicos (
-        id, user_id, prestador_id, id_agendamento, id_transacao, titulo, categoria
+        id, usuario_id, prestador_id, id_agendamento, id_transacao, titulo, categoria
       ) VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
 
     const valoresServico = [
-      servico.user_id,
+      servico.usuario_id,
       servico.prestador_id,
       servico.titulo,
       servico.categoria,
@@ -42,10 +43,10 @@ export class PgServicoRepository implements IServicoRepository {
     return rows[0];
   }
 
-  async updateStatus(id: string, status: string): Promise<void> {
+  async updateStatus(servico: AtualizarStatusServicoDto): Promise<void> {
     await pool.query("UPDATE servicos SET status = $1 WHERE id = $2", [
-      status,
-      id,
+      servico.status,
+      servico.id,
     ]);
   }
 
@@ -58,7 +59,7 @@ export class PgServicoRepository implements IServicoRepository {
 
   async findByUserId(usuario_id: string): Promise<Servico[] | null> {
     const { rows } = await pool.query(
-      "SELECT * FROM servicos WHERE user_id = $1",
+      "SELECT * FROM servicos WHERE usuario_id = $1",
       [usuario_id],
     );
     return rows;
@@ -70,5 +71,12 @@ export class PgServicoRepository implements IServicoRepository {
       [prestador_id],
     );
     return rows;
+  }
+
+  async updateServico(servico: AtualizarServicoDto): Promise<void> {
+    await pool.query(
+      "UPDATE servicos SET titulo = $1, categoria = $2 WHERE id = $3",
+      [servico.titulo, servico.categoria, servico.id]
+    );
   }
 }

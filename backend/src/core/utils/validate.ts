@@ -3,6 +3,7 @@ import { ValidationError } from '../errors/AppError';
 const UUID_REGEX  = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const HTML_TAG_REGEX = /<[^>]*>/g;
+const DURACAO_REGEX = /^\d+\s*(min|h|hora|horas|minutos)$/i;
 
 export function validarUUID(id: string, campo = 'ID'): void {
   if (!id || !UUID_REGEX.test(id)) {
@@ -53,6 +54,24 @@ export function validarCEP(cep: string): void {
   const limpo = cep.replace(/\D/g, '');
   if (limpo.length !== 8) {
     throw new ValidationError('CEP inválido.');
+  }
+}
+
+export function validarPreco(preco: number, campo = 'Preço'): void {
+  if (preco <= 0) {
+    throw new ValidationError(`${campo} deve ser maior que zero.`);
+  }
+}
+
+export function validarDataFutura(data: Date, campo = 'Data'): void {
+  if (data < new Date()) {
+    throw new ValidationError(`${campo} não pode ser no passado.`);
+  }
+}
+
+export function validarDuracao(duracao: string, campo = 'Duração'): void {
+  if (!duracao || !DURACAO_REGEX.test(duracao.trim())) {
+    throw new ValidationError(`${campo} inválida. Use o formato: '30 min', '2h', '1 hora'.`);
   }
 }
 

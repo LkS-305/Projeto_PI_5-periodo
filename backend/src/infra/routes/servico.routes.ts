@@ -10,7 +10,8 @@ import {
   PesquisarServicoId,
   PesquisarServicoUserId,
   PesquisarServicoPrestadorId,
-  UpdateStatusUseCase,
+  AtualizarServicoUseCase,
+  AtualizarStatusUseCase,
 } from "../../core/use-cases/servico/ServicoUseCase";
 
 const servicoRouter = Router();
@@ -24,7 +25,8 @@ const listarServicosUseCase = new ListarServicosUseCase(servicoRepo);
 const pesquisarServicoId = new PesquisarServicoId(servicoRepo);
 const pesquisarServicoUserId = new PesquisarServicoUserId(servicoRepo);
 const pesquisarServicoPrestadorId = new PesquisarServicoPrestadorId(servicoRepo);
-const updateStatusUseCase = new UpdateStatusUseCase(servicoRepo);
+const atualizarStatusUseCase = new AtualizarStatusUseCase(servicoRepo);
+const atualizarServicoUseCase = new AtualizarServicoUseCase(servicoRepo)
 
 const servicoController = new ServicoController(
   criarServicoUseCase,
@@ -32,7 +34,8 @@ const servicoController = new ServicoController(
   pesquisarServicoId,
   pesquisarServicoUserId,
   pesquisarServicoPrestadorId,
-  updateStatusUseCase,
+  atualizarStatusUseCase,
+  atualizarServicoUseCase,
 );
 
 servicoRouter.get("/listarTodos", (req, res) =>
@@ -53,8 +56,11 @@ servicoRouter.get("/acharPorUserId", (req, res) =>
 servicoRouter.get("/acharPorPretadorId", (req, res) =>
   servicoController.findByPrestadorId(req, res),
 );
-servicoRouter.patch("/atualizarServico", (req, res) =>
+servicoRouter.patch("/atualizarStatus", (req, res) =>
   servicoController.updateStatus(req, res),
+);
+servicoRouter.patch("/atualizarServico", (req, res) =>
+  servicoController.updateServico(req, res),
 );
 
 export { servicoRouter };
