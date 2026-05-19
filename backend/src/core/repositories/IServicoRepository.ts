@@ -1,4 +1,4 @@
-import { CriarServicoDto } from '../dtos/servico';
+import { AtualizarStatusServicoDto, AtualizarServicoDto, CriarServicoDto } from '../dtos/servico';
 import { Servico } from '../entities/Servico';
 
 export interface IServicoRepository {
@@ -8,6 +8,7 @@ export interface IServicoRepository {
   findById(id: string): Promise<Servico | null>;
   findByUserId(id: string): Promise<Servico[] | null>;
   findByPrestadorId(id: string): Promise<Servico[] | null>;
-  updateStatus(id: string, status: string): Promise<void>;
+  updateStatus(dado : AtualizarStatusServicoDto): Promise<void>;
+  updateServico(dados : AtualizarServicoDto): Promise<void>;
 }
 

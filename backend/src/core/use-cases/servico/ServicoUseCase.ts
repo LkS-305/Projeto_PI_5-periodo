@@ -1,8 +1,8 @@
 import { IServicoRepository } from '../../repositories/IServicoRepository';
-import { CriarServicoDto } from '../../dtos/servico';
+import { CriarServicoDto, AtualizarServicoDto, AtualizarStatusServicoDto } from '../../dtos/servico';
 import { Servico, ServicoStatus } from '../../entities/Servico';
 import { ResourceNotFoundError, ValidationError } from '../../errors/AppError';
-import { validarUUID, validarTexto, sanitizarTexto } from '../../utils/validate';
+import { validarUUID, validarTexto, sanitizarTexto, validarPreco, validarDataFutura, validarDuracao } from '../../utils/validate';
 
 
 export class CriarServicoUseCase {
@@ -40,7 +40,7 @@ export class CriarServicoUseCase {
  //  }
 // }
   async executar(dados: CriarServicoDto) {
-    validarUUID(dados.user_id, 'ID do usuário');
+    validarUUID(dados.usuario_id, 'ID do usuário');
     validarUUID(dados.prestador_id, 'ID do prestador');
     validarTexto(dados.titulo, 'Título', 3, 100);
     validarTexto(dados.categoria, 'Categoria', 2, 60);
@@ -123,13 +123,45 @@ export class ListarServicosUseCase {
   }
 }
 
-export class UpdateStatusUseCase {
+export class AtualizarStatusUseCase {
   constructor(
     private servicoRepository: IServicoRepository
 ) {}
 
-  async executar(id: string, status: ServicoStatus) {
-    validarUUID(id, 'ID do serviço');
-    await this.servicoRepository.updateStatus(id, status);
+  async executar(dados : AtualizarStatusServicoDto) {
+    validarUUID(dados.id, 'ID do serviço');
+    await this.servicoRepository.updateStatus(dados);
   }
 } 
+
+export class AtualizarServicoUseCase{
+  constructor(private servicoRepository : IServicoRepository) {}
+
+  async executar(dados : AtualizarServicoDto){
+    validarUUID(dados.id, 'ID do serviço');
+    if(dados.titulo !== undefined) {
+      validarTexto(dados.titulo, 'Título', 3, 100);
+      dados.titulo = sanitizarTexto(dados.titulo);
+    }
+    if(dados.descricao !== undefined) {
+      validarTexto(dados.descricao, 'Descrição', 0, 500);
+      dados.descricao = sanitizarTexto(dados.descricao);
+    }
+    if(dados.categoria !== undefined) {
+      validarTexto(dados.categoria, 'Categoria', 2, 60);
+      dados.categoria = sanitizarTexto(dados.categoria);
+    }
+    if(dados.preco_acordado !== undefined) {
+      validarPreco(dados.preco_acordado);
+    }
+    if(dados.data_inicio !== undefined) {
+      validarDataFutura(dados.data_inicio);
+    }
+    if(dados.duracao !== undefined) {
+      validarDuracao(dados.duracao);
+    }
+
+    return await this.servicoRepository.updateServico(dados);
+  }
+
+}

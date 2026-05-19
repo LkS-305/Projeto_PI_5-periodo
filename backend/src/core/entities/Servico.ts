@@ -1,7 +1,6 @@
 import { randomUUID } from "crypto";
 import { CriarServicoDto, ServicoStatus } from "../dtos/servico";
 
-
 export class Servico {
   public readonly id?: string;
   public user_id: string;      // FK para Usuário (Cliente)
@@ -15,16 +14,16 @@ export class Servico {
   public duracao: string;
   public categoria: string;
   public status: ServicoStatus;
+  public url_fotos?: string;
   public nota_usuario?: number;
   public nota_prestador?: number;
   public nota?: number;
-  public url_fotos?: string;
   public readonly created_at: Date;
   public readonly updated_at: Date;
 
   constructor(props: CriarServicoDto, id?: string) {
     this.id = id ?? randomUUID();
-    this.user_id = props.user_id;
+    this.user_id = props.usuario_id;
     this.prestador_id = props.prestador_id;
     this.categoria_id = props.categoria_id;
     this.titulo = props.titulo;

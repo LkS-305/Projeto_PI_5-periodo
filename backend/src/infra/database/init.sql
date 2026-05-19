@@ -59,23 +59,23 @@ CREATE TABLE IF NOT EXISTS categorias (
 -- 5. Tabela de Servicos
 CREATE TABLE IF NOT EXISTS servicos (
     id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL REFERENCES usuarios(user_id) ON DELETE CASCADE,
-    prestador_id TEXT NOT NULL REFERENCES prestadores(user_id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES usuarios(user_id),
+    prestador_id TEXT NOT NULL REFERENCES prestadores(user_id),
     titulo TEXT NOT NULL,
     descricao TEXT,
-    imagem TEXT,
     preco_acordado DECIMAL(10, 2) NOT NULL,
     data_inicio TIMESTAMP WITH TIME ZONE NOT NULL,
     duracao TEXT NOT NULL,
     categoria TEXT NOT NULL,
-    ativo BOOLEAN DEFAULT TRUE,
-    nota_usuario INTEGER,
-    nota_prestador INTEGER,
+    status TEXT,
+    url_imagem TEXT,
+    nota_usuario NUMERIC(3, 1),
+    nota_prestador NUMERIC(3, 1),
     nota NUMERIC(3, 1),
-    total_avaliacoes INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
 
 -- 6. Tabela de Avaliacoes
 CREATE TABLE IF NOT EXISTS avaliacoes (
