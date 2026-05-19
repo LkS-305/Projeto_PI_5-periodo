@@ -1,7 +1,5 @@
 import { Router } from "express";
 import { PgServicoRepository } from "../repositories/PgServicoRepository";
-import { PgTransacaoRepository } from "../repositories/PgTransacaoRepository";
-import { PgAgendamentosRepository } from "../repositories/PgAgendamentosRepository";
 import { ServicoController } from "../controllers/ServicoController";
 
 import {
@@ -17,23 +15,23 @@ import {
 const servicoRouter = Router();
 
 const servicoRepo = new PgServicoRepository();
-const agendamentoRepo = new PgAgendamentosRepository();
-const transacaoRepo = new PgTransacaoRepository();
 
-const criarServicoUseCase = new CriarServicoUseCase(servicoRepo);
-const listarServicosUseCase = new ListarServicosUseCase(servicoRepo);
+const criarServicoUC = new CriarServicoUseCase(servicoRepo);
+const listarServicosUC = new ListarServicosUseCase(servicoRepo);
 const pesquisarServicoId = new PesquisarServicoId(servicoRepo);
 const pesquisarServicoUserId = new PesquisarServicoUserId(servicoRepo);
 const pesquisarServicoPrestadorId = new PesquisarServicoPrestadorId(servicoRepo);
+const updateStatusUC = new UpdateStatusUseCase(servicoRepo);
 const atualizarStatusUseCase = new AtualizarStatusUseCase(servicoRepo);
 const atualizarServicoUseCase = new AtualizarServicoUseCase(servicoRepo)
 
 const servicoController = new ServicoController(
-  criarServicoUseCase,
-  listarServicosUseCase,
+  criarServicoUC,
+  listarServicosUC,
   pesquisarServicoId,
   pesquisarServicoUserId,
   pesquisarServicoPrestadorId,
+  updateStatusUC,
   atualizarStatusUseCase,
   atualizarServicoUseCase,
 );
@@ -44,7 +42,7 @@ servicoRouter.get("/listarTodos", (req, res) =>
 servicoRouter.get("/stats", (req, res) =>
   servicoController.stats(req, res),
 );
-servicoRouter.post("/criar-servico", (req, res) =>
+servicoRouter.post("/criarServico", (req, res) =>
   servicoController.create(req, res),
 );
 servicoRouter.get("/acharPorId", (req, res) =>
@@ -61,6 +59,18 @@ servicoRouter.patch("/atualizarStatus", (req, res) =>
 );
 servicoRouter.patch("/atualizarServico", (req, res) =>
   servicoController.updateServico(req, res),
+);
+
+servicoRouter.get("/buscarPorId", (req, res) =>
+  servicoController.findById(req, res),
+);
+
+servicoRouter.get("/buscarPorUserId", (req, res) =>
+  servicoController.findByUserId(req, res),
+);
+
+servicoRouter.get("/buscarPorPretadorId", (req, res) =>
+  servicoController.findByPrestadorId(req, res),
 );
 
 export { servicoRouter };

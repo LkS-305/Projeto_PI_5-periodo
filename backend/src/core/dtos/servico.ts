@@ -1,16 +1,17 @@
-import { ServicoStatus } from "../entities/Servico";
-import { Servico } from "../entities/Servico";
+export type ServicoStatus = 'criado' | 'emAndamento' | 'pendente' | 'aceito' | 'recusado' | 'cancelado' | 'finalizado';
 
 export interface CriarServicoDto {
     id: string,
     usuario_id: string,
     prestador_id: string,
+    categoria_id: string,
     titulo: string,
-    descricao?: string,
+    descricao: string,
     preco_acordado: number,
     data_inicio: Date,
     duracao: string,
     categoria: string
+    status: ServicoStatus
 }
 
 export interface AtualizarServicoDto {

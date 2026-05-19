@@ -1,6 +1,3 @@
-import { CriarServicoDto } from "../dtos/servico";
-import { randomUUID } from "crypto";
-
 export type ServicoStatus = 'emAndamento' | 'pendente' | 'aceito' | 'recusado' | 'cancelado' | 'finalizado';
 
 export interface Servico {

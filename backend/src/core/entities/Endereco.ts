@@ -1,21 +1,23 @@
-import { v4 as uuid } from 'uuid';
+import { randomUUID } from 'crypto';
 import { AtualizarEnderecoDto, CriarEnderecoDto } from '../dtos/endereco';
 
 export class Endereco {
   public readonly id: string;
   public user_id: string;
-  public rotulo: string; // Ex: "Casa", "Trabalho", "Local do Evento"
+  public rotulo: string; // "Casa", "Trabalho", "Local do Evento"
   public logradouro: string;
-  public numero: string;
   public complemento?: string;
+  public numero: string;
   public bairro: string;
   public cidade: string;
-  public estado: string; // UF
+  public estado: string;
   public cep: string;
-  public is_principal: boolean = false;
+  public is_principal: boolean;
+  public readonly created_at: Date;
+  public updated_at: Date;
 
   constructor(props: CriarEnderecoDto, id?: string) {
-    this.id = id ?? uuid();
+    this.id = id ?? randomUUID();
     this.user_id = props.user_id;
     this.rotulo = props.rotulo;
     this.logradouro = props.numero;
@@ -25,6 +27,8 @@ export class Endereco {
     this.estado = props.estado;
     this.cep = props.cep;
     this.is_principal = props.is_principal
+    this.created_at = new Date();
+    this.updated_at = new Date();
   }
 
   public editEndereco(dados: AtualizarEnderecoDto) {

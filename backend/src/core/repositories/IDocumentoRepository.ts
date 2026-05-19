@@ -2,7 +2,9 @@ import { Documento } from '../entities/Documento';
 
 
 export interface IDocumentoRepository {
-  save(documento: Documento): Promise<void>;
+  create(documento: Documento): Promise<void>;
+  update(documento: Documento): Promise<void>;
+  delete(id: string): Promise<void>;
   findByUserId(id: string): Promise<Documento | null>;
   updateStatus(id: string, status: string): Promise<void>;
 }

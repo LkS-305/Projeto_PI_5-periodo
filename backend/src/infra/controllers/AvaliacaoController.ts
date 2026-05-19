@@ -45,7 +45,27 @@ export class AvaliacaoController {
   }
 
 
-  async listBy(req: Request, res: Response){
+  async listByServico(req: Request, res: Response){
+    try {
+      const resultado = await this.listarPorId.executar(req.body.id, req.body.listBy);
+      return res.status(200).json(resultado);
+    }
+    catch (erro: any) {
+      return res.status(400).json({erro: erro.message});
+    }
+  }
+
+  async listByUser(req: Request, res: Response){
+    try {
+      const resultado = await this.listarPorId.executar(req.body.id, req.body.listBy);
+      return res.status(200).json(resultado);
+    }
+    catch (erro: any) {
+      return res.status(400).json({erro: erro.message});
+    }
+  }
+
+  async listByPrestador(req: Request, res: Response){
     try {
       const resultado = await this.listarPorId.executar(req.body.id, req.body.listBy);
       return res.status(200).json(resultado);
