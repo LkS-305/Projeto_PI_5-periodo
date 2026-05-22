@@ -5,6 +5,8 @@ import Image from "next/image";
 import { type Chart } from "chart.js/auto";
 import "./Overview.css";
 import { createInteractiveLineChart } from "./interactiveChart";
+import { Carteira } from "@/types/entities/carteira";
+import { Transacao } from "@/types/entities/transacao";
 
 type PeriodKey = "1d" | "7d" | "30d" | "1y";
 type CompareKey =
@@ -231,11 +233,125 @@ function buildTodaySeries(selectedDate: string) {
   };
 }
 
+function buildRealOverviewSeries(
+  transacoes: Transacao[],
+  period: PeriodKey,
+  compareMode: CompareKey,
+) {
+  const now = new Date();
+  const points = period === "1d" ? 24 : period === "7d" ? 7 : period === "30d" ? 30 : 12;
+  const labels: string[] = [];
+  const currentPointLabels: string[] = [];
+  const comparisonPointLabels: string[] = [];
+  const currentNet: number[] = [];
+  const currentGross: number[] = [];
+  const currentCustomers: number[] = [];
+  const comparisonNet: number[] = [];
+  const comparisonGross: number[] = [];
+  const comparisonCustomers: number[] = [];
+
+  for (let i = 0; i < points; i++) {
+    const pointDate = new Date(now);
+    let periodStart: Date;
+    let periodEnd: Date;
+
+    if (period === "1d") {
+      pointDate.setHours(i, 0, 0, 0);
+      labels.push(`${String(i).padStart(2, "0")}:00`);
+      currentPointLabels.push(`${now.toLocaleDateString("pt-BR")} ${String(i).padStart(2, "0")}:00`);
+      periodStart = new Date(pointDate);
+      periodEnd = new Date(pointDate);
+      periodEnd.setHours(i + 1, 0, 0, 0);
+    } else if (period === "1y") {
+      pointDate.setDate(1);
+      pointDate.setMonth(now.getMonth() - (points - 1 - i));
+      labels.push(pointDate.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }));
+      currentPointLabels.push(pointDate.toLocaleDateString("pt-BR", { month: "2-digit", year: "numeric" }));
+      periodStart = new Date(pointDate.getFullYear(), pointDate.getMonth(), 1);
+      periodEnd = new Date(pointDate.getFullYear(), pointDate.getMonth() + 1, 1);
+    } else {
+      pointDate.setDate(now.getDate() - (points - 1 - i));
+      pointDate.setHours(0, 0, 0, 0);
+      labels.push(pointDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }));
+      currentPointLabels.push(`${pointDate.toLocaleDateString("pt-BR")} 12:00`);
+      periodStart = new Date(pointDate);
+      periodEnd = new Date(pointDate);
+      periodEnd.setDate(periodEnd.getDate() + 1);
+    }
+
+    const curr = transacoes.filter((t) => {
+      const d = new Date(t.created_at);
+      return d >= periodStart && d < periodEnd;
+    });
+    const gross = curr.filter((t) => t.tipo === "credito").reduce((s, t) => s + parseFloat(t.valor), 0);
+    const debit = curr.filter((t) => t.tipo === "debito").reduce((s, t) => s + parseFloat(t.valor), 0);
+    currentGross.push(gross);
+    currentNet.push(Math.max(gross - debit, 0));
+    currentCustomers.push(curr.filter((t) => t.tipo === "credito").length);
+
+    const compDate = shiftDateByCompareMode(new Date(pointDate), compareMode, period);
+    comparisonPointLabels.push(
+      period === "1y"
+        ? compDate.toLocaleDateString("pt-BR", { month: "2-digit", year: "numeric" })
+        : `${compDate.toLocaleDateString("pt-BR")}${period === "1d" ? ` ${labels[i]}` : " 12:00"}`,
+    );
+
+    let compStart: Date;
+    let compEnd: Date;
+    if (period === "1d") {
+      compStart = new Date(compDate); compStart.setHours(i, 0, 0, 0);
+      compEnd   = new Date(compDate); compEnd.setHours(i + 1, 0, 0, 0);
+    } else if (period === "1y") {
+      compStart = new Date(compDate.getFullYear(), compDate.getMonth(), 1);
+      compEnd   = new Date(compDate.getFullYear(), compDate.getMonth() + 1, 1);
+    } else {
+      compStart = new Date(compDate); compStart.setHours(0, 0, 0, 0);
+      compEnd   = new Date(compDate); compEnd.setDate(compEnd.getDate() + 1);
+    }
+
+    const comp = transacoes.filter((t) => {
+      const d = new Date(t.created_at);
+      return d >= compStart && d < compEnd;
+    });
+    const cGross = comp.filter((t) => t.tipo === "credito").reduce((s, t) => s + parseFloat(t.valor), 0);
+    const cDebit = comp.filter((t) => t.tipo === "debito").reduce((s, t) => s + parseFloat(t.valor), 0);
+    comparisonGross.push(cGross);
+    comparisonNet.push(Math.max(cGross - cDebit, 0));
+    comparisonCustomers.push(comp.filter((t) => t.tipo === "credito").length);
+  }
+
+  return { labels, currentPointLabels, comparisonPointLabels, currentNet, comparisonNet, currentGross, comparisonGross, currentCustomers, comparisonCustomers };
+}
+
+function buildRealTodaySeries(transacoes: Transacao[], selectedDate: string) {
+  const now = new Date();
+  const labels = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2, "0")}:00`);
+  const currentPointLabels  = labels.map((l) => `${now.toLocaleDateString("pt-BR")} ${l}`);
+  const compDateLabel = new Date(`${selectedDate}T00:00:00`).toLocaleDateString("pt-BR");
+  const comparisonPointLabels = labels.map((l) => `${compDateLabel} ${l}`);
+
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const compDate = new Date(`${selectedDate}T00:00:00`);
+
+  const makeHourSeries = (base: Date) =>
+    Array.from({ length: 24 }, (_, h) => {
+      const s = new Date(base); s.setHours(h, 0, 0, 0);
+      const e = new Date(base); e.setHours(h + 1, 0, 0, 0);
+      return transacoes
+        .filter((t) => { const d = new Date(t.created_at); return d >= s && d < e && t.tipo === "credito"; })
+        .reduce((sum, t) => sum + parseFloat(t.valor), 0);
+    });
+
+  return { labels, currentPointLabels, comparisonPointLabels, currentNet: makeHourSeries(today), comparisonNet: makeHourSeries(compDate) };
+}
+
 type OverviewProps = {
   onViewBalances?: () => void;
+  carteira?: Carteira | null;
+  transacoes?: Transacao[];
 };
 
-export default function Overview({ onViewBalances }: OverviewProps) {
+export default function Overview({ onViewBalances, carteira, transacoes = [] }: OverviewProps) {
   const todayChartRef = useRef<HTMLCanvasElement | null>(null);
   const grossChartRef = useRef<HTMLCanvasElement | null>(null);
   const netChartRef = useRef<HTMLCanvasElement | null>(null);
@@ -254,13 +370,13 @@ export default function Overview({ onViewBalances }: OverviewProps) {
   });
 
   const series = useMemo(
-    () => buildOverviewSeries(selectedPeriod, selectedCompareMode),
-    [selectedPeriod, selectedCompareMode],
+    () => buildRealOverviewSeries(transacoes, selectedPeriod, selectedCompareMode),
+    [transacoes, selectedPeriod, selectedCompareMode],
   );
 
   const todaySeries = useMemo(
-    () => buildTodaySeries(selectedDate),
-    [selectedDate],
+    () => buildRealTodaySeries(transacoes, selectedDate),
+    [transacoes, selectedDate],
   );
 
   const periodLabel = useMemo(
@@ -288,15 +404,13 @@ export default function Overview({ onViewBalances }: OverviewProps) {
   }, [selectedPeriod]);
 
   const currentNetDisplay = useMemo(() => {
-    const lastValue =
-      todaySeries.currentNet[todaySeries.currentNet.length - 1] ?? 0;
-    return formatCurrency(lastValue);
+    const total = todaySeries.currentNet.reduce((s, v) => s + v, 0);
+    return formatCurrency(total);
   }, [todaySeries.currentNet]);
 
   const previousNetDisplay = useMemo(() => {
-    const lastValue =
-      todaySeries.comparisonNet[todaySeries.comparisonNet.length - 1] ?? 0;
-    return formatCurrency(lastValue);
+    const total = todaySeries.comparisonNet.reduce((s, v) => s + v, 0);
+    return formatCurrency(total);
   }, [todaySeries.comparisonNet]);
 
   const selectedDateLabel = useMemo(() => {
@@ -319,6 +433,38 @@ export default function Overview({ onViewBalances }: OverviewProps) {
       year: "numeric",
     });
   }, [selectedDate]);
+
+  const saldoBRL = formatCurrency(parseFloat(carteira?.saldo ?? "0"));
+
+  const volumeBruto = useMemo(
+    () => formatCurrency(series.currentGross.reduce((s, v) => s + v, 0)),
+    [series.currentGross],
+  );
+
+  const volumeBrutoAnterior = useMemo(
+    () => formatCurrency(series.comparisonGross.reduce((s, v) => s + v, 0)),
+    [series.comparisonGross],
+  );
+
+  const volumeLiquido = useMemo(
+    () => formatCurrency(series.currentNet.reduce((s, v) => s + v, 0)),
+    [series.currentNet],
+  );
+
+  const volumeLiquidoAnterior = useMemo(
+    () => formatCurrency(series.comparisonNet.reduce((s, v) => s + v, 0)),
+    [series.comparisonNet],
+  );
+
+  const novosClientes = useMemo(
+    () => series.currentCustomers.reduce((s, v) => s + v, 0),
+    [series.currentCustomers],
+  );
+
+  const novosClientesAnterior = useMemo(
+    () => series.comparisonCustomers.reduce((s, v) => s + v, 0),
+    [series.comparisonCustomers],
+  );
 
   const getComparisonDateLabel = useCallback(
     () =>
@@ -484,7 +630,7 @@ export default function Overview({ onViewBalances }: OverviewProps) {
         <div className="overview-summary-grid">
           <div>
             <p className="overview-summary-title">Saldo em BRL</p>
-            <p className="overview-summary-value">R$ 0,00</p>
+            <p className="overview-summary-value">{saldoBRL}</p>
           </div>
           <button
             type="button"
@@ -593,8 +739,8 @@ export default function Overview({ onViewBalances }: OverviewProps) {
 
           <article className="overview-widget">
             <h3 className="overview-widget-title">Volume bruto</h3>
-            <p className="overview-widget-value">R$ 0,00</p>
-            <p className="overview-widget-sub">R$ 0,00 período anterior</p>
+            <p className="overview-widget-value">{volumeBruto}</p>
+            <p className="overview-widget-sub">{volumeBrutoAnterior} período anterior</p>
             <div className="overview-chart-wrap">
               <canvas ref={grossChartRef} />
             </div>
@@ -604,8 +750,8 @@ export default function Overview({ onViewBalances }: OverviewProps) {
 
           <article className="overview-widget">
             <h3 className="overview-widget-title">Volume líquido</h3>
-            <p className="overview-widget-value">R$ 0,00</p>
-            <p className="overview-widget-sub">R$ 0,00 período anterior</p>
+            <p className="overview-widget-value">{volumeLiquido}</p>
+            <p className="overview-widget-sub">{volumeLiquidoAnterior} período anterior</p>
             <div className="overview-chart-wrap">
               <canvas ref={netChartRef} />
             </div>
@@ -619,8 +765,8 @@ export default function Overview({ onViewBalances }: OverviewProps) {
 
           <article className="overview-widget">
             <h3 className="overview-widget-title">Novos clientes</h3>
-            <p className="overview-widget-value">1</p>
-            <p className="overview-widget-sub">0 período anterior</p>
+            <p className="overview-widget-value">{novosClientes}</p>
+            <p className="overview-widget-sub">{novosClientesAnterior} período anterior</p>
             <div className="overview-chart-wrap">
               <canvas ref={customersChartRef} />
             </div>
