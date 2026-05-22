@@ -11,6 +11,7 @@ export async function runMigrations() {
       './functions/gerarLogsAuditoria.sql',
       './init.sql',
       './triggers/audit.sql',
+      './procedures.sql',
     ];
 
     for (const file of files) {
