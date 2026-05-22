@@ -1,15 +1,14 @@
 import { Router } from "express";
 import { PgServicoRepository } from "../repositories/PgServicoRepository";
 import { ServicoController } from "../controllers/ServicoController";
-
 import {
   CriarServicoUseCase,
   ListarServicosUseCase,
   PesquisarServicoId,
   PesquisarServicoUserId,
   PesquisarServicoPrestadorId,
-  AtualizarServicoUseCase,
   AtualizarStatusUseCase,
+  AtualizarServicoUseCase,
 } from "../../core/use-cases/servico/ServicoUseCase";
 
 const servicoRouter = Router();
@@ -20,10 +19,11 @@ const criarServicoUC = new CriarServicoUseCase(servicoRepo);
 const listarServicosUC = new ListarServicosUseCase(servicoRepo);
 const pesquisarServicoId = new PesquisarServicoId(servicoRepo);
 const pesquisarServicoUserId = new PesquisarServicoUserId(servicoRepo);
-const pesquisarServicoPrestadorId = new PesquisarServicoPrestadorId(servicoRepo);
-const updateStatusUC = new UpdateStatusUseCase(servicoRepo);
-const atualizarStatusUseCase = new AtualizarStatusUseCase(servicoRepo);
-const atualizarServicoUseCase = new AtualizarServicoUseCase(servicoRepo)
+const pesquisarServicoPrestadorId = new PesquisarServicoPrestadorId(
+  servicoRepo,
+);
+const atualizarStatusUC = new AtualizarStatusUseCase(servicoRepo);
+const atualizarServicoUC = new AtualizarServicoUseCase(servicoRepo);
 
 const servicoController = new ServicoController(
   criarServicoUC,
@@ -31,27 +31,24 @@ const servicoController = new ServicoController(
   pesquisarServicoId,
   pesquisarServicoUserId,
   pesquisarServicoPrestadorId,
-  updateStatusUC,
-  atualizarStatusUseCase,
-  atualizarServicoUseCase,
+  atualizarStatusUC,
+  atualizarServicoUC,
 );
 
 servicoRouter.get("/listarTodos", (req, res) =>
   servicoController.listAll(req, res),
 );
-servicoRouter.get("/stats", (req, res) =>
-  servicoController.stats(req, res),
-);
+servicoRouter.get("/stats", (req, res) => servicoController.stats(req, res));
 servicoRouter.post("/criarServico", (req, res) =>
   servicoController.create(req, res),
 );
-servicoRouter.get("/acharPorId", (req, res) =>
+servicoRouter.get("/buscarPorId", (req, res) =>
   servicoController.findById(req, res),
 );
-servicoRouter.get("/acharPorUserId", (req, res) =>
+servicoRouter.get("/buscarPorUserId", (req, res) =>
   servicoController.findByUserId(req, res),
 );
-servicoRouter.get("/acharPorPretadorId", (req, res) =>
+servicoRouter.get("/buscarPorPrestadorId", (req, res) =>
   servicoController.findByPrestadorId(req, res),
 );
 servicoRouter.patch("/atualizarStatus", (req, res) =>
@@ -59,18 +56,6 @@ servicoRouter.patch("/atualizarStatus", (req, res) =>
 );
 servicoRouter.patch("/atualizarServico", (req, res) =>
   servicoController.updateServico(req, res),
-);
-
-servicoRouter.get("/buscarPorId", (req, res) =>
-  servicoController.findById(req, res),
-);
-
-servicoRouter.get("/buscarPorUserId", (req, res) =>
-  servicoController.findByUserId(req, res),
-);
-
-servicoRouter.get("/buscarPorPretadorId", (req, res) =>
-  servicoController.findByPrestadorId(req, res),
 );
 
 export { servicoRouter };
