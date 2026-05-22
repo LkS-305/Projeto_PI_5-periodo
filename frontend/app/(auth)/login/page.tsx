@@ -28,7 +28,7 @@ export default function Login() {
     e.preventDefault();
     setShowError(false);
 
-    const user = await login({ email, password });
+    const user = await login({ email, senha: password });
     if (user) {
       router.push("/dashboard");
       return;
