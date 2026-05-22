@@ -63,7 +63,7 @@ export class AcharPorUserId {
   constructor(private carteiraRepository: ICarteiraRepository) {}
 
   async executar(id: string) {
-    validarUUID(id, 'ID do usuário');
+    if (!id) throw new Error('ID do usuário é obrigatório.');
     return await this.carteiraRepository.findByUserId(id);
   }
 }
@@ -72,7 +72,7 @@ export class AcharPorPrestadorId {
   constructor(private carteiraRepository: ICarteiraRepository) {}
 
   async executar(id: string) {
-    validarUUID(id, 'ID do prestador');
+    if (!id) throw new Error('ID do prestador é obrigatório.');
     return await this.carteiraRepository.findByPrestadorId(id);
   }
 }
