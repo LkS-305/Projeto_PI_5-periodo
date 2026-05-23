@@ -13,6 +13,7 @@ import { servicoRouter } from "../routes/servico.routes";
 import { enderecoRouter } from "../routes/endereco.routes";
 import { documentoRouter } from "../routes/documento.routes";
 import { carteiraRouter } from "../routes/carteira.routes";
+import { mensagemRouter } from "../routes/mensagem.routes";
 import { transacaoRouter } from "../routes/transacao.routes";
 
 const app = express();
@@ -31,6 +32,7 @@ app.use("/servico", servicoRouter);
 app.use("/endereco", enderecoRouter); // SCRUM-25/27: gestão de endereços
 app.use("/documento", documentoRouter); // SCRUM-23/43: documentos e verificação
 app.use("/carteira", carteiraRouter); // SCRUM-42: carteira do usuário
+app.use("/mensagem", mensagemRouter);
 app.use("/transacao", transacaoRouter);
 
 app.get("/health", async (req, res) => {

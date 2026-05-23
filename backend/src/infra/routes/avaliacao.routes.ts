@@ -1,8 +1,12 @@
-import { Router } from 'express';
-import { PgAvaliacaoRepository } from '../repositories/PgAvaliacaoRepository';
-import { AvaliacaoController } from '../controllers/AvaliacaoController';
-
-import { CriarAvaliacaoUseCase, AtualizarAvaliacaoUseCase, DeletarAvaliacaoUseCase, ListarPorId } from '../../core/use-cases/avaliacao/AvaliacaoUseCase';
+import { Router } from "express";
+import { PgAvaliacaoRepository } from "../repositories/PgAvaliacaoRepository";
+import { AvaliacaoController } from "../controllers/AvaliacaoController";
+import {
+  CriarAvaliacaoUseCase,
+  AtualizarAvaliacaoUseCase,
+  DeletarAvaliacaoUseCase,
+  ListarPorId,
+} from "../../core/use-cases/avaliacao/AvaliacaoUseCase";
 
 const avaliacaoRouter = Router();
 
@@ -13,14 +17,30 @@ const atualizarAvaliacaoUC = new AtualizarAvaliacaoUseCase(avaliacaoRepo);
 const deletarAvaliacaoUC = new DeletarAvaliacaoUseCase(avaliacaoRepo);
 const listarAvaliacaoUC = new ListarPorId(avaliacaoRepo);
 
-const avaliacaoController = new AvaliacaoController(criarAvaliacaoUC, atualizarAvaliacaoUC, deletarAvaliacaoUC, listarAvaliacaoUC);
+const avaliacaoController = new AvaliacaoController(
+  criarAvaliacaoUC,
+  atualizarAvaliacaoUC,
+  deletarAvaliacaoUC,
+  listarAvaliacaoUC,
+);
 
-
-avaliacaoRouter.post('/criarAvaliacao', (req, res) => avaliacaoController.create(req, res));
-avaliacaoRouter.delete('/deletarAvaliacao', (req,res) => avaliacaoController.delete(req,res));
-avaliacaoRouter.patch('/editarAvaliacao', (req,res) => avaliacaoController.update(req,res));
-avaliacaoRouter.get('/buscarPorServicoId', (req,res) => avaliacaoController.listByServico(req,res));
-avaliacaoRouter.get('/buscarPorUser', (req,res) => avaliacaoController.listByUser(req,res));
-avaliacaoRouter.get('/buscarPorPrestador', (req,res) => avaliacaoController.listByPrestador(req,res));
+avaliacaoRouter.post("/criarAvaliacao", (req, res) =>
+  avaliacaoController.create(req, res),
+);
+avaliacaoRouter.delete("/deletarAvaliacao", (req, res) =>
+  avaliacaoController.delete(req, res),
+);
+avaliacaoRouter.patch("/editarAvaliacao", (req, res) =>
+  avaliacaoController.update(req, res),
+);
+avaliacaoRouter.get("/buscarPorServicoId", (req, res) =>
+  avaliacaoController.listByServico(req, res),
+);
+avaliacaoRouter.get("/buscarPorUser", (req, res) =>
+  avaliacaoController.listByUser(req, res),
+);
+avaliacaoRouter.get("/buscarPorPrestador", (req, res) =>
+  avaliacaoController.listByPrestador(req, res),
+);
 
 export { avaliacaoRouter };
