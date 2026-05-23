@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { useMensagem } from "@/utils/hooks/useMensagem";
-import { useServico } from "@/utils/hooks/useServico";
+import { apiClient } from "@/lib/api/client";
 import { Mensagem } from "@/types/entities/mensagem";
 import { Servico } from "@/types/entities/servico";
 
@@ -25,17 +25,47 @@ function formatTime(date: Date) {
   return `${String(date.getHours()).padStart(2, "0")}h${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
-function readStoredUserId() {
-  if (typeof window === "undefined") return "";
+function getMessageTime(message: Mensagem) {
+  return message.created_at ?? message.lida_em ?? "";
+}
 
-  const raw = localStorage.getItem("user");
-  if (!raw) return "";
+function sortMessagesByTime(messages: Mensagem[]) {
+  return [...messages].sort((left, right) => {
+    const leftTime = new Date(getMessageTime(left) || 0).getTime();
+    const rightTime = new Date(getMessageTime(right) || 0).getTime();
+
+    if (leftTime !== rightTime) {
+      return leftTime - rightTime;
+    }
+
+    return (left.id ?? "").localeCompare(right.id ?? "");
+  });
+}
+
+function getStoredAuth() {
+  if (typeof window === "undefined") {
+    return { userId: "", token: "" };
+  }
+
+  const rawUser =
+    localStorage.getItem("authUser") ?? localStorage.getItem("user");
+  const token = localStorage.getItem("authToken") ?? "";
+
+  if (!rawUser) {
+    return { userId: "", token };
+  }
 
   try {
-    const parsed = JSON.parse(raw);
-    return typeof parsed?.id === "string" ? parsed.id : "";
+    const parsed = JSON.parse(rawUser);
+    return {
+      userId: typeof parsed?.id === "string" ? parsed.id : "",
+      token:
+        typeof parsed?.token === "string" && parsed.token
+          ? parsed.token
+          : token,
+    };
   } catch {
-    return "";
+    return { userId: "", token };
   }
 }
 
@@ -66,7 +96,9 @@ function MessageBubble({
             />
           ) : null}
           <span className="message-meta__time">
-            {message.lida_em ? formatTime(new Date(message.lida_em)) : ""}
+            {getMessageTime(message)
+              ? formatTime(new Date(getMessageTime(message)))
+              : ""}
           </span>
         </div>
 
@@ -101,33 +133,33 @@ function IconButton({ iconSrc, label }: { iconSrc: string; label: string }) {
 
 export default function MessagesPage() {
   const router = useRouter();
-
-  // Serviços do usuário atual (cada serviço ativo = uma conversa)
-  const { fetchByUserId } = useServico();
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [selectedServicoId, setSelectedServicoId] = useState<string | null>(
     null,
   );
 
-  // Usuário autenticado — pega do localStorage onde o AuthGateway salva
-  const [currentUserId] = useState<string>(readStoredUserId);
+  const [currentUserId, setCurrentUserId] = useState("");
 
   useEffect(() => {
-    if (!currentUserId) return;
+    const { userId, token } = getStoredAuth();
+    if (!userId) return;
 
-    let active = true;
-
-    fetchByUserId(currentUserId).then((lista) => {
-      if (!active || !lista || lista.length === 0) return;
-
-      setServicos(lista);
-      setSelectedServicoId((current) => current ?? lista[0].id ?? null);
+    startTransition(() => {
+      setCurrentUserId(userId);
     });
 
-    return () => {
-      active = false;
-    };
-  }, [currentUserId, fetchByUserId]);
+    apiClient
+      .get<Servico[]>(`/servico/buscarPorUserId?id=${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((lista) => {
+        if (lista && lista.length > 0) {
+          setServicos(lista);
+          setSelectedServicoId(lista[0].id ?? null);
+        }
+      })
+      .catch((err) => console.error("Erro ao buscar serviços:", err));
+  }, []);
 
   // Chat do serviço selecionado com polling
   const { mensagens, loading, enviando, enviar, marcarLida } =
@@ -158,9 +190,10 @@ export default function MessagesPage() {
   // Monta lista de conversas a partir dos serviços
   const conversationList = useMemo<ConversationItem[]>(() => {
     return servicos.map((s) => {
-      const ultimaMensagem = mensagens
-        .filter((m) => m.servico_id === s.id)
-        .at(-1);
+      const mensagensDoServico = sortMessagesByTime(
+        mensagens.filter((m) => m.servico_id === s.id),
+      );
+      const ultimaMensagem = mensagensDoServico.at(-1);
       const naoLidas = mensagens.filter(
         (m) =>
           m.servico_id === s.id &&
@@ -173,9 +206,10 @@ export default function MessagesPage() {
         nome: s.titulo,
         role: s.categoria,
         preview: ultimaMensagem?.conteudo ?? "Sem mensagens ainda",
-        time: ultimaMensagem?.lida_em
-          ? formatTime(new Date(ultimaMensagem.lida_em))
-          : "",
+        time:
+          ultimaMensagem && getMessageTime(ultimaMensagem)
+            ? formatTime(new Date(getMessageTime(ultimaMensagem)))
+            : "",
         unread: naoLidas,
       };
     });
@@ -398,7 +432,7 @@ export default function MessagesPage() {
                 </p>
               ) : (
                 <div className="messages-chat__message-column">
-                  {mensagens.map((m) => (
+                  {sortMessagesByTime(mensagens).map((m) => (
                     <MessageBubble
                       key={m.id}
                       message={m}
