@@ -1,13 +1,11 @@
 import { InMemoryUsuarioRepository } from './repositories/InMemoryUsuarioRepository';
-import { DeletarUsuarioUseCase, AtualizarUsuarioUseCase, PesquisarPorId, PesquisarPorEmail } from '../src/core/use-cases/usuario/UsuarioUseCase';
+import { DeletarUsuarioUseCase, AtualizarUsuarioUseCase, PesquisarPorUserId } from '../src/core/use-cases/usuario/UsuarioUseCase';
 
-
-
+const UUID = '123e4567-e89b-12d3-a456-426614174000';
 
 describe('Suíte de Testes: Usuário', () => {
   let repo: InMemoryUsuarioRepository;
 
-  // Reinicia o repositório antes de cada teste para um não interferir no outro
   beforeEach(() => {
     repo = new InMemoryUsuarioRepository();
   });
@@ -15,44 +13,42 @@ describe('Suíte de Testes: Usuário', () => {
   describe('Cenário: Deleção', () => {
     test('Deve deletar um usuário existente', async () => {
       const sut = new DeletarUsuarioUseCase(repo);
-      const userr = await repo.create({email: 'sla@gmail', senha: '22'});
-      const user = await repo.findByEmail(userr.email);
+      await repo.create({ user_id: UUID, nome: 'Teste' });
+      const user = await repo.findByUserId(UUID);
 
-      const result = await sut.executar(user!.id!);
+      const result = await sut.executar(user!.user_id);
       expect(result).toBe(true);
 
-      // Verifica se realmente sumiu do repositório
-      const search = await repo.findById(user!.id!);
+      const search = await repo.findByUserId(user!.user_id);
       expect(search).toBeNull();
     });
 
     test('Deve retornar false ao tentar deletar um ID inexistente', async () => {
-        const sut = new DeletarUsuarioUseCase(repo);
-        const result = await sut.executar('id-que-nao-existe');
-        expect(result).toBe(false);
+      const sut = new DeletarUsuarioUseCase(repo);
+      await expect(sut.executar(UUID)).rejects.toBeDefined();
     });
   });
 
-  describe('Cenario: deve achar um usuario pelo email', () => {
-     test('Deve buscar um perfil pelo email', async () => {
-      const sut = new PesquisarPorEmail(repo);
-      const criado = await repo.create({ email: 'teste@gmail.com', senha: '1' });
+  describe('Cenário: Pesquisar por user_id', () => {
+    test('Deve buscar um perfil pelo user_id', async () => {
+      const sut = new PesquisarPorUserId(repo);
+      await repo.create({ user_id: UUID, nome: 'Pesquisa' });
 
-      const user = await sut.executar(criado.email);
-      expect(user?.senha).toBe('1');
+      const usuario = await sut.executar(UUID);
+      expect(usuario?.user_id).toBe(UUID);
+      expect(usuario?.nome).toBe('Pesquisa');
     });
   });
 
-  describe('Cenario: UPDATE', () => {
-    test('Deve atualiar um usuario', async () => {
+  describe('Cenário: UPDATE', () => {
+    test('Deve atualizar um usuário', async () => {
       const sut = new AtualizarUsuarioUseCase(repo);
-      const criado = await repo.create({email: 'teste2@gmail.com', senha: '2' });
+      await repo.create({ user_id: UUID, nome: 'Original' });
 
-      const usuario = await repo.findByEmail('teste2@gmail.com');
-      await repo.update(usuario!.id!, {email: 'novoEmail@gmail.com' });
+      await sut.executar({ user_id: UUID, nome: 'Novo Nome' });
 
-      const atualizado = await repo.findByEmail('novoEmail@gmail.com');
-      expect(atualizado).not.toBeNull();
+      const atualizado = await repo.findByUserId(UUID);
+      expect(atualizado?.nome).toBe('Novo Nome');
     });
   });
 });

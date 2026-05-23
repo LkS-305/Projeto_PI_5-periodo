@@ -1,3 +1,4 @@
+import { Categoria } from '../src/core/entities/Categoria';
 import { InMemoryCategoriaRepository } from './repositories/InMemoryCategoriaRepository';
 import {
   CriarCategoriaUseCase,
@@ -30,7 +31,8 @@ describe('Suite de testes: Categoria', () => {
 
     it('Não deve permitir categorias com nomes duplicados', async () => {
       const sut = new CriarCategoriaUseCase(repo);
-      await repo.create({ nome: 'Repetida', slug: 'r', icon_url: 'u' });
+      const repetida = new Categoria({ nome: 'Repetida', slug: 'r', icon_url: 'u' });
+      await repo.create(repetida);
 
       await expect(
         sut.executar({ nome: 'Repetida', slug: 'r2', icon_url: 'u2' })
@@ -41,7 +43,8 @@ describe('Suite de testes: Categoria', () => {
   describe('Deletar Categoria', () => {
     it('Deve deletar uma categoria existente', async () => {
       const sut = new DeletarCategoriaUseCase(repo);
-      const criada = await repo.create({ nome: 'Teste', slug: 't', icon_url: 'u' });
+      const criada = new Categoria({ nome: 'Teste', slug: 't', icon_url: 'u' });
+      await repo.create(criada);
 
       const result = await sut.executar(criada.id!);
       expect(result).toBe(true);
@@ -54,8 +57,8 @@ describe('Suite de testes: Categoria', () => {
   describe('Listar Categorias', () => {
     it('Deve retornar todas as categorias cadastradas', async () => {
       const sut = new PesquisarTudo(repo);
-      await repo.create({ nome: 'Cat 1', slug: 'c1', icon_url: 'i1' });
-      await repo.create({ nome: 'Cat 2', slug: 'c2', icon_url: 'i2' });
+      await repo.create(new Categoria({ nome: 'Cat 1', slug: 'c1', icon_url: 'i1' }));
+      await repo.create(new Categoria({ nome: 'Cat 2', slug: 'c2', icon_url: 'i2' }));
 
       const lista = await sut.executar();
       expect(lista?.length).toBe(2);
@@ -65,11 +68,8 @@ describe('Suite de testes: Categoria', () => {
   describe('Pesquisar por ID', () => {
     it('Deve retornar a categoria correta ao buscar por ID', async () => {
       const sut = new PesquisarPorId(repo);
-      const criado = await repo.create({
-        nome: 'Marcenaria',
-        slug: 'marcenaria',
-        icon_url: 'url',
-      });
+      const criado = new Categoria({ nome: 'Marcenaria', slug: 'marcenaria', icon_url: 'url' });
+      await repo.create(criado);
 
       const categoria = await sut.executar(criado.id!);
       expect(categoria?.nome).toBe('Marcenaria');
@@ -80,7 +80,7 @@ describe('Suite de testes: Categoria', () => {
   describe('Pesquisar por Nome', () => {
     it('Deve encontrar uma categoria pelo nome exato', async () => {
       const sut = new PesquisarPorNome(repo);
-      await repo.create({ nome: 'Pintura', slug: 'pintura', icon_url: 'url' });
+      await repo.create(new Categoria({ nome: 'Pintura', slug: 'pintura', icon_url: 'url' }));
 
       const categoria = await sut.executar('Pintura');
       expect(categoria?.nome).toBe('Pintura');
@@ -90,9 +90,11 @@ describe('Suite de testes: Categoria', () => {
   describe('Atualizar Categoria', () => {
     it('Deve alterar os dados de uma categoria', async () => {
       const sut = new AtualizarCategoriaUseCase(repo);
-      const criada = await repo.create({ nome: 'Original', slug: 'o', icon_url: 'u' });
+      const criada = new Categoria({ nome: 'Original', slug: 'o', icon_url: 'u' });
+      await repo.create(criada);
 
-      const atualizada = await sut.executar(criada.id!, {
+      const atualizada = await sut.executar({
+        id: criada.id!,
         nome: 'Editada',
         slug: 'editada',
         icon_url: 'nova_url'

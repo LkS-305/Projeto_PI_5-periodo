@@ -14,7 +14,7 @@ describe('Suite de testes: Avaliacao (In-Memory)', () => {
       servico_id: 'a1',
       usuario_id: 'c1',
       prestador_id: undefined,
-      nota: '5',
+      nota: 5,
       comentario: 'Show!',
       media: 'url',
       destinatario: 'servico'
@@ -29,7 +29,7 @@ describe('Suite de testes: Avaliacao (In-Memory)', () => {
 
   it('Deve atualizar uma avaliação existente', async () => {
     const original = new Avaliacao({
-      usuario_id: 'c1', servico_id: 'a1', nota: '3', comentario: 'Show!', destinatario: 'servico'
+      usuario_id: 'c1', servico_id: 'a1', prestador_id: undefined, nota: 3, comentario: 'Show!', media: undefined, destinatario: 'servico'
     }, randomUUID());
     await repo.create(original);
 
@@ -46,8 +46,10 @@ describe('Suite de testes: Avaliacao (In-Memory)', () => {
     const avaliacao = new Avaliacao({
       servico_id: 'a3',
       usuario_id: 'c3',
-      nota: '5',
+      prestador_id: undefined,
+      nota: 5,
       comentario: 'Show!',
+      media: undefined,
       destinatario: 'servico'
     }, randomUUID());
     await repo.create(avaliacao);
@@ -61,7 +63,7 @@ describe('Suite de testes: Avaliacao (In-Memory)', () => {
   describe('Testes de Busca (listBy)', () => {
     it('1. Deve buscar avaliações por SERVIÇO', async () => {
       const idBusca = 'servico-123';
-      await repo.create({ servico_id: idBusca, usuario_id: 'u1', nota: '5', destinatario: 'servico' });
+      await repo.create({ servico_id: idBusca, usuario_id: 'u1', prestador_id: undefined, nota: 5, comentario: undefined, media: undefined, destinatario: 'servico' });
 
       const resultado = await repo.listBy(idBusca, 'servico');
 
@@ -71,7 +73,7 @@ describe('Suite de testes: Avaliacao (In-Memory)', () => {
 
     it('2. Deve buscar avaliações por PRESTADOR', async () => {
       const idBusca = 'prestador-456';
-      await repo.create({ prestador_id: idBusca, usuario_id: 'u1', nota: '4', destinatario: 'prestador' });
+      await repo.create({ servico_id: undefined, prestador_id: idBusca, usuario_id: 'u1', nota: 4, comentario: undefined, media: undefined, destinatario: 'prestador' });
 
       const resultado = await repo.listBy(idBusca, 'prestador');
 
@@ -81,7 +83,7 @@ describe('Suite de testes: Avaliacao (In-Memory)', () => {
 
     it('3. Deve buscar avaliações por USUÁRIO', async () => {
       const idBusca = 'usuario-789';
-      await repo.create({ usuario_id: idBusca, servico_id: 's1', nota: '3', destinatario: 'servico' });
+      await repo.create({ usuario_id: idBusca, servico_id: 's1', prestador_id: undefined, nota: 3, comentario: undefined, media: undefined, destinatario: 'servico' });
 
       const resultado = await repo.listBy(idBusca, 'usuario');
 
@@ -90,7 +92,7 @@ describe('Suite de testes: Avaliacao (In-Memory)', () => {
     });
 
     it('4. Deve buscar uma AVALIAÇÃO específica pelo ID dela', async () => {
-      await repo.create({ usuario_id: 'u1', servico_id: 's1', nota: '2', destinatario: 'servico' });
+      await repo.create({ usuario_id: 'u1', servico_id: 's1', prestador_id: undefined, nota: 2, comentario: undefined, media: undefined, destinatario: 'servico' });
 
       const todas = await repo.listBy('u1', 'usuario');
       const idEspecifico = todas![0].id!;

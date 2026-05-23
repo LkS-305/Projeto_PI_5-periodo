@@ -28,13 +28,9 @@ describe("Suíte de Testes: Usuário", () => {
       });
 
       const sut = new CriarUsuarioUseCase(repo, userRepo);
-      const usuario = await sut.executar({
-        user_id: user!.id,
-        nome: "Usuario Teste",
-        score: 0,
-      });
+      const usuario = await sut.executar(user.user!.id, "Usuario Teste");
 
-      expect(usuario.user_id).toBe(user!.id);
+      expect(usuario.user_id).toBe(user.user!.id);
       expect(usuario).toBeTruthy();
     });
   });
@@ -42,13 +38,10 @@ describe("Suíte de Testes: Usuário", () => {
   describe("Cenário: Deleção", () => {
     test("Deve deletar um usuário existente", async () => {
       const sut = new DeletarUsuarioUseCase(repo);
-      const usuario = await repo.create({
-        user_id: "111",
-        nome: "nome ska",
-        score: 2,
-      });
+      const UUID = '123e4567-e89b-12d3-a456-426614174000';
+      await repo.create({ user_id: UUID, nome: "nome ska" });
 
-      const user = await repo.findByUserId(usuario.user_id);
+      const user = await repo.findByUserId(UUID);
 
       const result = await sut.executar(user!.user_id);
       expect(result).toBe(true);
@@ -58,10 +51,10 @@ describe("Suíte de Testes: Usuário", () => {
       expect(search).toBeNull();
     });
 
-    test("Deve retornar false ao tentar deletar um ID inexistente", async () => {
+    test("Deve lançar erro ao tentar deletar um ID inexistente", async () => {
       const sut = new DeletarUsuarioUseCase(repo);
-      const result = await sut.executar("id-que-nao-existe");
-      expect(result).toBe(false);
+      const UUID_INEXISTENTE = '999e4567-e89b-12d3-a456-426614174999';
+      await expect(sut.executar(UUID_INEXISTENTE)).rejects.toBeDefined();
     });
   });
 });
