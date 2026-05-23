@@ -5,23 +5,19 @@ import { CriarUsuarioDto } from "../../src/core/dtos/usuario";
 export class InMemoryUsuarioRepository implements IUsuarioRepository {
   public items: Usuario[] = [];
 
-  async create(usuario: CriarUsuarioDto): Promise<Usuario> {
+  async create(usuario: CriarUsuarioDto): Promise<void> {
     const novo = new Usuario(usuario);
     this.items.push(novo);
-    return novo;
   }
 
   async delete(id: string): Promise<void> {
-    // Support deletion by user_id or id
-    const index = this.items.findIndex((u) => u.user_id === id || u.id === id);
+    const index = this.items.findIndex((u) => u.user_id === id);
     if (index === -1) return;
     this.items.splice(index, 1);
   }
 
-  async update(id: string, dados: Partial<Usuario>): Promise<void> {
-    const index = this.items.findIndex(
-      (u) => u.user_id === id || u.id === id,
-    );
+  async update(dados: Usuario): Promise<void> {
+    const index = this.items.findIndex((u) => u.user_id === dados.user_id);
     if (index === -1) return;
     Object.assign(this.items[index], dados);
   }
@@ -32,13 +28,11 @@ export class InMemoryUsuarioRepository implements IUsuarioRepository {
   }
 
   async findByEmail(email: string | undefined): Promise<Usuario | null> {
-    if (!email) return null;
-    const user = this.items.find((u) => u.email === email);
-    return user || null;
+    return null;
   }
 
   async findById(id: string): Promise<Usuario | null> {
-    const user = this.items.find((u) => u.id === id || u.user_id === id);
+    const user = this.items.find((u) => u.user_id === id);
     return user || null;
   }
 }

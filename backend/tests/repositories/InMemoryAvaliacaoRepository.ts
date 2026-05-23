@@ -1,6 +1,8 @@
 import { IAvaliacaoRepository } from '../../src/core/repositories/IAvaliacaoRepository';
 import { Avaliacao } from '../../src/core/entities/Avaliacao';
-import { CriarAvaliacaoDto, ListBy } from '../../src/core/dtos/avaliacao';
+import { CriarAvaliacaoDto } from '../../src/core/dtos/avaliacao';
+
+type ListBy = 'usuario' | 'prestador' | 'servico' | 'avaliacao';
 
 
 export class InMemoryAvaliacaoRepository implements IAvaliacaoRepository {
@@ -8,7 +10,7 @@ export class InMemoryAvaliacaoRepository implements IAvaliacaoRepository {
 
 
   async create(avaliacao: CriarAvaliacaoDto): Promise<Avaliacao | null>{
-    const newAvaliacao = {...avaliacao, id: (avaliacao as any).id ?? `uuid-fake-${Math.random()}`};
+    const newAvaliacao = new Avaliacao(avaliacao, (avaliacao as any).id ?? undefined);
     this.items.push(newAvaliacao);
     return newAvaliacao;
   }
