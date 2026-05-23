@@ -1,8 +1,6 @@
 import { IAvaliacaoRepository } from '../../src/core/repositories/IAvaliacaoRepository';
 import { Avaliacao } from '../../src/core/entities/Avaliacao';
-import { CriarAvaliacaoDto } from '../../src/core/dtos/avaliacao';
-
-type ListBy = 'usuario' | 'prestador' | 'servico' | 'avaliacao';
+import { CriarAvaliacaoDto, destinatario } from '../../src/core/dtos/avaliacao';
 
 
 export class InMemoryAvaliacaoRepository implements IAvaliacaoRepository {
@@ -42,7 +40,7 @@ export class InMemoryAvaliacaoRepository implements IAvaliacaoRepository {
   }
 
 
-  async listBy(id: string, listBy: ListBy): Promise<Avaliacao[] | null>{
+  async listBy(id: string, listBy: destinatario): Promise<Avaliacao[] | null>{
     if (listBy == 'usuario') {
       const resultado = this.items.filter(u => u.usuario_id === id);
       return resultado.length > 0 ? resultado : null;
