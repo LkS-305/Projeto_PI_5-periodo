@@ -139,6 +139,7 @@ CREATE TABLE IF NOT EXISTS mensagens (
     remetente_id TEXT NOT NULL,
     conteudo TEXT NOT NULL,
     tipo_midia TEXT NOT NULL CHECK (tipo_midia IN ('texto', 'imagem', 'audio')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     lida_em TIMESTAMP WITH TIME ZONE
 );
 

@@ -58,7 +58,7 @@ export class ServicoController {
 
   async findByUserId(req: Request, res: Response) {
       try {
-      const resultado = await this.pesquisarServicoUserId.executar(req.body.id);
+      const resultado = await this.pesquisarServicoUserId.executar((req.query.id || req.body.id) as string);
       return res.status(200).json(resultado);
     } 
       catch (erro: any) {
@@ -68,7 +68,7 @@ export class ServicoController {
 
   async findByPrestadorId(req: Request, res: Response) {
       try {
-      const resultado = await this.pesquisarServicoPrestadorId.executar(req.body.id);
+      const resultado = await this.pesquisarServicoPrestadorId.executar((req.query.id || req.body.id) as string);
       return res.status(200).json(resultado);
     } 
       catch (erro: any) {
