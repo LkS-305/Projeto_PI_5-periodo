@@ -21,7 +21,7 @@ export class PgMensagemRepository implements IMensagemRepository {
 
   async findByServicoId(servico_id: string): Promise<Mensagem[]> {
     const { rows } = await pool.query(
-      "SELECT * FROM mensagens WHERE servico_id = $1 ORDER BY rowid ASC",
+      "SELECT * FROM mensagens WHERE servico_id = $1 ORDER BY created_at ASC, id ASC",
       [servico_id],
     );
     return rows;
@@ -33,7 +33,7 @@ export class PgMensagemRepository implements IMensagemRepository {
       `SELECT m.* FROM mensagens m
        JOIN servicos s ON s.id = m.servico_id
        WHERE s.user_id = $1
-       ORDER BY m.servico_id, m.rowid ASC`,
+       ORDER BY m.created_at ASC, m.id ASC`,
       [user_id],
     );
     return rows;
@@ -44,7 +44,7 @@ export class PgMensagemRepository implements IMensagemRepository {
       `SELECT m.* FROM mensagens m
        JOIN servicos s ON s.id = m.servico_id
        WHERE s.prestador_id = $1
-       ORDER BY m.servico_id, m.rowid ASC`,
+       ORDER BY m.created_at ASC, m.id ASC`,
       [prestador_id],
     );
     return rows;
