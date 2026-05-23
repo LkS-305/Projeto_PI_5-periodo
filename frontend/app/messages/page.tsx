@@ -148,17 +148,48 @@ export default function MessagesPage() {
       setCurrentUserId(userId);
     });
 
-    apiClient
-      .get<Servico[]>(`/servico/buscarPorUserId?id=${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((lista) => {
-        if (lista && lista.length > 0) {
-          setServicos(lista);
-          setSelectedServicoId(lista[0].id ?? null);
+    const carregarServicos = async () => {
+      try {
+        const listaUsuario = await apiClient.get<Servico[]>(
+          `/servico/buscarPorUserId?id=${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+
+        if (listaUsuario.length > 0) {
+          setServicos(listaUsuario);
+          setSelectedServicoId(listaUsuario[0].id ?? null);
+          return;
         }
-      })
-      .catch((err) => console.error("Erro ao buscar serviços:", err));
+
+        const prestador = await apiClient.post<{ user_id: string } | null>(
+          "/prestador/buscarPorUserId",
+          { user_id: userId },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+
+        if (!prestador) return;
+
+        const listaPrestador = await apiClient.get<Servico[]>(
+          `/servico/buscarPorPrestadorId?id=${prestador.user_id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+
+        if (listaPrestador.length > 0) {
+          setServicos(listaPrestador);
+          setSelectedServicoId(listaPrestador[0].id ?? null);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar serviços:", err);
+      }
+    };
+
+    carregarServicos();
   }, []);
 
   // Chat do serviço selecionado com polling
