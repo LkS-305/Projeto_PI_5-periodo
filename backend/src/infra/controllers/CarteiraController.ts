@@ -63,8 +63,8 @@ export class CarteiraController {
 
   async findByUserId(req: Request, res: Response) {
     try {
-      const resultado = await this.acharPorUserId.executar(req.body.id);
-      return res.status(201).json(resultado);
+      const resultado = await this.acharPorUserId.executar(req.query.id as string);
+      return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({erro: erro.message});
     }
@@ -72,8 +72,8 @@ export class CarteiraController {
 
   async findByPrestadorId(req: Request, res: Response) {
     try {
-      const resultado = await this.acharPorPrestadorId.executar(req.body.id);
-      return res.status(201).json(resultado);
+      const resultado = await this.acharPorPrestadorId.executar(req.query.id as string);
+      return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({erro: erro.message});
     }
