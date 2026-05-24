@@ -1,10 +1,11 @@
-import { Documento } from '../entities/Documento';
-
+import { Documento } from "../entities/Documento";
+import { VerificacaoStatus } from "../dtos/documento";
 
 export interface IDocumentoRepository {
-  create(documento: Documento): Promise<void>;
-  update(documento: Documento): Promise<void>;
+  create(documento: Documento): Promise<Documento>;
+  update(documento: Documento): Promise<Documento>;
   delete(id: string): Promise<void>;
   findByUserId(id: string): Promise<Documento | null>;
-  updateStatus(id: string, status: string): Promise<void>;
+  findPendentes(): Promise<any[]>;
+  updateStatus(id: string, status: VerificacaoStatus): Promise<void>;
 }

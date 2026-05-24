@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ override: true });
 
 // Configuração baseada no seu Docker
 export const pool = new Pool({

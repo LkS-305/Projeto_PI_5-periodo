@@ -188,8 +188,8 @@ CREATE TABLE IF NOT EXISTS documentos (
     numero_documento TEXT NOT NULL,
     arquivo_url TEXT NOT NULL,
     selfie_url TEXT NOT NULL,
-    data_expiracao TIMESTAMP WITH TIME ZONE NOT NULL,
-    status TEXT NOT NULL CHECK (status IN ('pendente', 'aprovado', 'rejeitado'))
+    data_expiracao TIMESTAMP WITH TIME ZONE,
+    status TEXT NOT NULL DEFAULT 'pendente' CHECK (status IN ('pendente', 'aprovado', 'rejeitado'))
 );
 
 -- 15. Tabela de AuditLogs

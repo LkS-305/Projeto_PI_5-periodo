@@ -7,7 +7,7 @@ type RequestOptions = {
 
 async function apiFetch<T>(
   endpoint: string,
-  method: string,
+  method: string,     
   options: RequestOptions = {},
 ): Promise<T> {
   const { headers, body, params, cache } = options;
@@ -23,16 +23,20 @@ async function apiFetch<T>(
     );
   }
 
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+  const token =
+  typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
   const config: RequestInit = {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      // ...(token && { 'Authorization': `Bearer ${token}` }),
-      ...headers,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-    cache: cache || "default",
-  };
+  method,
+  headers: {
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...headers,
+  },
+  body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
+  cache: cache || "default",
+};
 
   console.log("Enviando requisicao com url e config:", url, config);
 
