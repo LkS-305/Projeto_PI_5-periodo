@@ -1,5 +1,6 @@
 "use client";
 
+<<<<<<< Updated upstream
 import React, {
   createContext,
   useCallback,
@@ -234,6 +235,123 @@ export function useSession() {
   return context;
 }
 
+=======
+/**
+ * AuthContext
+ * -----------
+ * Camada unificada de autenticação que envolve o SessionContext e adiciona
+ * login, logout, register, updateUser, error e initialized.
+ *
+ * Exporta:
+ *  - useSession()  – usado pelas páginas de auth, Navbar e Profile
+ *  - useAuth()     – alias de useSession(), usado pelo DashboardLayout
+ */
+
+import { useState } from "react";
+import { useSession as useBaseSession } from "@/lib/contexts/SessionContext";
+import { useNotification } from "@/lib/contexts/NotificationContext";
+import { AuthGateway } from "@/lib/gateways/AuthGateway";
+import { RegisterDto } from "@/types/dtos/user";
+import { User } from "@/types/entities/user";
+
+// Aceita tanto "password" (usado pelo form de login) quanto "senha" (LoginDto oficial)
+type LoginInput = { email: string; password?: string; senha?: string };
+
+export function useSession() {
+  const {
+    user,
+    isAuthenticated,
+    loading: baseLoading,
+    saveSession,
+    clearSession,
+  } = useBaseSession();
+
+  const { notify } = useNotification();
+
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // ── LOGIN ──────────────────────────────────────────────────────────────────
+  const login = async (dados: LoginInput): Promise<User | null> => {
+    setIsPending(true);
+    setError(null);
+    try {
+      const response = await AuthGateway.loginClient({
+        email: dados.email,
+        senha: dados.password ?? dados.senha ?? "",
+      });
+      saveSession(response.token, response.user as User);
+      notify("Bem-vindo de volta!", "success");
+      return response.user as User;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Falha no login";
+      setError(msg);
+      notify(msg, "error");
+      return null;
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  // ── LOGOUT ─────────────────────────────────────────────────────────────────
+  const logout = () => {
+    clearSession();
+    notify("Você saiu do sistema", "info");
+  };
+
+  // ── REGISTER ───────────────────────────────────────────────────────────────
+  const register = async (dados: RegisterDto) => {
+    setIsPending(true);
+    setError(null);
+    try {
+      const response = await AuthGateway.registerClient(dados);
+      notify("Conta criada com sucesso!", "success");
+      return response;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Falha ao registrar";
+      setError(msg);
+      notify(msg, "error");
+      return null;
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  // ── UPDATE USER (local) ────────────────────────────────────────────────────
+  const updateUser = (data: Partial<User>) => {
+    if (!user) return;
+    const token =
+      typeof window !== "undefined"
+        ? (localStorage.getItem("authToken") ?? "")
+        : "";
+    saveSession(token, { ...user, ...data });
+  };
+
+  return {
+    // Estado
+    user,
+    isAuthenticated,
+    loading: baseLoading || isPending,
+    initialized: !baseLoading,   // true após leitura do localStorage
+    error,
+
+    // Ações de autenticação
+    login,
+    logout,
+    register,
+    signup: register,            // alias para o form de cadastro
+
+    // Ação de perfil
+    updateUser,
+
+    // Ações baixo nível (SessionContext)
+    saveSession,
+    clearSession,
+  };
+}
+
+/** Alias – DashboardLayout importa useAuth */
+>>>>>>> Stashed changes
 export function useAuth() {
   return useSession();
 }

@@ -1,62 +1,39 @@
+<<<<<<< Updated upstream
 import client from '@/lib/api/client';
 import { Endereco } from '@/lib/types';
+=======
+import { apiClient } from '@/lib/api/client';
+import { Endereco } from '@/types/entities/endereco';
+>>>>>>> Stashed changes
 
 export async function createEndereco(data: Omit<Endereco, 'id'>): Promise<Endereco> {
-  const response = await client.post<Endereco>('/endereco/criarEndereco', data);
-  return response.data;
+  return apiClient.post<Endereco>('/endereco/criarEndereco', data);
 }
 
 export async function deleteEndereco(id: string): Promise<boolean> {
-  const response = await client.delete<boolean>('/endereco/deletarEndereco', { data: { id } });
-  return response.data;
+  return apiClient.delete<boolean>('/endereco/deletarEndereco', { params: { id } });
 }
 
 export async function updateEndereco(id: string, endereco: Partial<Endereco>): Promise<Endereco> {
-  const response = await client.patch<Endereco>('/endereco/atualizarEndereco', { id, endereco });
-  return response.data;
+  return apiClient.patch<Endereco>('/endereco/atualizarEndereco', { id, endereco });
 }
 
 export async function findEnderecosByUserId(user_id: string): Promise<Endereco[]> {
-  const response = await client.request<Endereco[]>({
-    method: 'get',
-    url: '/endereco/acharPorUserId',
-    data: { id: user_id },
-  });
-  return response.data;
+  return apiClient.get<Endereco[]>('/endereco/acharPorUserId', { params: { id: user_id } });
 }
 
 export async function findEnderecosByPrestadorId(prestador_id: string): Promise<Endereco[]> {
-  const response = await client.request<Endereco[]>({
-    method: 'get',
-    url: '/endereco/acharPorPrestadorId',
-    data: { id: prestador_id },
-  });
-  return response.data;
+  return apiClient.get<Endereco[]>('/endereco/acharPorPrestadorId', { params: { id: prestador_id } });
 }
 
 export async function findEnderecosByCidade(cidade: string): Promise<Endereco[]> {
-  const response = await client.request<Endereco[]>({
-    method: 'get',
-    url: '/endereco/acharPorCidade',
-    data: { cidade },
-  });
-  return response.data;
+  return apiClient.get<Endereco[]>('/endereco/acharPorCidade', { params: { cidade } });
 }
 
 export async function setEnderecoPrincipal(id: string): Promise<Endereco> {
-  const response = await client.request<Endereco>({
-    method: 'get',
-    url: '/endereco/setPrincipal',
-    data: { id },
-  });
-  return response.data;
+  return apiClient.post<Endereco>('/endereco/setPrincipal', { id });
 }
 
 export async function unsetEnderecoPrincipal(id: string): Promise<Endereco> {
-  const response = await client.request<Endereco>({
-    method: 'get',
-    url: '/endereco/unsetPrincipal',
-    data: { id },
-  });
-  return response.data;
+  return apiClient.post<Endereco>('/endereco/unsetPrincipal', { id });
 }

@@ -8,40 +8,21 @@ export async function createServico(data: {
   titulo: string;
   categoria: string;
 }): Promise<Servico> {
-  const response = await client.post<Servico>("/servico/criar-servico", data);
-  return response.data;
+  return apiClient.post<Servico>("/servico/criar-servico", data);
 }
 
 export async function getServicoById(id: string): Promise<Servico> {
-  const response = await client.get<Servico>("/servico/acharPorId", {
-    params: { id },
-  });
-  return response.data;
+  return apiClient.get<Servico>("/servico/acharPorId", { params: { id } });
 }
 
 export async function getServicosByUserId(user_id: string): Promise<Servico[]> {
-  const response = await client.get<Servico[]>("/servico/acharPorUserId", {
-    params: { id: user_id },
-  });
-  return response.data;
+  return apiClient.get<Servico[]>("/servico/acharPorUserId", { params: { id: user_id } });
 }
 
-export async function getServicosByPrestadorId(
-  prestador_id: string,
-): Promise<Servico[]> {
-  const response = await client.get<Servico[]>("/servico/acharPorPretadorId", {
-    params: { id: prestador_id },
-  });
-  return response.data;
+export async function getServicosByPrestadorId(prestador_id: string): Promise<Servico[]> {
+  return apiClient.get<Servico[]>("/servico/acharPorPretadorId", { params: { id: prestador_id } });
 }
 
-export async function updateServicoStatus(
-  id: string,
-  dados: Partial<Servico>,
-): Promise<Servico> {
-  const response = await client.patch<Servico>("/servico/atualizarServico", {
-    id,
-    dados,
-  });
-  return response.data;
+export async function updateServicoStatus(id: string, dados: Partial<Servico>): Promise<Servico> {
+  return apiClient.patch<Servico>("/servico/atualizarServico", { id, dados });
 }

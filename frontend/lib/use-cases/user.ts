@@ -1,30 +1,23 @@
+<<<<<<< Updated upstream
 import client from "@/lib/api/client";
 import { Usuario } from "@/lib/types";
+=======
+import { apiClient } from "@/lib/api/client";
+import { Usuario } from "@/types/entities/usuario";
+>>>>>>> Stashed changes
 
 export async function getUserById(id: string): Promise<Usuario> {
-  const response = await client.post<Usuario>("/users/buscarPorId", { id });
-  return response.data;
+  return apiClient.post<Usuario>("/users/buscarPorId", { id });
 }
 
 export async function getUserByEmail(email: string): Promise<Usuario> {
-  const response = await client.post<Usuario>("/users/buscarPorEmail", {
-    nome: email,
-  });
-  return response.data;
+  return apiClient.post<Usuario>("/users/buscarPorEmail", { email });
 }
 
-export async function updateUserById(
-  id: string,
-  dados: Partial<Usuario>,
-): Promise<Usuario> {
-  const response = await client.post<Usuario>("/users/atualizar-usuario", {
-    id,
-    dados,
-  });
-  return response.data;
+export async function updateUserById(id: string, dados: Partial<Usuario>): Promise<Usuario> {
+  return apiClient.post<Usuario>("/users/atualizar-usuario", { id, dados });
 }
 
 export async function deleteUserById(id: string): Promise<boolean> {
-  const response = await client.post<boolean>("/users/deletarUsuario", { id });
-  return response.data;
+  return apiClient.post<boolean>("/users/deletarUsuario", { id });
 }

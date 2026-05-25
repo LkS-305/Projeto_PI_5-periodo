@@ -163,7 +163,7 @@ export default function Cadastro() {
     const user = await signup({
       nome: formData.nome,
       email: formData.email,
-      password: formData.senha,
+      senha: formData.senha,
       telefone: formData.celular,
     });
 

@@ -1,4 +1,4 @@
-export * from "./useApi";
+// useApi removido — arquivo não existe
 export * from "./useAuth";
 export * from "./useUsuario";
 export * from "./usePrestador";

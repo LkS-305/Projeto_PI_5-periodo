@@ -427,6 +427,7 @@ export default function Dashboard() {
 
       {/* ── WRAPPER ANIMADO DAS SEÇÕES ── */}
       <div className={`tab-content${tabVisible ? " visible" : ""}`}>
+<<<<<<< Updated upstream
 
       {/* ════ SEÇÃO CONTRATANTE ════ */}
       {activeTab === "contratante" && (
@@ -448,6 +449,28 @@ export default function Dashboard() {
               <Image src="/images/ticket.svg" alt="Criar demanda" width={75} height={75} style={{ flexShrink: 0 }} />
               <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: "70px", color: "#272727", margin: 0, lineHeight: 1.0 }}>
                 Criar demanda inteligente
+=======
+        {/* ════ SEÇÃO CONTRATANTE ════ */}
+        {activeTab === "contratante" && (
+          <div className="home-section">
+            {/* Box 1 — Criar demanda inteligente */}
+            <div className="home-card home-card--full" onClick={() => router.push("/demand")} style={{ cursor: "pointer" }}>
+              {/* Imagem + Título na mesma linha */}
+              <div className="home-card__title-row">
+                <Image
+                  src="/images/ticket.svg"
+                  alt="Criar demanda"
+                  width={75}
+                  height={75}
+                  className="home-card__icon"
+                />
+                <p className="home-card__title">Criar demanda inteligente</p>
+              </div>
+              <p className="home-card__description home-card__description--full">
+                Crie sua demanda inteligente com suas necessidades, localização
+                e disponibilidade que a DOMI te ajuda a encontrar o profissional
+                ideal!
+>>>>>>> Stashed changes
               </p>
             </div>
             <p style={{
@@ -524,6 +547,7 @@ export default function Dashboard() {
         </div>
       )}
 
+<<<<<<< Updated upstream
       {/* ════ SEÇÃO PROFISSIONAL ════ */}
       {activeTab === "profissional" && (
         <div style={{ paddingLeft: "55px", paddingRight: "55px" }}>
@@ -543,6 +567,27 @@ export default function Dashboard() {
               <Image src="/images/portifolio.svg" alt="Portifólio" width={112} height={75} style={{ flexShrink: 0 }} />
               <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: "70px", color: "#272727", margin: 0, lineHeight: 1.0 }}>
                 Portifólio
+=======
+        {/* ════ SEÇÃO PROFISSIONAL ════ */}
+        {activeTab === "profissional" && (
+          <div className="home-section">
+            {/* Box 1 — Portifólio */}
+            <div className="home-card home-card--full" onClick={() => router.push("/portifolio")} style={{ cursor: "pointer" }}>
+              <div className="home-card__title-row">
+                <Image
+                  src="/images/portifolio.svg"
+                  alt="Portifólio"
+                  width={112}
+                  height={75}
+                  className="home-card__icon"
+                />
+                <p className="home-card__title">Portifólio</p>
+              </div>
+              <p className="home-card__description home-card__description--full">
+                Mantenha seu portifólio atualizado com seus trabalhos,
+                localização e disponibilidade que a DOMI te ajuda a encontrar
+                trabalhos ideais!
+>>>>>>> Stashed changes
               </p>
             </div>
             <p style={{

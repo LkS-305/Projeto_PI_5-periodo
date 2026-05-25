@@ -1222,7 +1222,7 @@ export default function Home() {
                       border: "2px solid #FAF9F5",
                       textDecoration: "none",
                       fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                      fontWeight: 300,
+                      fontWeight: 400,
                       fontSize: "30px",
                       color: "#FAF9F5",
                       flexShrink: 0,
