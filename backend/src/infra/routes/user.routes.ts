@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { PgUserRepository } from "../repositories/PgUserRepository";
+import { PgDocumentoRepository } from "../repositories/PgDocumentoRepository";
 
 import {
   RegisterUseCase,
@@ -18,10 +19,11 @@ import { ensureAuthenticated } from "../../middlewares/AuthMiddleware";
 const userRouter = Router();
 
 const userRepo = new PgUserRepository();
+const documentoRepo = new PgDocumentoRepository();
 const mailProvider = new NodemailerMailProvider();
 
 const registerUC = new RegisterUseCase(userRepo);
-const loginUC = new LoginUseCase(userRepo);
+const loginUC = new LoginUseCase(userRepo, documentoRepo);
 const deleteUC = new DeletarUserUseCase(userRepo);
 const acharPorEmail = new AcharPorEmail(userRepo);
 const acharPorId = new AcharPorId(userRepo);

@@ -7,7 +7,7 @@ import {
 } from "../../dtos/documento";
 import { IUsuarioRepository } from "../../repositories/IUsuarioRepository";
 import { ResourceNotFoundError } from "../../errors/AppError";
-import { validarUUID, validarDataFutura } from "../../utils/validate";
+import { validarUUID } from "../../utils/validate";
 
 export class CriarDocumentoUseCase {
   constructor(
@@ -17,7 +17,6 @@ export class CriarDocumentoUseCase {
 
   async executar(dados: CriarDocumentoDto): Promise<Documento> {
     validarUUID(dados.user_id, "user_id");
-    validarDataFutura(dados.data_expiracao, "Data de expiração");
 
     const usuario = await this.usuarioRepository.findByUserId(dados.user_id);
 

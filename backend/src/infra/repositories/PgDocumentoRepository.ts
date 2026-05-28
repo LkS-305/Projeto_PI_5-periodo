@@ -28,10 +28,10 @@ export class PgDocumentoRepository implements IDocumentoRepository {
       id,
       documento.user_id,
       documento.tipo,
-      documento.numero_documento,
+      documento.numero_documento ?? null,
       documento.arquivo_url,
       documento.selfie_url,
-      documento.data_expiracao,
+      documento.data_expiracao ?? null,
       documento.status ?? "pendente",
     ];
 

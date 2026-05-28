@@ -7,7 +7,7 @@ export interface CriarDocumentoDto {
   numero_documento: string;
   arquivo_url: string;
   selfie_url: string;
-  data_expiracao: Date;
+  data_expiracao?: Date;
   status?: VerificacaoStatus;
 }
 

@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { IUserRepository } from '../../repositories/IUserRepository';
+import { IDocumentoRepository } from '../../repositories/IDocumentoRepository';
 import { User } from '../../entities/User';
 import { RegisterDto, LoginDto, ChangeForgotPasswordDto, ChangePasswordDto } from '../../dtos/user';
 import {
@@ -48,6 +49,7 @@ export class RegisterUseCase {
 export class LoginUseCase {
   constructor(
     private userRepository: IUserRepository,
+    private documentoRepository: IDocumentoRepository,
   ) {}
 
   async executar(dados: LoginDto): Promise<{ token: string; user: Omit<User, 'senha'> }> {
@@ -62,9 +64,17 @@ export class LoginUseCase {
       throw new UnauthorizedError('E-mail ou senha incorretos.');
     }
 
+    // Admins não precisam de documento aprovado
+    if (usuario.tipo !== 'Admin') {
+      const documento = await this.documentoRepository.findByUserId(usuario.id);
+
+      if (!documento || documento.status !== 'aprovado') {
+        throw new UnauthorizedError('Sua conta está pendente de aprovação. Aguarde a verificação dos seus documentos.');
+      }
+    }
+
     const token = jwt.sign(
-      { id: usuario.id,
-        tipo: 'User' },
+      { id: usuario.id, tipo: usuario.tipo },
       process.env.JWT_SECRET || 'secret-key',
       { expiresIn: '1d' },
     );

@@ -44,8 +44,11 @@ export class DocumentoController {
         });
       }
 
-      const dataExpiracao = new Date(req.body.data_expiracao);
-      if (isNaN(dataExpiracao.getTime())) {
+      const dataExpiracao = req.body.data_expiracao
+        ? new Date(req.body.data_expiracao)
+        : undefined;
+
+      if (dataExpiracao && isNaN(dataExpiracao.getTime())) {
         return res.status(400).json({ erro: "Data de expiração inválida." });
       }
 
