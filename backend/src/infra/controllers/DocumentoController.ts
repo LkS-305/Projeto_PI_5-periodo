@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import fs from "fs";
 
 import {
   CriarDocumentoUseCase,
@@ -29,18 +30,23 @@ export class DocumentoController {
   }
 
   async upload(req: Request, res: Response) {
+    const files = req.files as {
+      [fieldname: string]: Express.Multer.File[];
+    };
+
+    const documentoFile = files?.documento?.[0];
+    const selfieFile = files?.selfie?.[0];
+
     try {
-      const files = req.files as {
-        [fieldname: string]: Express.Multer.File[];
-      };
-
-      const documentoFile = files?.documento?.[0];
-      const selfieFile = files?.selfie?.[0];
-
       if (!documentoFile || !selfieFile) {
         return res.status(400).json({
           erro: "Envie a foto do documento e a selfie.",
         });
+      }
+
+      const dataExpiracao = new Date(req.body.data_expiracao);
+      if (isNaN(dataExpiracao.getTime())) {
+        return res.status(400).json({ erro: "Data de expiração inválida." });
       }
 
       const resultado = await this.criarDocumento.executar({
@@ -49,11 +55,15 @@ export class DocumentoController {
         numero_documento: req.body.numero_documento,
         arquivo_url: `/uploads/documentos/${documentoFile.filename}`,
         selfie_url: `/uploads/documentos/${selfieFile.filename}`,
+        data_expiracao: dataExpiracao,
         status: "pendente",
       });
 
       return res.status(201).json(resultado);
     } catch (erro: any) {
+      if (documentoFile) fs.unlinkSync(documentoFile.path);
+      if (selfieFile) fs.unlinkSync(selfieFile.path);
+
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -78,7 +88,7 @@ export class DocumentoController {
 
   async findByUserId(req: Request, res: Response) {
     try {
-      const id = req.body.id || req.query.id;
+      const id = req.query.id;
       const resultado = await this.acharPorUserId.executar(String(id));
       return res.status(200).json(resultado);
     } catch (erro: any) {
@@ -96,22 +106,26 @@ export class DocumentoController {
   }
 
   async updateStatus(req: Request, res: Response) {
-  try {
-    const idParam = req.params.id;
-    const id = Array.isArray(idParam) ? idParam[0] : idParam;
-    const status = req.body.status as "pendente" | "aprovado" | "rejeitado";
+    try {
+      const idParam = req.params.id;
+      const id = Array.isArray(idParam) ? idParam[0] : idParam;
+      const status = req.body.status as "pendente" | "aprovado" | "rejeitado";
 
-    if (!id) {
-      return res.status(400).json({ erro: "ID do documento é obrigatório." });
+      if (!id) {
+        return res.status(400).json({ erro: "ID do documento é obrigatório." });
+      }
+
+      if (!status) {
+        return res.status(400).json({ erro: "Status é obrigatório." });
+      }
+
+      await this.atualizarStatus.executar(id, status);
+
+      return res.status(200).json({
+        mensagem: "Status do documento atualizado com sucesso.",
+      });
+    } catch (erro: any) {
+      return res.status(400).json({ erro: erro.message });
     }
-
-    await this.atualizarStatus.executar(id, status);
-
-    return res.status(200).json({
-      mensagem: "Status do documento atualizado com sucesso.",
-    });
-  } catch (erro: any) {
-    return res.status(400).json({ erro: erro.message });
   }
-}
 }

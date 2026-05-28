@@ -28,10 +28,10 @@ export class PgDocumentoRepository implements IDocumentoRepository {
       id,
       documento.user_id,
       documento.tipo,
-      documento.numero_documento ?? null,
+      documento.numero_documento,
       documento.arquivo_url,
       documento.selfie_url,
-      documento.data_expiracao ?? null,
+      documento.data_expiracao,
       documento.status ?? "pendente",
     ];
 
@@ -39,6 +39,7 @@ export class PgDocumentoRepository implements IDocumentoRepository {
       const { rows } = await pool.query(consulta, valores);
       return this.mapRowToDocumento(rows[0]);
     } catch (error: any) {
+      if (error instanceof AppError) throw error;
       console.error("Erro ao criar documento:", error);
       throw new AppError("Erro ao salvar documento no banco de dados.", 500);
     }
@@ -77,15 +78,14 @@ export class PgDocumentoRepository implements IDocumentoRepository {
 
       return this.mapRowToDocumento(rows[0]);
     } catch (error: any) {
+      if (error instanceof AppError) throw error;
       console.error("Erro ao atualizar documento:", error);
       throw new AppError("Erro ao atualizar documento.", 500);
     }
   }
 
   async delete(id: string): Promise<void> {
-    await pool.query("DELETE FROM documentos WHERE id = $1", [
-      id,
-    ]);
+    await pool.query("DELETE FROM documentos WHERE id = $1", [id]);
   }
 
   async findByUserId(user_id: string): Promise<Documento | null> {

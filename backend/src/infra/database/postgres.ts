@@ -1,7 +1,4 @@
 import { Pool } from 'pg';
-import dotenv from 'dotenv';
-
-dotenv.config({ override: true });
 
 // Configuração baseada no seu Docker
 export const pool = new Pool({
@@ -28,9 +25,8 @@ pool.on('acquire', (client) => {
         client.on('notice', (msg) => {
             const message = msg.message;
             let color = '\x1b[94m'; // Azul claro (padrão)
-            
-            if (message){
 
+            if (message){
               if (message.includes('INSERT')) {
                 color = '\x1b[32m'; // Verde
               } else if (message.includes('DELETE')) {
@@ -40,7 +36,6 @@ pool.on('acquire', (client) => {
               }
             }
 
-  // Imprime com a cor selecionada e reseta no final (\x1b[0m)
   console.log(`${color}Postgres ${message}\x1b[0m`);
         });
     }

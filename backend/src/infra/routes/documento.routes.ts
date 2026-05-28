@@ -4,8 +4,9 @@ import path from "path";
 import fs from "fs";
 
 import { PgDocumentoRepository } from "../repositories/PgDocumentoRepository";
-import { PgUserRepository } from "../repositories/PgUserRepository";
+import { PgUsuarioRepository } from "../repositories/PgUsuarioRepository";
 import { DocumentoController } from "../controllers/DocumentoController";
+import { ensureAuthenticated, ensureRole } from "../../middlewares/AuthMiddleware";
 
 import {
   CriarDocumentoUseCase,
@@ -52,9 +53,9 @@ const upload = multer({
 });
 
 const documentoRepo = new PgDocumentoRepository();
-const userRepo = new PgUserRepository();
+const usuarioRepo = new PgUsuarioRepository();
 
-const criarDocumentoUC = new CriarDocumentoUseCase(documentoRepo, userRepo);
+const criarDocumentoUC = new CriarDocumentoUseCase(documentoRepo, usuarioRepo);
 const deletarDocumentoUC = new DeletarDocumentoUseCase(documentoRepo);
 const atualizarDocumentoUC = new AtualizarDocumentoUseCase(documentoRepo);
 const acharPorUserIdUC = new AcharPorUserId(documentoRepo);
@@ -70,12 +71,14 @@ const documentoController = new DocumentoController(
   listarPendentesUC,
 );
 
-documentoRouter.post("/criarDocumento", (req, res) =>
+// rotas do usuário autenticado
+documentoRouter.post("/criarDocumento", ensureAuthenticated, (req, res) =>
   documentoController.criar(req, res),
 );
 
 documentoRouter.post(
   "/upload",
+  ensureAuthenticated,
   upload.fields([
     { name: "documento", maxCount: 1 },
     { name: "selfie", maxCount: 1 },
@@ -83,23 +86,24 @@ documentoRouter.post(
   (req, res) => documentoController.upload(req, res),
 );
 
-documentoRouter.delete("/deletarDocumento", (req, res) =>
+documentoRouter.delete("/deletarDocumento", ensureAuthenticated, (req, res) =>
   documentoController.delete(req, res),
 );
 
-documentoRouter.patch("/editarDocumento", (req, res) =>
+documentoRouter.patch("/editarDocumento", ensureAuthenticated, (req, res) =>
   documentoController.update(req, res),
 );
 
-documentoRouter.get("/acharPorUserId", (req, res) =>
+documentoRouter.get("/acharPorUserId", ensureAuthenticated, (req, res) =>
   documentoController.findByUserId(req, res),
 );
 
-documentoRouter.get("/pendentes", (req, res) =>
+// rotas exclusivas de admin
+documentoRouter.get("/pendentes", ensureAuthenticated, ensureRole("Admin"), (req, res) =>
   documentoController.findPendentes(req, res),
 );
 
-documentoRouter.patch("/:id/status", (req, res) =>
+documentoRouter.patch("/:id/status", ensureAuthenticated, ensureRole("Admin"), (req, res) =>
   documentoController.updateStatus(req, res),
 );
 

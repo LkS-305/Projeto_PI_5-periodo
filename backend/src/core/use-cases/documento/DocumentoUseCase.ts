@@ -5,18 +5,21 @@ import {
   CriarDocumentoDto,
   VerificacaoStatus,
 } from "../../dtos/documento";
-import { IUserRepository } from "../../repositories/IUserRepository";
+import { IUsuarioRepository } from "../../repositories/IUsuarioRepository";
 import { ResourceNotFoundError } from "../../errors/AppError";
-import { validarUUID } from "../../utils/validate";
+import { validarUUID, validarDataFutura } from "../../utils/validate";
 
 export class CriarDocumentoUseCase {
   constructor(
     private documentoRepository: IDocumentoRepository,
-    private userRepository: IUserRepository,
+    private usuarioRepository: IUsuarioRepository,
   ) {}
 
   async executar(dados: CriarDocumentoDto): Promise<Documento> {
-    const usuario = await this.userRepository.findById(dados.user_id);
+    validarUUID(dados.user_id, "user_id");
+    validarDataFutura(dados.data_expiracao, "Data de expiração");
+
+    const usuario = await this.usuarioRepository.findByUserId(dados.user_id);
 
     if (!usuario) {
       throw new ResourceNotFoundError("Usuário");
@@ -35,6 +38,7 @@ export class DeletarDocumentoUseCase {
   constructor(private documentoRepository: IDocumentoRepository) {}
 
   async executar(id: string): Promise<void> {
+    validarUUID(id, "ID do documento");
     await this.documentoRepository.delete(id);
   }
 }
@@ -43,6 +47,8 @@ export class AtualizarDocumentoUseCase {
   constructor(private documentoRepository: IDocumentoRepository) {}
 
   async executar(dados: AtualizarDocumentoDto): Promise<Documento> {
+    validarUUID(dados.user_id, "user_id");
+
     const documento = await this.documentoRepository.findByUserId(dados.user_id);
 
     if (!documento) {
@@ -59,6 +65,8 @@ export class AcharPorUserId {
   constructor(private documentoRepository: IDocumentoRepository) {}
 
   async executar(id: string): Promise<Documento> {
+    validarUUID(id, "user_id");
+
     const documentoUsuario = await this.documentoRepository.findByUserId(id);
 
     if (!documentoUsuario) {
@@ -81,6 +89,8 @@ export class AtualizarStatus {
   constructor(private documentoRepository: IDocumentoRepository) {}
 
   async executar(id: string, novoStatus: VerificacaoStatus): Promise<void> {
+    validarUUID(id, "ID do documento");
+
     if (!["pendente", "aprovado", "rejeitado"].includes(novoStatus)) {
       throw new Error("Status inválido.");
     }

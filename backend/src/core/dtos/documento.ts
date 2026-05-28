@@ -4,10 +4,10 @@ export type TipoDocumento = "RG" | "CNH" | "Antecedentes";
 export interface CriarDocumentoDto {
   user_id: string;
   tipo: TipoDocumento;
-  numero_documento?: string;
+  numero_documento: string;
   arquivo_url: string;
   selfie_url: string;
-  data_expiracao?: Date;
+  data_expiracao: Date;
   status?: VerificacaoStatus;
 }
 

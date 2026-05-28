@@ -1,7 +1,4 @@
 import { Client } from 'pg';
-import dotenv from 'dotenv';
-
-dotenv.config({ override: true });
 
 export async function createDatabaseIfNotExists() {
   const dbName = process.env.DB_DATABASE;

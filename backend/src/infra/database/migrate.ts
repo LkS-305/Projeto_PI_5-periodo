@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { pool } from "./postgres";
 import { createDatabaseIfNotExists } from "./createDatabase";
 import fs from "fs";
