@@ -1,12 +1,12 @@
 "use client";
 
 import { ReactNode } from "react";
-import { useAuth } from "@/lib/contexts/AuthContext";
+import { useSession } from "@/lib/contexts/SessionContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading } = useSession();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 

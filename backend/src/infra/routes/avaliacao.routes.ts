@@ -18,15 +18,10 @@ const avaliacaoController = new AvaliacaoController(criarAvaliacaoUC, atualizarA
 
 avaliacaoRouter.post('/criarAvaliacao', (req, res) => avaliacaoController.create(req, res));
 avaliacaoRouter.delete('/deletarAvaliacao', (req,res) => avaliacaoController.delete(req,res));
-<<<<<<< HEAD
-avaliacaoRouter.patch('/atualizar-avaliacao', (req,res) => avaliacaoController.update(req,res));
-avaliacaoRouter.get('/listarAvaliacoes', (req,res) => avaliacaoController.listBy(req,res));
-=======
 avaliacaoRouter.patch('/editarAvaliacao', (req,res) => avaliacaoController.update(req,res));
 avaliacaoRouter.get('/buscarPorServicoId', (req,res) => avaliacaoController.listByServico(req,res));
 avaliacaoRouter.get('/buscarPorUser', (req,res) => avaliacaoController.listByUser(req,res));
 avaliacaoRouter.get('/buscarPorPrestador', (req,res) => avaliacaoController.listByPrestador(req,res));
 
->>>>>>> bc6b0bf3cccf344c7a4e6e990910ed2fb7a9ec29
 
 export { avaliacaoRouter };

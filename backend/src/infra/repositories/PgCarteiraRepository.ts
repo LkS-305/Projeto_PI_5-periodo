@@ -8,20 +8,20 @@ import { CriarCarteiraDto } from '../../core/dtos/carteira';
 export class PgCarteiraRepository implements ICarteiraRepository {
 
 
-   async create(carteira: CriarCarteiraDto): Promise<void> {
+   async create(carteira: Carteira): Promise<void> {
     const consulta = `
-      INSERT INTO carteiras (
-        id, user_id, prestador_id, saldo, metodos_de_pagamento) VALUES (gen_random_uuid(), $1, $2, $3, $4)
+      INSERT INTO carteiras (user_id, saldo, numero_cartao, validade_cartao, nome_cartao, vcc_cartao) VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
     const valores = [
-      carteira.usuario_id, 
-      carteira.prestador_id, 
+      carteira.user_id, 
       carteira.saldo, 
-      carteira.metodos_de_pagamento
+      carteira.numero_cartao,
+      carteira.validade_cartao,
+      carteira.nome_cartao,
+      carteira.vcc_cartao
     ];
-    const { rows } = await pool.query(consulta, valores);
-    return rows[0];
+    await pool.query(consulta, valores);
   }
 
   async delete(id: string): Promise<void> {
@@ -32,7 +32,7 @@ export class PgCarteiraRepository implements ICarteiraRepository {
     await pool.query('UPDATE carteiras SET metodos_de_pagamento = $1 WHERE id = $2', [methods, id]);
   }
 
-  async updateStatus(id: string, status: string): Promise<void> {
+  async updateStatus(id: string, status: string ): Promise<void> {
     await pool.query('UPDATE carteiras SET status = $1 WHERE id = $2', [status, id]);
   }
 

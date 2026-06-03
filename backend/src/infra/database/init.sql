@@ -61,12 +61,12 @@ CREATE TABLE IF NOT EXISTS servicos (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES usuarios(user_id),
     prestador_id TEXT NOT NULL REFERENCES prestadores(user_id),
+    categoria_id TEXT NOT NULL REFERENCES categorias(id),
     titulo TEXT NOT NULL,
     descricao TEXT,
-    preco_acordado DECIMAL(10, 2) NOT NULL,
-    data_inicio TIMESTAMP WITH TIME ZONE NOT NULL,
-    duracao TEXT NOT NULL,
-    categoria TEXT NOT NULL,
+    preco_acordado DECIMAL(10, 2),
+    data_inicio TIMESTAMP WITH TIME ZONE,
+    duracao TEXT,
     status TEXT,
     url_imagem TEXT,
     nota_usuario NUMERIC(3, 1),
@@ -95,8 +95,7 @@ CREATE TABLE IF NOT EXISTS avaliacoes (
 
 -- 7. Tabela de Carteiras
 CREATE TABLE IF NOT EXISTS carteiras (
-    id TEXT PRIMARY KEY,
-    usuario_id TEXT REFERENCES usuarios(user_id),
+    user_id TEXT REFERENCES usuarios(user_id),
     prestador_id TEXT REFERENCES prestadores(user_id),
     saldo TEXT NOT NULL,
     saldo_bloqueado TEXT,

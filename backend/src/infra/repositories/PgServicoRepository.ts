@@ -5,21 +5,23 @@ import { pool } from "../database/postgres";
 import { AtualizarStatus } from "../../core/use-cases/financeiro/CarteiraUseCase";
 
 export class PgServicoRepository implements IServicoRepository {
-  async create(servico: CriarServicoDto, transaction?: any): Promise<Servico> {
+  async create(servico: Servico, transaction?: any): Promise<Servico> {
     const executor = transaction || pool;
 
     const consultaServico = `
       INSERT INTO servicos (
-        id, usuario_id, prestador_id, id_agendamento, id_transacao, titulo, categoria
-      ) VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6)
+       id, user_id, prestador_id, categoria_id, titulo, descricao
+      ) VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
 
     const valoresServico = [
-      servico.usuario_id,
+      servico.id,
+      servico.user_id,
       servico.prestador_id,
+      servico.categoria_id,
       servico.titulo,
-      servico.categoria,
+      servico.descricao
     ];
 
     const { rows } = await executor.query(consultaServico, valoresServico);
@@ -57,10 +59,10 @@ export class PgServicoRepository implements IServicoRepository {
     return rows[0] || null;
   }
 
-  async findByUserId(usuario_id: string): Promise<Servico[] | null> {
+  async findByUserId(user_id: string): Promise<Servico[] | null> {
     const { rows } = await pool.query(
-      "SELECT * FROM servicos WHERE usuario_id = $1",
-      [usuario_id],
+      `SELECT * FROM servicos WHERE user_id = $1`,
+      [user_id],
     );
     return rows;
   }

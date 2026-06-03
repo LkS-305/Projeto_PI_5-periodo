@@ -21,7 +21,6 @@ const listarServicosUC = new ListarServicosUseCase(servicoRepo);
 const pesquisarServicoId = new PesquisarServicoId(servicoRepo);
 const pesquisarServicoUserId = new PesquisarServicoUserId(servicoRepo);
 const pesquisarServicoPrestadorId = new PesquisarServicoPrestadorId(servicoRepo);
-const updateStatusUC = new UpdateStatusUseCase(servicoRepo);
 const atualizarStatusUseCase = new AtualizarStatusUseCase(servicoRepo);
 const atualizarServicoUseCase = new AtualizarServicoUseCase(servicoRepo)
 
@@ -31,7 +30,6 @@ const servicoController = new ServicoController(
   pesquisarServicoId,
   pesquisarServicoUserId,
   pesquisarServicoPrestadorId,
-  updateStatusUC,
   atualizarStatusUseCase,
   atualizarServicoUseCase,
 );
@@ -48,12 +46,6 @@ servicoRouter.post("/criarServico", (req, res) =>
 servicoRouter.get("/acharPorId", (req, res) =>
   servicoController.findById(req, res),
 );
-servicoRouter.get("/acharPorUserId", (req, res) =>
-  servicoController.findByUserId(req, res),
-);
-servicoRouter.get("/acharPorPretadorId", (req, res) =>
-  servicoController.findByPrestadorId(req, res),
-);
 servicoRouter.patch("/atualizarStatus", (req, res) =>
   servicoController.updateStatus(req, res),
 );
@@ -69,7 +61,7 @@ servicoRouter.get("/buscarPorUserId", (req, res) =>
   servicoController.findByUserId(req, res),
 );
 
-servicoRouter.get("/buscarPorPretadorId", (req, res) =>
+servicoRouter.get("/buscarPorPrestadorId", (req, res) =>
   servicoController.findByPrestadorId(req, res),
 );
 
