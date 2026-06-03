@@ -1,71 +1,72 @@
 import { Documento } from '../../entities/Documento';
 import { IDocumentoRepository } from '../../repositories/IDocumentoRepository';
 import { AtualizarDocumentoDto, CriarDocumentoDto, verificacaoStatus } from '../../dtos/documento';
-import { IUserRepository } from '../../repositories/IUserRepository';
-import { ResourceNotFoundError, ValidationError } from '../../errors/AppError';
-import { validarUUID, validarTexto, validarCEP, sanitizarTexto } from '../../utils/validate';
+import { IUsuarioRepository } from '../../repositories/IUsuarioRepository';
+import { ResourceNotFoundError } from '../../errors/AppError';
+import { validarUUID } from '../../utils/validate';
 
 export class CriarDocumentoUseCase {
-    constructor(private documentoRepository: IDocumentoRepository, private userRepository: IUserRepository){}
+  constructor(
+    private documentoRepository: IDocumentoRepository,
+    private usuarioRepository: IUsuarioRepository,
+  ) {}
 
-    async executar(dados: CriarDocumentoDto): Promise<Documento>{
-      const usuario = await this.userRepository.findById(dados.user_id);
+  async executar(dados: CriarDocumentoDto): Promise<Documento> {
+    validarUUID(dados.user_id, 'user_id');
 
-      if (!usuario) throw new ResourceNotFoundError('Usuário');
+    const usuario = await this.usuarioRepository.findByUserId(dados.user_id);
+    if (!usuario) throw new ResourceNotFoundError('Usuário');
 
-      const documento = new Documento(dados);
-      await this.documentoRepository.create(documento);
-      return documento;
+    // Documento aprovado automaticamente
+    const documento = new Documento({ ...dados, status: 'aprovado' });
+    await this.documentoRepository.create(documento);
+    return documento;
   }
 }
 
-
 export class DeletarDocumentoUseCase {
-    constructor(private documentoRepository: IDocumentoRepository){}
+  constructor(private documentoRepository: IDocumentoRepository) {}
 
-    async executar(id: string): Promise<void>{
-      validarUUID(id, 'ID do endereço');
-      await this.documentoRepository.delete(id);
+  async executar(id: string): Promise<void> {
+    validarUUID(id, 'ID do documento');
+    await this.documentoRepository.delete(id);
   }
 }
 
 export class AtualizarDocumentoUseCase {
-    constructor(private documentoRepository: IDocumentoRepository){}
+  constructor(private documentoRepository: IDocumentoRepository) {}
 
-    async executar(dados: AtualizarDocumentoDto): Promise<Documento>{
-     
-      const documento = await this.documentoRepository.findByUserId(dados.user_id);
-     
-    if (!documento) throw new ResourceNotFoundError('Endereço');
+  async executar(dados: AtualizarDocumentoDto): Promise<Documento> {
+    validarUUID(dados.user_id, 'user_id');
 
-      const documentoInstanciado = new Documento(documento);
-      documentoInstanciado.atualizarDocumento(dados);
-      await this.documentoRepository.update(documentoInstanciado);
-      return documentoInstanciado;
+    const documento = await this.documentoRepository.findByUserId(dados.user_id);
+    if (!documento) throw new ResourceNotFoundError('Documento');
+
+    documento.atualizarDocumento(dados);
+    await this.documentoRepository.update(documento);
+    return documento;
   }
 }
 
 export class AcharPorUserId {
-    constructor(private documentoRepository: IDocumentoRepository){}
+  constructor(private documentoRepository: IDocumentoRepository) {}
 
-    async executar(id: string): Promise<Documento>{
-      validarUUID(id, 'ID do usuário');
-      const documentoUsuario = await this.documentoRepository.findByUserId(id);
-      if (!documentoUsuario) throw new ResourceNotFoundError('Endereço');
-      return documentoUsuario;
+  async executar(id: string): Promise<Documento> {
+    validarUUID(id, 'ID do usuário');
+    const documento = await this.documentoRepository.findByUserId(id);
+    if (!documento) throw new ResourceNotFoundError('Documento');
+    return documento;
   }
 }
 
 export class AtualizarStatus {
-    constructor(private documentoRepository: IDocumentoRepository){}
+  constructor(private documentoRepository: IDocumentoRepository) {}
 
-    async executar(id: string, novoStatus: verificacaoStatus): Promise<void>{
-      validarUUID(id, 'ID do endereço');
-    const documento =  await this.documentoRepository.findByUserId(id);
-    
-    if (!documento) throw new ResourceNotFoundError('documento em atualizar status');
-    
-    const documentoInstanciado = new Documento(documento);
-    documentoInstanciado.atualizarStatus(novoStatus);
+  async executar(id: string, novoStatus: verificacaoStatus): Promise<void> {
+    validarUUID(id, 'ID do documento');
+    if (!['pendente', 'aprovado', 'rejeitado'].includes(novoStatus)) {
+      throw new Error('Status inválido.');
+    }
+    await this.documentoRepository.updateStatus(id, novoStatus);
   }
 }
