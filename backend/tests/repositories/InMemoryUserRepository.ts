@@ -5,9 +5,8 @@ import { LoginDto, RegisterDto } from "../../src/core/dtos/user";
 export class InMemoryUserRepository implements IUserRepository {
   public items: User[] = [];
   // 1. REGISTER
-  async register(usuario: User): Promise<User> {
+  async register(usuario: User): Promise<void> {
     this.items.push(usuario);
-    return usuario;
   }
 
   // 2. LOGIN

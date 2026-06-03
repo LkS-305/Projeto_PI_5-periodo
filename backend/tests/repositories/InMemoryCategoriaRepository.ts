@@ -6,40 +6,21 @@ import { Categoria } from '../../src/core/entities/Categoria';
 export class InMemoryCategoriaRepository implements ICategoriaRepository {
   public items: Categoria[] = [];
 
-    async create(categoria: Categoria): Promise<Categoria> {
-      const newCategoria = {...categoria, id: categoria.id || randomUUID()};
-      this.items.push(newCategoria);
-      return newCategoria;
+    async create(categoria: Categoria): Promise<void> {
+      this.items.push(categoria);
   }
 
-    async delete(id: string): Promise<boolean> {
+    async delete(id: string): Promise<void> {
         const index = this.items.findIndex(u => u.id === id);
-        if (index === -1) return false;
+        if (index === -1) return;
         this.items.splice(index, 1);
-        return true;
     }
 
 
-async update(id: string, dados: Categoria): Promise<Categoria | null> {
-    // 1. Encontra a posição do usuário no array pelo ID
-    const index = this.items.findIndex(item => item.id === id);
-
-    // 2. Se não encontrar, retorna null (simulando o banco)
-    if (index === -1) {
-        return null;
-    }
-
-    // 3. Atualiza o item mantendo o ID original e sobrepondo os novos dados
-    const usuarioAtualizado = {
-        ...this.items[index], // Dados antigos
-        ...dados,             // Dados novos (sobrepõe os antigos)
-        id: id                // Garante que o ID não mude
-    };
-
-    // 4. Salva no array na mesma posição
-    this.items[index] = usuarioAtualizado;
-
-    return usuarioAtualizado;
+async update(categoria: Categoria): Promise<void> {
+    const index = this.items.findIndex(item => item.id === categoria.id);
+    if (index === -1) return;
+    this.items[index] = categoria;
 }
 
 

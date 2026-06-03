@@ -34,16 +34,41 @@ async function apiFetch<T>(
     cache: cache || "default",
   };
 
-  console.log('Enviando requisicao com url e config:', url, config);
+  console.log("Enviando requisicao com url e config:", url, config);
 
   const response = await fetch(url.toString(), config);
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Erro na requisição");
+    const contentType = response.headers.get("content-type") ?? "";
+    const errorBody = contentType.includes("application/json")
+      ? await response.json().catch(() => ({}))
+      : await response.text().catch(() => "");
+
+    const errorMessage =
+      typeof errorBody === "string"
+        ? errorBody
+        : errorBody.message ||
+          errorBody.erro ||
+          errorBody.error ||
+          "Erro na requisição";
+
+    throw new Error(errorMessage);
   }
 
-  return response.json() as Promise<T>;
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const responseText = await response.text();
+  if (!responseText) {
+    return undefined as T;
+  }
+
+  try {
+    return JSON.parse(responseText) as T;
+  } catch {
+    return responseText as T;
+  }
 }
 
 export const apiClient = {
