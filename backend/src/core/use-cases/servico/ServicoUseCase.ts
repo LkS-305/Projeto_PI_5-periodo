@@ -1,6 +1,6 @@
 import { IServicoRepository } from '../../repositories/IServicoRepository';
 import { CriarServicoDto, AtualizarServicoDto, AtualizarStatusServicoDto } from '../../dtos/servico';
-import { Servico, ServicoStatus } from '../../entities/Servico';
+import { Servico } from '../../entities/Servico';
 import { ResourceNotFoundError, ValidationError } from '../../errors/AppError';
 import { validarUUID, validarTexto, sanitizarTexto, validarPreco, validarDataFutura, validarDuracao } from '../../utils/validate';
 
@@ -40,10 +40,9 @@ export class CriarServicoUseCase {
  //  }
 // }
   async executar(dados: CriarServicoDto) {
-    validarUUID(dados.usuario_id, 'ID do usuário');
+    validarUUID(dados.user_id, 'ID do usuário');
     validarUUID(dados.prestador_id, 'ID do prestador');
     validarTexto(dados.titulo, 'Título', 3, 100);
-    validarTexto(dados.categoria, 'Categoria', 2, 60);
     dados.titulo = sanitizarTexto(dados.titulo);
 
     const servico = new Servico(dados);
@@ -105,7 +104,7 @@ export class PesquisarServicoPrestadorId {
     if (!servico2){
       throw new ResourceNotFoundError('Serviço');
     }
-
+console.log('aaaaaaaaaaa');
     return servico2;
   }
 }

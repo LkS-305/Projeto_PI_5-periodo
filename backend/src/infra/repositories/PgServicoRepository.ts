@@ -12,26 +12,23 @@ export class PgServicoRepository implements IServicoRepository {
 
     const consulta = `
       INSERT INTO servicos (
-        id, user_id, prestador_id, titulo, descricao, preco_acordado,
-        data_inicio, duracao, categoria, status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       id, user_id, prestador_id, categoria_id, titulo, descricao
+      ) VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
 
-    const valores = [
+    const valoresServico = [
+
       servico.id,
       servico.user_id,
       servico.prestador_id,
+      servico.categoria_id,
       servico.titulo,
-      servico.descricao ?? null,
-      servico.preco_acordado,
-      servico.data_inicio,
-      servico.duracao,
-      servico.categoria,
-      servico.status ?? "criado",
+      servico.descricao
+
     ];
 
-    const { rows } = await executor.query(consulta, valores);
+    const { rows } = await executor.query(consulta, valoresServico);
     return rows[0];
   }
 
@@ -61,10 +58,11 @@ export class PgServicoRepository implements IServicoRepository {
     return rows[0] || null;
   }
 
-  async findByUserId(usuario_id: string): Promise<Servico[] | null> {
+  async findByUserId(user_id: string): Promise<Servico[] | null> {
     const { rows } = await pool.query(
-      "SELECT * FROM servicos WHERE user_id = $1 ORDER BY created_at DESC",
-      [usuario_id],
+      `SELECT * FROM servicos WHERE user_id = $1`,
+      [user_id],
+
     );
     return rows;
   }

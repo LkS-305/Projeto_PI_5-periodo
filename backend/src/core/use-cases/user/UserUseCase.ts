@@ -32,7 +32,6 @@ export class RegisterUseCase {
     const senhaCriptografada = await bcrypt.hash(dados.senha, 10);
     const novoUser = new User({ ...dados, senha: senhaCriptografada });
     await this.userRepository.register(novoUser);
-
     const { senha, ...UsersemSenha } = novoUser;
     const token = jwt.sign(
       { id: novoUser.id,

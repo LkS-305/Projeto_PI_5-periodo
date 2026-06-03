@@ -47,7 +47,8 @@ export class ServicoController {
 
   async findById(req: Request, res: Response) {
       try {
-      const resultado = await this.pesquisarServicoId.executar(req.body.id);
+      const {id} = req.query as { id: string };   
+      const resultado = await this.pesquisarServicoId.executar(id);
       return res.status(200).json(resultado);
     } 
       catch (erro: any) {
@@ -58,7 +59,9 @@ export class ServicoController {
 
   async findByUserId(req: Request, res: Response) {
       try {
-      const resultado = await this.pesquisarServicoUserId.executar((req.query.id || req.body.id) as string);
+      const {id} = req.query as { id: string };
+      const resultado = await this.pesquisarServicoUserId.executar(id);
+
       return res.status(200).json(resultado);
     } 
       catch (erro: any) {
@@ -68,7 +71,9 @@ export class ServicoController {
 
   async findByPrestadorId(req: Request, res: Response) {
       try {
-      const resultado = await this.pesquisarServicoPrestadorId.executar((req.query.id || req.body.id) as string);
+      const {id} = req.query as { id: string };
+      const resultado = await this.pesquisarServicoPrestadorId.executar(id);
+
       return res.status(200).json(resultado);
     } 
       catch (erro: any) {

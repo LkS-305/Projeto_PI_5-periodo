@@ -1,35 +1,26 @@
+import { CriarCarteiraDto } from "../dtos/carteira";
+
 export type CarteiraStatus = 'ativa' | 'bloqueada' | 'em_verificacao';
 
-export type Cartao = {
-    numero: string;
-    validade: string;
-    senha: string;
-    nome: string;
-}
-
-export type PagamentosAceitados = {
-    pix: string;
-    cartoes: Cartao[];
-    dinheiro: string;
-}
-
 export class Carteira {
-  public id?: string;
-  public usuario_id?: string;
-  public prestador_id?: string;
+  public user_id: string;
   public saldo: string;
   public saldo_bloqueado?: string;
-  public ultima_transacao_id?: string;
-  public metodos_de_pagamento?: PagamentosAceitados;
+  public numero_cartao: string;
+  public validade_cartao: string;
+  public nome_cartao: string;
+  public vcc_cartao: string;
   public status: CarteiraStatus;
   public readonly created_at?: Date;
   public readonly updated_at?: Date;
 
-  constructor(props: Omit<Carteira, 'id' | 'created_at' | 'updated_at'>, id?: string) {
-    this.id = id;
+  constructor(props: CriarCarteiraDto) {
+    this.user_id = props.user_id;  
     this.saldo = props.saldo;
-    this.usuario_id = props.usuario_id;
-    this.status = props.status;
-    this.metodos_de_pagamento = props.metodos_de_pagamento;
+    this.numero_cartao = props.numero_cartao;
+    this.validade_cartao = props.validade_cartao;
+    this.nome_cartao = props.nome_cartao;
+    this.vcc_cartao = props.vcc_cartao;
+    this.status = 'em_verificacao';
   }
 }

@@ -23,7 +23,7 @@ export class Servico {
 
   constructor(props: CriarServicoDto, id?: string) {
     this.id = id ?? randomUUID();
-    this.user_id = props.usuario_id;
+    this.user_id = props.user_id;
     this.prestador_id = props.prestador_id;
     this.categoria_id = props.categoria_id;
     this.titulo = props.titulo;

@@ -5,7 +5,7 @@ import { Layout, Container } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
-import { useSession } from "@/lib/contexts/AuthContext";
+import { useSession } from "@/lib/contexts/SessionContext";
 
 export default function ProfilePage() {
   const { user, updateUser } = useSession();
