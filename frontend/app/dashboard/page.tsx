@@ -6,10 +6,12 @@ import { useState } from "react";
 import Overview from "./components/Overview";
 import Balances from "./components/Balances";
 import Transactions from "./components/Transactions";
+import { useWallet } from "@/utils/hooks/useWallet";
 import "./dashboard.css";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { carteira, transacoes } = useWallet();
   const [activeSection, setActiveSection] = useState<
     "overview" | "balances" | "transactions"
   >("overview");
@@ -17,9 +19,9 @@ export default function DashboardPage() {
   const renderSection = () => {
     switch (activeSection) {
       case "overview":
-        return <Overview onViewBalances={() => setActiveSection("balances")} />;
+        return <Overview onViewBalances={() => setActiveSection("balances")} carteira={carteira} transacoes={transacoes} />;
       case "balances":
-        return <Balances />;
+        return <Balances carteira={carteira} transacoes={transacoes} />;
       case "transactions":
         return <Transactions />;
       default:

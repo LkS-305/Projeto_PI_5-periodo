@@ -1,15 +1,14 @@
 import { Router } from "express";
 import { PgServicoRepository } from "../repositories/PgServicoRepository";
 import { ServicoController } from "../controllers/ServicoController";
-
 import {
   CriarServicoUseCase,
   ListarServicosUseCase,
   PesquisarServicoId,
   PesquisarServicoUserId,
   PesquisarServicoPrestadorId,
-  AtualizarServicoUseCase,
   AtualizarStatusUseCase,
+  AtualizarServicoUseCase,
 } from "../../core/use-cases/servico/ServicoUseCase";
 
 const servicoRouter = Router();
@@ -24,6 +23,7 @@ const pesquisarServicoPrestadorId = new PesquisarServicoPrestadorId(servicoRepo)
 const atualizarStatusUseCase = new AtualizarStatusUseCase(servicoRepo);
 const atualizarServicoUseCase = new AtualizarServicoUseCase(servicoRepo)
 
+
 const servicoController = new ServicoController(
   criarServicoUC,
   listarServicosUC,
@@ -32,20 +32,20 @@ const servicoController = new ServicoController(
   pesquisarServicoPrestadorId,
   atualizarStatusUseCase,
   atualizarServicoUseCase,
+
 );
 
 servicoRouter.get("/listarTodos", (req, res) =>
   servicoController.listAll(req, res),
 );
-servicoRouter.get("/stats", (req, res) =>
-  servicoController.stats(req, res),
-);
+servicoRouter.get("/stats", (req, res) => servicoController.stats(req, res));
 servicoRouter.post("/criarServico", (req, res) =>
   servicoController.create(req, res),
 );
-servicoRouter.get("/acharPorId", (req, res) =>
+servicoRouter.get("/buscarPorId", (req, res) =>
   servicoController.findById(req, res),
 );
+
 servicoRouter.patch("/atualizarStatus", (req, res) =>
   servicoController.updateStatus(req, res),
 );
@@ -64,5 +64,6 @@ servicoRouter.get("/buscarPorUserId", (req, res) =>
 servicoRouter.get("/buscarPorPrestadorId", (req, res) =>
   servicoController.findByPrestadorId(req, res),
 );
+
 
 export { servicoRouter };

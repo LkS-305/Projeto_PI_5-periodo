@@ -11,8 +11,8 @@ import { Prestador } from '../src/core/entities/Prestador';
 import { User } from '../src/core/entities/User';
 
 const USER_ID_VALIDO = '123e4567-e89b-12d3-a456-426614174000';
-const USER_MOCK = new User({ email: 'user@teste.com', senha: 'hash', cpf: '123' }, USER_ID_VALIDO);
-const PRESTADOR_MOCK = new Prestador({ user_id: USER_ID_VALIDO, nome: 'João Silva', bio: 'Eletricista experiente', score: 0 });
+const USER_MOCK = new User({ email: 'user@teste.com', senha: 'hash', cpf: '123', id: USER_ID_VALIDO });
+const PRESTADOR_MOCK = new Prestador({ user_id: USER_ID_VALIDO, nome: 'João Silva', bio: 'Eletricista experiente' });
 
 function makePrestadorRepo(overrides: Partial<Record<keyof IPrestadorRepository, jest.Mock>> = {}): IPrestadorRepository {
   return {
@@ -44,10 +44,9 @@ describe('CriarPrestadorUseCase', () => {
       user_id: USER_ID_VALIDO,
       nome: 'João Silva',
       bio: 'Eletricista experiente',
-      score: 0,
     });
 
-    expect(resultado).toEqual(PRESTADOR_MOCK);
+    expect(resultado).toMatchObject({ user_id: USER_ID_VALIDO, nome: 'João Silva', bio: 'Eletricista experiente' });
     expect(prestadorRepo.create).toHaveBeenCalled();
   });
 
@@ -57,7 +56,7 @@ describe('CriarPrestadorUseCase', () => {
     const sut = new CriarPrestadorUseCase(userRepo, prestadorRepo);
 
     await expect(
-      sut.executar({ user_id: USER_ID_VALIDO, nome: 'João Silva', bio: 'Eletricista experiente', score: 0 })
+      sut.executar({ user_id: USER_ID_VALIDO, nome: 'João Silva', bio: 'Eletricista experiente' })
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
@@ -67,7 +66,7 @@ describe('CriarPrestadorUseCase', () => {
     const sut = new CriarPrestadorUseCase(userRepo, prestadorRepo);
 
     await expect(
-      sut.executar({ user_id: 'id-invalido', nome: 'João', bio: 'Bio válida aqui', score: 0 })
+      sut.executar({ user_id: 'id-invalido', nome: 'João', bio: 'Bio válida aqui' })
     ).rejects.toBeInstanceOf(ValidationError);
   });
 });
@@ -117,7 +116,7 @@ describe('AcharPorUserId', () => {
 
 describe('AtualizarPrestadorUseCase', () => {
   it('deve atualizar um prestador existente', async () => {
-    const prestadorExistente = new Prestador({ user_id: USER_ID_VALIDO, nome: 'Antigo', bio: 'Bio antiga válida', score: 0 });
+    const prestadorExistente = new Prestador({ user_id: USER_ID_VALIDO, nome: 'Antigo', bio: 'Bio antiga válida' });
     const prestadorRepo = makePrestadorRepo({
       findByUserId: jest.fn().mockResolvedValue(prestadorExistente),
       update: jest.fn().mockResolvedValue(prestadorExistente),
