@@ -26,6 +26,8 @@ export default function Cadastro() {
   const [documentoFile, setDocumentoFile] = useState<File | null>(null);
   const [selfieFile, setSelfieFile] = useState<File | null>(null);
   const [numeroDocumento, setNumeroDocumento] = useState("");
+  const [verificationCode, setVerificationCode] = useState(["", "", "", ""]);
+  const verificationInputs = useRef<(HTMLInputElement | null)[]>([null, null, null, null]);
 
   const dateInputRef = useRef<HTMLInputElement>(null);
 
@@ -149,6 +151,23 @@ export default function Cadastro() {
     return value.replace(/\D/g, "").slice(0, 10);
   };
 
+  const handleVerificationInput = (index: number, value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length > 1) return;
+    const newCode = [...verificationCode];
+    newCode[index] = numbers;
+    setVerificationCode(newCode);
+    if (numbers && index < 3) {
+      verificationInputs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleVerificationKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !verificationCode[index] && index > 0) {
+      verificationInputs.current[index - 1]?.focus();
+    }
+  };
+
   const goToNextSection = () => {
     if (validateSection(section)) {
       setCompletedSections((prev) => prev.includes(section) ? prev : [...prev, section]);
@@ -216,7 +235,7 @@ export default function Cadastro() {
     }
   }
 
-  const TOTAL_SECTIONS = 3;
+  const TOTAL_SECTIONS = 4;
 
   const handleDotClick = (dotIndex: number) => {
     const targetSection = dotIndex + 1;
@@ -541,7 +560,62 @@ export default function Cadastro() {
         )}
 
         {/* ── SEÇÃO 3 — Upload de documentos ── */}
+        {/* ── SEÇÃO 3 — Verificação ── */}
         {section === 3 && (
+          <>
+            <div style={{ position: "relative", height: 0 }}>
+              <p style={{ position: "absolute", top: "425px", left: 0, right: 0, fontWeight: 400, fontSize: "20px", color: "#D92B2E", textAlign: "center", opacity: showError3 ? 1 : 0, transition: "opacity 0.3s ease", pointerEvents: "none", margin: 0, whiteSpace: "nowrap" }}>
+                Verifique sua conta e tente novamente.
+              </p>
+            </div>
+
+            <p style={{ fontSize: "35px", fontWeight: 510, color: "#272727", textAlign: "center", marginTop: "5px", marginBottom: "15px" }}>
+              verifique sua conta pelo código enviado pelo celular
+            </p>
+
+            <div style={{ display: "flex", alignItems: "center", width: "800px", margin: "0 auto 15px auto" }}>
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
+              <span style={{ margin: "0 15px", color: "#535353", fontSize: "25px" }}>ou</span>
+              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
+            </div>
+
+            <p style={{ fontSize: "35px", fontWeight: 510, color: "#272727", textAlign: "center", margin: "0 auto 30px auto" }}>
+              verifique sua conta pelo código enviado pelo e-mail
+            </p>
+
+            <div style={{ display: "flex", justifyContent: "center", gap: "24px", marginBottom: "60px" }}>
+              {[0, 1, 2, 3].map((index) => (
+                <input key={index}
+                  ref={(el) => { verificationInputs.current[index] = el; }}
+                  type="text" maxLength={1} value={verificationCode[index]}
+                  onChange={(e) => { handleVerificationInput(index, e.target.value); setShowError3(false); }}
+                  onKeyDown={(e) => handleVerificationKeyDown(index, e)}
+                  style={{ width: "200px", height: "200px", border: `5px solid ${showError3 ? "#D92B2E" : "#E0C271"}`, borderRadius: "30px", backgroundColor: "transparent", fontSize: "60px", fontWeight: 600, textAlign: "center", color: "#272727", outline: "none", transition: "border-color 0.3s ease" }}
+                  onFocus={(e) => { if (!showError3) e.target.style.borderColor = "#272727"; }}
+                  onBlur={(e) => { e.target.style.borderColor = showError3 ? "#D92B2E" : "#E0C271"; }}
+                />
+              ))}
+            </div>
+
+            <div onClick={goToPreviousSection}
+              style={{ position: "fixed", top: "46px", left: "51px", fontSize: "30px", fontWeight: 500, color: "#272727", cursor: "pointer", userSelect: "none" }}
+              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}>
+              ← Voltar
+            </div>
+
+            <button
+              style={{ display: "flex", backgroundColor: "#E0C271", color: "#FAF9F5", border: "none", borderRadius: "60px", width: "440px", justifyContent: "center", alignItems: "center", height: "80px", fontSize: "52px", fontWeight: 600, cursor: "pointer", transition: "transform 0.2s ease", margin: "0 auto 65px auto" }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              onClick={goToNextSection}>
+              Seguir
+            </button>
+          </>
+        )}
+
+        {/* ── SEÇÃO 4 — Upload de documentos ── */}
+        {section === 4 && (
           <>
             <div style={{ position: "relative", height: 0 }}>
               <p style={{ position: "absolute", top: "20px", left: 0, right: 0, fontWeight: 400, fontSize: "20px", color: "#D92B2E", textAlign: "center", opacity: showError3 ? 1 : 0, transition: "opacity 0.3s ease", pointerEvents: "none", margin: 0, whiteSpace: "nowrap" }}>
