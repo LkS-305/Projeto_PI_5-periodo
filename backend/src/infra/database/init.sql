@@ -185,10 +185,10 @@ CREATE TABLE IF NOT EXISTS documentos (
     id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES usuarios(user_id) ON DELETE CASCADE,
     tipo TEXT NOT NULL CHECK (tipo IN ('RG', 'CNH', 'Antecedentes')),
-    numero_documento TEXT NOT NULL,
+    numero_documento TEXT,
     arquivo_url TEXT NOT NULL,
     selfie_url TEXT NOT NULL,
-    data_expiracao TIMESTAMP WITH TIME ZONE NOT NULL,
+    data_expiracao TIMESTAMP WITH TIME ZONE,
     status TEXT NOT NULL CHECK (status IN ('pendente', 'aprovado', 'rejeitado'))
 );
 

@@ -163,10 +163,6 @@ body {
   font-family: var(--font-sf-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden; /* Evita scrollbars quando scale < 1 */
-}
-
-html {
   overflow: hidden;
 }
 
