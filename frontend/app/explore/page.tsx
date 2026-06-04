@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useSession } from "@/lib/contexts/AuthContext";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -850,6 +851,13 @@ function SortModal({ open, onClose }: { open: boolean; onClose: () => void }) {
 
 export default function Dashboard() {
   const router = useRouter();
+  const { logout } = useSession();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -1095,7 +1103,8 @@ export default function Dashboard() {
                   <div
                     key={item.label}
                     onClick={() => {
-                      if (item.href) router.push(item.href);
+                      if (item.label === "Sair da conta") handleLogout();
+                      else if (item.href) router.push(item.href);
                     }}
                     style={{
                       position: "absolute",
