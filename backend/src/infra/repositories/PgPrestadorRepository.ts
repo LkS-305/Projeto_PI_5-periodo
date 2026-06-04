@@ -53,10 +53,14 @@ export class PgPrestadorRepository implements IPrestadorRepository {
     return rows[0] || null;
   }
 
-  async listByCategory(categoria: string): Promise<Prestador[] | null> {
+  async listByCategory(categoria_id: string): Promise<Prestador[] | null> {
     const { rows } = await pool.query(
-      "SELECT * FROM prestadores WHERE bio ILIKE $1",
-      [`%${categoria}%`],
+      `SELECT p.*
+       FROM prestadores p
+       JOIN prestador_categorias pc ON pc.prestador_id = p.user_id
+       WHERE pc.categoria_id = $1
+       ORDER BY p.nome`,
+      [categoria_id],
     );
     return rows.length ? rows : null;
   }

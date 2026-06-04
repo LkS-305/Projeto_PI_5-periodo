@@ -191,7 +191,15 @@ CREATE TABLE IF NOT EXISTS documentos (
     status TEXT NOT NULL CHECK (status IN ('pendente', 'aprovado', 'rejeitado'))
 );
 
--- 15. Tabela de AuditLogs
+-- 15. Tabela de Prestador_Categorias (N:N)
+CREATE TABLE IF NOT EXISTS prestador_categorias (
+    prestador_id TEXT NOT NULL REFERENCES prestadores(user_id) ON DELETE CASCADE,
+    categoria_id TEXT NOT NULL REFERENCES categorias(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (prestador_id, categoria_id)
+);
+
+-- 16. Tabela de AuditLogs
 CREATE TABLE IF NOT EXISTS audit_logs (
     id TEXT PRIMARY KEY,
     user_id TEXT REFERENCES users(id),
