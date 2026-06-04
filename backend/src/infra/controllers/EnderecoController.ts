@@ -11,6 +11,7 @@ import {
   UnsetarPrincipal,
 } from "../../core/use-cases/endereco/EnderecoUseCase";
 import { BuscarCepUseCase } from "../../core/use-cases/endereco/BuscarCepUseCase";
+import { CalcularDistanciaUseCase } from "../../core/use-cases/endereco/CalcularDistanciaUseCase";
 
 import { CriarEnderecoDto } from "../../core/dtos/endereco";
 import { Endereco } from "../../core/entities/Endereco";
@@ -26,6 +27,7 @@ export class EnderecoController {
     private setPrincipal: SetarPrincipal,
     private unsetPrincipal: UnsetarPrincipal,
     private buscarCep: BuscarCepUseCase,
+    private calcularDistancia: CalcularDistanciaUseCase,
   ) {}
 
   async criar(req: Request, res: Response) {
@@ -110,6 +112,16 @@ export class EnderecoController {
   async getCep(req: Request, res: Response) {
     try {
       const resultado = await this.buscarCep.executar(req.body.cep);
+      return res.status(200).json(resultado);
+    } catch (erro: any) {
+      return res.status(400).json({ erro: erro.message });
+    }
+  }
+
+  async getDistancia(req: Request, res: Response) {
+    try {
+      const { user_id, prestador_id } = req.query as { user_id: string; prestador_id: string };
+      const resultado = await this.calcularDistancia.executar(user_id, prestador_id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({ erro: erro.message });

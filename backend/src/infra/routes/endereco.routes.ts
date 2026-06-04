@@ -15,6 +15,7 @@ import {
   UnsetarPrincipal,
 } from "../../core/use-cases/endereco/EnderecoUseCase";
 import { BuscarCepUseCase } from "../../core/use-cases/endereco/BuscarCepUseCase";
+import { CalcularDistanciaUseCase } from "../../core/use-cases/endereco/CalcularDistanciaUseCase";
 
 const enderecoRouter = Router();
 
@@ -30,6 +31,7 @@ const acharPorCidadeUC = new AcharPorCidade(enderecoRepo);
 const setPrincipalUC = new SetarPrincipal(enderecoRepo);
 const unsetPrincipalUC = new UnsetarPrincipal(enderecoRepo);
 const buscarCepUC = new BuscarCepUseCase();
+const calcularDistanciaUC = new CalcularDistanciaUseCase(enderecoRepo);
 
 const enderecoController = new EnderecoController(
   criarEnderecoUC,
@@ -41,6 +43,7 @@ const enderecoController = new EnderecoController(
   setPrincipalUC,
   unsetPrincipalUC,
   buscarCepUC,
+  calcularDistanciaUC,
 );
 
 enderecoRouter.post("/criarEndereco", (req, res) =>
@@ -69,5 +72,6 @@ enderecoRouter.get("/unsetPrincipal", (req, res) =>
 );
 
 enderecoRouter.get("/buscarCep", (req, res) => enderecoController.getCep(req, res))
+enderecoRouter.get("/distancia", (req, res) => enderecoController.getDistancia(req, res))
 
 export { enderecoRouter };
