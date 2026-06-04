@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useSession } from "@/lib/contexts/AuthContext";
+import { useSession } from "@/lib/contexts/SessionContext";
 
 export default function Login() {
   const router = useRouter();

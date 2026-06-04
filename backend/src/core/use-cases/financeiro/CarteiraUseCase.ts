@@ -8,16 +8,14 @@ import { validarUUID } from '../../utils/validate';
 export class CriarCarteiraUseCase {
   constructor(private carteiraRepository: ICarteiraRepository) {}
 
-  async executar(carteira: CriarCarteiraDto) {
-    if (carteira.usuario_id) {
-      validarUUID(carteira.usuario_id, 'ID do usuário');
-      const duplicada = await this.carteiraRepository.findByUserId(carteira.usuario_id);
+  async executar(dados: Carteira) {
+    if (dados.user_id) {
+      validarUUID(dados.user_id, 'ID do usuário');
+      const duplicada = await this.carteiraRepository.findByUserId(dados.user_id);
       if (duplicada) throw new ResourceAlreadyExistsError('Usuário já possui uma carteira.');
-    } else if (carteira.prestador_id) {
-      validarUUID(carteira.prestador_id, 'ID do prestador');
-      const duplicada = await this.carteiraRepository.findByPrestadorId(carteira.prestador_id);
-      if (duplicada) throw new ResourceAlreadyExistsError('Prestador já possui uma carteira.');
     }
+
+    const carteira = new Carteira(dados);
     await this.carteiraRepository.create(carteira);
   }
 

@@ -16,7 +16,7 @@ export class UsuarioController {
       return res.status(401).json({ erro: "User não identificado no jwt." });
     }
       const { id } = req.user
-      const resultado = await this.criarUsuario.executar(id, req.body.nome, req.body.foto_url);
+      const resultado = await this.criarUsuario.executar(id, req.body.nome);
       return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({ erro: erro.message });

@@ -19,11 +19,10 @@ const criarServicoUC = new CriarServicoUseCase(servicoRepo);
 const listarServicosUC = new ListarServicosUseCase(servicoRepo);
 const pesquisarServicoId = new PesquisarServicoId(servicoRepo);
 const pesquisarServicoUserId = new PesquisarServicoUserId(servicoRepo);
-const pesquisarServicoPrestadorId = new PesquisarServicoPrestadorId(
-  servicoRepo,
-);
-const atualizarStatusUC = new AtualizarStatusUseCase(servicoRepo);
-const atualizarServicoUC = new AtualizarServicoUseCase(servicoRepo);
+const pesquisarServicoPrestadorId = new PesquisarServicoPrestadorId(servicoRepo);
+const atualizarStatusUseCase = new AtualizarStatusUseCase(servicoRepo);
+const atualizarServicoUseCase = new AtualizarServicoUseCase(servicoRepo)
+
 
 const servicoController = new ServicoController(
   criarServicoUC,
@@ -31,8 +30,9 @@ const servicoController = new ServicoController(
   pesquisarServicoId,
   pesquisarServicoUserId,
   pesquisarServicoPrestadorId,
-  atualizarStatusUC,
-  atualizarServicoUC,
+  atualizarStatusUseCase,
+  atualizarServicoUseCase,
+
 );
 
 servicoRouter.get("/listarTodos", (req, res) =>
@@ -45,17 +45,25 @@ servicoRouter.post("/criarServico", (req, res) =>
 servicoRouter.get("/buscarPorId", (req, res) =>
   servicoController.findById(req, res),
 );
-servicoRouter.get("/buscarPorUserId", (req, res) =>
-  servicoController.findByUserId(req, res),
-);
-servicoRouter.get("/buscarPorPrestadorId", (req, res) =>
-  servicoController.findByPrestadorId(req, res),
-);
+
 servicoRouter.patch("/atualizarStatus", (req, res) =>
   servicoController.updateStatus(req, res),
 );
 servicoRouter.patch("/atualizarServico", (req, res) =>
   servicoController.updateServico(req, res),
 );
+
+servicoRouter.get("/buscarPorId", (req, res) =>
+  servicoController.findById(req, res),
+);
+
+servicoRouter.get("/buscarPorUserId", (req, res) =>
+  servicoController.findByUserId(req, res),
+);
+
+servicoRouter.get("/buscarPorPrestadorId", (req, res) =>
+  servicoController.findByPrestadorId(req, res),
+);
+
 
 export { servicoRouter };
