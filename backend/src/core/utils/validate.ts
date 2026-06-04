@@ -32,7 +32,7 @@ export function validarTexto(valor: string, campo: string, min = 2, max = 255): 
   }
 }
 
-export function validarNota(nota: string): void {
+export function validarNota(nota: number | string): void {
   const num = Number(nota);
   if (isNaN(num) || num < 1 || num > 5) {
     throw new ValidationError('A nota deve ser um número entre 1 e 5.');

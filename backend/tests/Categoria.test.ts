@@ -6,102 +6,167 @@ import {
   AtualizarCategoriaUseCase,
   PesquisarPorId,
   PesquisarTudo,
-  PesquisarPorNome
+  PesquisarPorNome,
 } from '../src/core/use-cases/categoria/CategoriaUseCase';
+import {
+  ResourceNotFoundError,
+  ResourceAlreadyExistsError,
+} from '../src/core/errors/AppError';
 
-describe('Suite de testes: Categoria', () => {
+describe('Suíte de Testes: Categoria', () => {
   let repo: InMemoryCategoriaRepository;
 
   beforeEach(() => {
     repo = new InMemoryCategoriaRepository();
   });
 
-  describe('Criar Categoria', () => {
-    it('Deve cadastrar uma nova categoria', async () => {
+  // ─── CriarCategoriaUseCase ───────────────────────────────────────────────────
+
+  describe('Cenário: Criar Categoria', () => {
+    it('deve cadastrar uma nova categoria com sucesso', async () => {
       const sut = new CriarCategoriaUseCase(repo);
-      const categoria = await sut.executar({
+
+      const resultado = await sut.executar({
         nome: 'Marcenaria',
         slug: 'marcenaria',
         icon_url: 'url_do_icone',
       });
 
-      expect(categoria.nome).toBe('Marcenaria');
-      expect(categoria.id).toBeTruthy();
+      expect(resultado.nome).toBe('Marcenaria');
+      expect(resultado.id).toBeTruthy();
     });
 
-    it('Não deve permitir categorias com nomes duplicados', async () => {
+    it('deve lançar ResourceAlreadyExistsError para nomes duplicados', async () => {
       const sut = new CriarCategoriaUseCase(repo);
-      const repetida = new Categoria({ nome: 'Repetida', slug: 'r', icon_url: 'u' });
-      await repo.create(repetida);
+      await repo.create(new Categoria({ nome: 'Repetida', slug: 'r', icon_url: 'u' }));
 
       await expect(
         sut.executar({ nome: 'Repetida', slug: 'r2', icon_url: 'u2' })
-      ).rejects.toThrow(/Esta categoria ja existe/);
+      ).rejects.toBeInstanceOf(ResourceAlreadyExistsError);
     });
   });
 
-  describe('Deletar Categoria', () => {
-    it('Deve deletar uma categoria existente', async () => {
+  // ─── DeletarCategoriaUseCase ─────────────────────────────────────────────────
+
+  describe('Cenário: Deletar Categoria', () => {
+    it('deve deletar uma categoria existente e retornar true', async () => {
       const sut = new DeletarCategoriaUseCase(repo);
-      const criada = new Categoria({ nome: 'Teste', slug: 't', icon_url: 'u' });
+      const criada = new Categoria({ nome: 'Para Deletar', slug: 'del', icon_url: 'u' });
       await repo.create(criada);
 
-      const result = await sut.executar(criada.id!);
-      expect(result).toBe(true);
+      const resultado = await sut.executar(criada.id!);
 
+      expect(resultado).toBe(true);
       const busca = await repo.findById(criada.id!);
       expect(busca).toBeNull();
     });
+
+    it('deve retornar true mesmo ao deletar ID inexistente (deleção idempotente)', async () => {
+      const sut = new DeletarCategoriaUseCase(repo);
+
+      const resultado = await sut.executar('123e4567-e89b-12d3-a456-426614174000');
+
+      expect(resultado).toBe(true);
+    });
   });
 
-  describe('Listar Categorias', () => {
-    it('Deve retornar todas as categorias cadastradas', async () => {
+  // ─── PesquisarTudo ───────────────────────────────────────────────────────────
+
+  describe('Cenário: Listar Todas as Categorias', () => {
+    it('deve retornar todas as categorias cadastradas', async () => {
       const sut = new PesquisarTudo(repo);
       await repo.create(new Categoria({ nome: 'Cat 1', slug: 'c1', icon_url: 'i1' }));
       await repo.create(new Categoria({ nome: 'Cat 2', slug: 'c2', icon_url: 'i2' }));
 
       const lista = await sut.executar();
+
       expect(lista?.length).toBe(2);
     });
-  });
 
-  describe('Pesquisar por ID', () => {
-    it('Deve retornar a categoria correta ao buscar por ID', async () => {
-      const sut = new PesquisarPorId(repo);
-      const criado = new Categoria({ nome: 'Marcenaria', slug: 'marcenaria', icon_url: 'url' });
-      await repo.create(criado);
+    it('deve retornar lista vazia quando não há categorias', async () => {
+      const sut = new PesquisarTudo(repo);
 
-      const categoria = await sut.executar(criado.id!);
-      expect(categoria?.nome).toBe('Marcenaria');
-      expect(categoria?.id).toBe(criado.id);
+      const lista = await sut.executar();
+
+      expect(lista?.length).toBe(0);
     });
   });
 
-  describe('Pesquisar por Nome', () => {
-    it('Deve encontrar uma categoria pelo nome exato', async () => {
+  // ─── PesquisarPorId ──────────────────────────────────────────────────────────
+
+  describe('Cenário: Pesquisar por ID', () => {
+    it('deve retornar a categoria correta ao buscar por ID', async () => {
+      const sut = new PesquisarPorId(repo);
+      const criada = new Categoria({ nome: 'Marcenaria', slug: 'marcenaria', icon_url: 'url' });
+      await repo.create(criada);
+
+      const resultado = await sut.executar(criada.id!);
+
+      expect(resultado?.nome).toBe('Marcenaria');
+      expect(resultado?.id).toBe(criada.id);
+    });
+
+    it('deve lançar ResourceNotFoundError para ID inexistente', async () => {
+      const sut = new PesquisarPorId(repo);
+
+      await expect(
+        sut.executar('123e4567-e89b-12d3-a456-426614174000')
+      ).rejects.toBeInstanceOf(ResourceNotFoundError);
+    });
+  });
+
+  // ─── PesquisarPorNome ────────────────────────────────────────────────────────
+
+  describe('Cenário: Pesquisar por Nome', () => {
+    it('deve encontrar uma categoria pelo nome exato', async () => {
       const sut = new PesquisarPorNome(repo);
       await repo.create(new Categoria({ nome: 'Pintura', slug: 'pintura', icon_url: 'url' }));
 
-      const categoria = await sut.executar('Pintura');
-      expect(categoria?.nome).toBe('Pintura');
+      const resultado = await sut.executar('Pintura');
+
+      expect(resultado?.nome).toBe('Pintura');
+    });
+
+    it('deve retornar null para nome não cadastrado', async () => {
+      const sut = new PesquisarPorNome(repo);
+
+      const resultado = await sut.executar('Inexistente');
+
+      expect(resultado).toBeNull();
     });
   });
 
-  describe('Atualizar Categoria', () => {
-    it('Deve alterar os dados de uma categoria', async () => {
+  // ─── AtualizarCategoriaUseCase ───────────────────────────────────────────────
+
+  describe('Cenário: Atualizar Categoria', () => {
+    it('deve alterar nome, slug e icon_url de uma categoria existente', async () => {
       const sut = new AtualizarCategoriaUseCase(repo);
-      const criada = new Categoria({ nome: 'Original', slug: 'o', icon_url: 'u' });
+      const criada = new Categoria({ nome: 'Original', slug: 'original', icon_url: 'url_antiga' });
       await repo.create(criada);
 
-      const atualizada = await sut.executar({
+      const resultado = await sut.executar({
         id: criada.id!,
         nome: 'Editada',
         slug: 'editada',
-        icon_url: 'nova_url'
+        icon_url: 'url_nova',
       });
 
-      expect(atualizada?.nome).toBe('Editada');
-      expect(atualizada?.slug).toBe('editada');
+      expect(resultado?.nome).toBe('Editada');
+      expect(resultado?.slug).toBe('editada');
+      expect(resultado?.icon_url).toBe('url_nova');
+    });
+
+    it('deve lançar ResourceNotFoundError ao atualizar categoria inexistente', async () => {
+      const sut = new AtualizarCategoriaUseCase(repo);
+
+      await expect(
+        sut.executar({
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          nome: 'Nova',
+          slug: 'nova',
+          icon_url: 'url',
+        })
+      ).rejects.toBeInstanceOf(ResourceNotFoundError);
     });
   });
 });
