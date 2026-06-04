@@ -17,8 +17,17 @@ export class CriarDocumentoUseCase {
     const usuario = await this.usuarioRepository.findByUserId(dados.user_id);
     if (!usuario) throw new ResourceNotFoundError('Usuário');
 
+    // Caso o documento não informe validade, define um padrão (10 anos a partir de hoje)
+    const dataExpiracao =
+      dados.data_expiracao ??
+      new Date(new Date().setFullYear(new Date().getFullYear() + 10));
+
     // Documento aprovado automaticamente
-    const documento = new Documento({ ...dados, status: 'aprovado' });
+    const documento = new Documento({
+      ...dados,
+      data_expiracao: dataExpiracao,
+      status: 'aprovado',
+    });
     await this.documentoRepository.create(documento);
     return documento;
   }

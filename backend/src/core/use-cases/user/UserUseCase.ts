@@ -103,6 +103,18 @@ export class AcharPorEmail {
   }
 }
 
+export class VerificarEmailExiste {
+  constructor(private userRepository: IUserRepository) {}
+
+  async executar(email: string): Promise<{ existe: boolean }> {
+    if (!EMAIL_REGEX.test(email)) {
+      throw new ValidationError('E-mail inválido.');
+    }
+    const user = await this.userRepository.findByEmail(email);
+    return { existe: !!user };
+  }
+}
+
 export class AcharPorId {
   constructor(private userRepository: IUserRepository) {}
 

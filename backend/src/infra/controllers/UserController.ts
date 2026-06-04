@@ -1,5 +1,5 @@
 import { Response, Request } from 'express';
-import { RegisterUseCase, LoginUseCase, DeletarUserUseCase, AcharPorEmail, AcharPorId, ForgotPassword, ChangePassword } from '../../core/use-cases/user/UserUseCase';
+import { RegisterUseCase, LoginUseCase, DeletarUserUseCase, AcharPorEmail, AcharPorId, ForgotPassword, ChangePassword, VerificarEmailExiste } from '../../core/use-cases/user/UserUseCase';
 import { AppError } from '../../core/errors/AppError';
 import { exigirCampos } from '../../core/utils/validate';
 
@@ -12,12 +12,24 @@ export class UserController {
     private acharPorId: AcharPorId,
     private forgotPasswordUC: ForgotPassword,
     private changePasswordUC: ChangePassword,
+    private verificarEmailUC: VerificarEmailExiste,
   ) {}
 
   async registrar(req: Request, res: Response) {
     try {
       exigirCampos(req.body, ['email', 'senha', 'cpf']);
       const resultado = await this.registerUC.executar(req.body);
+      return res.status(200).json(resultado);
+    } catch (erro: unknown) {
+      if (erro instanceof AppError) return res.status(erro.statusCode).json({ status: 'error', message: erro.message });
+      return res.status(500).json({ status: 'error', message: 'Erro interno no servidor.' });
+    }
+  }
+
+  async verificarEmail(req: Request, res: Response) {
+    try {
+      exigirCampos(req.body, ['email']);
+      const resultado = await this.verificarEmailUC.executar(req.body.email);
       return res.status(200).json(resultado);
     } catch (erro: unknown) {
       if (erro instanceof AppError) return res.status(erro.statusCode).json({ status: 'error', message: erro.message });

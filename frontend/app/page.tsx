@@ -3,10 +3,15 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { useAppScale } from "@/utils/hooks/useAppScale";
+import { useSession } from "@/lib/contexts/AuthContext";
 
 export default function Home() {
   // Escala proporcional para sempre renderizar em 1920x1080
   const { scale, offsetX, BASE_WIDTH, BASE_HEIGHT } = useAppScale();
+
+  // Estado de autenticação para alternar os botões (logado vê "Home")
+  const { isAuthenticated, loading } = useSession();
+  const loggedIn = !loading && isAuthenticated;
 
   // 1. O Estado (qual seção está visível)
   const [activeSection, setActiveSection] = useState(0);
@@ -277,61 +282,90 @@ export default function Home() {
                     gap: "40px",
                   }}
                 >
-                  <a
-                    href="/login"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "145px",
-                      height: "50px",
-                      borderRadius: "50px",
-                      backgroundColor: "transparent",
-                      border: "3px solid #C3A85E",
-                      textDecoration: "none",
-                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                      fontWeight: 400,
-                      fontSize: "30px",
-                      color: "#272727",
-                      flexShrink: 0,
-                      transition: "transform 0.2s ease, background-color 0.2s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "scale(1.07)";
-                      e.currentTarget.style.backgroundColor = "#C3A85Es";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                      e.currentTarget.style.backgroundColor = "transparent";
-                    }}
-                  >
-                    Entrar
-                  </a>
+                  {loggedIn ? (
+                    <a
+                      href="/home"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "220px",
+                        height: "50px",
+                        borderRadius: "50px",
+                        marginRight: "40px",
+                        backgroundColor: "#FAF9F5",
+                        textDecoration: "none",
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "30px",
+                        color: "#E0C271",
+                        flexShrink: 0,
+                        transition: "transform 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.07)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                    >
+                      Home
+                    </a>
+                  ) : (
+                    <>
+                      <a
+                        href="/login"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "145px",
+                          height: "50px",
+                          borderRadius: "50px",
+                          backgroundColor: "transparent",
+                          border: "3px solid #C3A85E",
+                          textDecoration: "none",
+                          fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                          fontWeight: 400,
+                          fontSize: "30px",
+                          color: "#272727",
+                          flexShrink: 0,
+                          transition: "transform 0.2s ease, background-color 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = "scale(1.07)";
+                          e.currentTarget.style.backgroundColor = "#C3A85Es";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = "scale(1)";
+                          e.currentTarget.style.backgroundColor = "transparent";
+                        }}
+                      >
+                        Entrar
+                      </a>
 
-                  <a
-                    href="/register"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "220px",
-                      height: "50px",
-                      borderRadius: "50px",
-                      marginRight: "40px",
-                      backgroundColor: "#FAF9F5",
-                      textDecoration: "none",
-                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                      fontWeight: 500,
-                      fontSize: "30px",
-                      color: "#E0C271",
-                      flexShrink: 0,
-                      transition: "transform 0.2s ease",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.07)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                  >
-                    Cadastrar-se
-                  </a>
+                      <a
+                        href="/register"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "220px",
+                          height: "50px",
+                          borderRadius: "50px",
+                          marginRight: "40px",
+                          backgroundColor: "#FAF9F5",
+                          textDecoration: "none",
+                          fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                          fontWeight: 500,
+                          fontSize: "30px",
+                          color: "#E0C271",
+                          flexShrink: 0,
+                          transition: "transform 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.07)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                      >
+                        Cadastrar-se
+                      </a>
+                    </>
+                  )}
                 </div>
               </header>
 
@@ -1181,65 +1215,96 @@ export default function Home() {
                     alignItems: "center",
                   }}
                 >
-                  {/* Botão Criar conta grátis */}
-                  <a
-                    href="/register"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "390px",
-                      height: "75px",
-                      borderRadius: "80px",
-                      backgroundColor: "#E0C271",
-                      textDecoration: "none",
-                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                      fontWeight: 500,
-                      fontSize: "40px",
-                      color: "#FAF9F5",
-                      flexShrink: 0,
-                      border: "none",
-                      cursor: "pointer",
-                      transition: "transform 0.2s ease",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.07)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                  >
-                    Criar conta grátis
-                  </a>
+                  {loggedIn ? (
+                    /* Botão Home (usuário logado) */
+                    <a
+                      href="/home"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "390px",
+                        height: "75px",
+                        borderRadius: "80px",
+                        backgroundColor: "#E0C271",
+                        textDecoration: "none",
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "40px",
+                        color: "#FAF9F5",
+                        flexShrink: 0,
+                        border: "none",
+                        cursor: "pointer",
+                        transition: "transform 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.07)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                    >
+                      Home
+                    </a>
+                  ) : (
+                    <>
+                      {/* Botão Criar conta grátis */}
+                      <a
+                        href="/register"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "390px",
+                          height: "75px",
+                          borderRadius: "80px",
+                          backgroundColor: "#E0C271",
+                          textDecoration: "none",
+                          fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                          fontWeight: 500,
+                          fontSize: "40px",
+                          color: "#FAF9F5",
+                          flexShrink: 0,
+                          border: "none",
+                          cursor: "pointer",
+                          transition: "transform 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.07)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                      >
+                        Criar conta grátis
+                      </a>
 
-                  {/* Botão Já tenho uma conta */}
-                  <a
-                    href="/login"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "260px",
-                      height: "60px",
-                      borderRadius: "50px",
-                      backgroundColor: "transparent",
-                      border: "2px solid #FAF9F5",
-                      textDecoration: "none",
-                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                      fontWeight: 300,
-                      fontSize: "30px",
-                      color: "#FAF9F5",
-                      flexShrink: 0,
-                      cursor: "pointer",
-                      transition: "transform 0.2s ease, background-color 0.2s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "scale(1.07)";
-                      e.currentTarget.style.backgroundColor = "rgba(250, 249, 245, 0.1)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                      e.currentTarget.style.backgroundColor = "transparent";
-                    }}
-                  >
-                    Já tenho conta
-                  </a>
+                      {/* Botão Já tenho uma conta */}
+                      <a
+                        href="/login"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "260px",
+                          height: "60px",
+                          borderRadius: "50px",
+                          backgroundColor: "transparent",
+                          border: "2px solid #FAF9F5",
+                          textDecoration: "none",
+                          fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                          fontWeight: 300,
+                          fontSize: "30px",
+                          color: "#FAF9F5",
+                          flexShrink: 0,
+                          cursor: "pointer",
+                          transition: "transform 0.2s ease, background-color 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = "scale(1.07)";
+                          e.currentTarget.style.backgroundColor = "rgba(250, 249, 245, 0.1)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = "scale(1)";
+                          e.currentTarget.style.backgroundColor = "transparent";
+                        }}
+                      >
+                        Já tenho conta
+                      </a>
+                    </>
+                  )}
                 </div>
               </div>
 
