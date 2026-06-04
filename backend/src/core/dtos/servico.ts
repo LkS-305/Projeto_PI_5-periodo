@@ -1,8 +1,7 @@
 export type ServicoStatus = 'criado' | 'emAndamento' | 'pendente' | 'aceito' | 'recusado' | 'cancelado' | 'finalizado';
 
 export interface CriarServicoDto {
-    id: string,
-    usuario_id: string,
+    user_id: string,
     prestador_id: string,
     categoria_id: string,
     titulo: string,
@@ -30,7 +29,7 @@ export interface AtualizarStatusServicoDto {
 }
 
 export interface ListarServicoDto {
-    usuario_id?: string,
+    user_id?: string,
     prestador_id?: string,
     status?: ServicoStatus,
     categoria?: string,

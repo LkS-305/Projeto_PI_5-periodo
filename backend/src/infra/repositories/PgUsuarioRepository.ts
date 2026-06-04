@@ -6,15 +6,13 @@ import { AppError } from "../../core/errors/AppError";
 export class PgUsuarioRepository implements IUsuarioRepository {
   async create(usuario: Usuario): Promise<void> {
     const consulta = `
-      INSERT INTO usuarios (user_id, nome, score, foto_url, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, NOW(), NOW())
+      INSERT INTO usuarios (user_id, nome)
+      VALUES ($1, $2)
       RETURNING *;
     `;
     const valores = [
       usuario.user_id,
-      usuario.nome,
-      usuario.score,
-      usuario.foto_url,
+      usuario.nome
     ];
 
     try {

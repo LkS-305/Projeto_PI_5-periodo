@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/contexts/AuthContext";
+import { useSession } from "@/lib/contexts/SessionContext";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useSession();

@@ -15,7 +15,7 @@ export class CriarUsuarioUseCase {
       throw new ResourceNotFoundError('User');
     }
 
-    const usuario = new Usuario({user_id: user_id, nome: nome, foto_url: foto_url});
+    const usuario = new Usuario({user_id: user_id, nome: nome});
     await this.usuarioRepository.create(usuario);
  
     return usuario;

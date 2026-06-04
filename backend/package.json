@@ -9,7 +9,8 @@
     "test-user": "tsx --test tests/User.test.ts",
     "test-categorias": "tsx --test tests/Categoria.test.ts",
     "test-avaliacoes": "tsx --test tests/Avaliacao.test.ts",
-    "test-autenticacao": "jest tests/Autenticacao.test.ts"
+    "test-autenticacao": "jest tests/Autenticacao.test.ts",
+    "testMaster": "tsx --test tests/test.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

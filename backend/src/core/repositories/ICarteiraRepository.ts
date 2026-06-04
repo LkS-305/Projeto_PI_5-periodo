@@ -2,7 +2,7 @@ import { CriarCarteiraDto } from '../dtos/carteira';
 import { Carteira, CarteiraStatus } from '../entities/Carteira';
 
 export interface ICarteiraRepository {
-  create(carteira: CriarCarteiraDto): Promise<void>;
+  create(carteira: Carteira): Promise<void>;
   delete(id: string): Promise<void>;
   updateBalance(id: string, balance: string): Promise<void> ;
   updatePaymentMethods(id: string, methods: string): Promise<void>;

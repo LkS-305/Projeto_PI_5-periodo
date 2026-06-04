@@ -1,6 +1,8 @@
 export interface CriarCarteiraDto {
-  usuario_id?: string,
-  prestador_id?: string,
+  user_id: string,
   saldo: string,
-  metodos_de_pagamento?: string
+  numero_cartao: string;
+  validade_cartao: string;
+  nome_cartao: string;
+  vcc_cartao: string;
 }
