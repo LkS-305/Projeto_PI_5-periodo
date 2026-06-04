@@ -4,13 +4,12 @@
     "build": "tsc",
     "start": "node dist/main.js",
     "db:setup": "ts-node src/infra/database/migrate.ts",
-    "test:api": "ts-node tests/test-api.ts",
+    "test:api": "tsx tests/test.ts",
     "test": "jest",
-    "test-user": "tsx --test tests/User.test.ts",
-    "test-categorias": "tsx --test tests/Categoria.test.ts",
-    "test-avaliacoes": "tsx --test tests/Avaliacao.test.ts",
-    "test-autenticacao": "jest tests/Autenticacao.test.ts",
-    "testMaster": "tsx --test tests/test.ts"
+    "test-user": "jest tests/User.test.ts",
+    "test-categorias": "jest tests/Categoria.test.ts",
+    "test-avaliacoes": "jest tests/Avaliacao.test.ts",
+    "test-autenticacao": "jest tests/Autenticacao.test.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
