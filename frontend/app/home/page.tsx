@@ -3,10 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useSession } from "@/lib/contexts/AuthContext";
 import "./home.css";
 
 export default function Dashboard() {
   const router = useRouter();
+  const { logout } = useSession();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
   const [activeTab, setActiveTab] = useState("contratante");
   const [tabVisible, setTabVisible] = useState(true);
 
@@ -188,7 +195,8 @@ export default function Dashboard() {
                   <div
                     key={item.label}
                     onClick={() => {
-                      if (item.href) router.push(item.href);
+                      if (item.label === "Sair da conta") handleLogout();
+                      else if (item.href) router.push(item.href);
                     }}
                     className={`home-menu-item ${item.hasSwitch ? "home-menu-item--switch" : "home-menu-item--link"}`}
                     style={{ top: `${centerY}px` }}

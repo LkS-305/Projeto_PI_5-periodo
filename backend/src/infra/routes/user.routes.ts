@@ -9,6 +9,7 @@ import {
   AcharPorId,
   ForgotPassword,
   ChangePassword,
+  VerificarEmailExiste,
 } from "../../core/use-cases/user/UserUseCase";
 
 import { NodemailerMailProvider } from "../providers/NodemailerMailProvider";
@@ -27,6 +28,7 @@ const acharPorEmail = new AcharPorEmail(userRepo);
 const acharPorId = new AcharPorId(userRepo);
 const forgotPasswordUC = new ForgotPassword(userRepo, mailProvider);
 const changePasswordUC = new ChangePassword(userRepo);
+const verificarEmailUC = new VerificarEmailExiste(userRepo);
 
 const userController = new UserController(
   registerUC,
@@ -36,7 +38,10 @@ const userController = new UserController(
   acharPorId,
   forgotPasswordUC,
   changePasswordUC,
+  verificarEmailUC,
 );
+
+userRouter.post("/verificarEmail", userController.verificarEmail.bind(userController));
 
 userRouter.post("/register", userController.registrar.bind(userController));
 

@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useSession } from "@/lib/contexts/AuthContext";
 
 export default function Login() {
   const router = useRouter();
-  const { login, isAuthenticated, loading, error } = useSession();
+  const { login, loading } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -18,19 +18,13 @@ export default function Login() {
   const [forgotSent, setForgotSent] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/dashboard");
-    }
-  }, [isAuthenticated, router]);
-
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setShowError(false);
 
     const user = await login({ email, senha: password });
     if (user) {
-      router.push("/dashboard");
+      router.push("/home");
       return;
     }
 
@@ -660,56 +654,6 @@ export default function Login() {
             Entrar
           </button>
         </form>
-
-        {/* Divisor */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            margin: "0px 0 25px 0",
-          }}
-        >
-          <div style={{ flex: 1, height: "3px", backgroundColor: "#C3A85E" }} />
-          <span
-            style={{ margin: "0 15px", color: "#535353", fontSize: "25px" }}
-          >
-            ou
-          </span>
-          <div style={{ flex: 1, height: "3px", backgroundColor: "#C3A85E" }} />
-        </div>
-
-        {/* Botão Google */}
-        <button
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#272727",
-            color: "#FAF9F5",
-            border: "none",
-            borderRadius: "50px",
-            width: "385px",
-            height: "60px",
-            fontSize: "30px",
-            fontWeight: 400,
-            cursor: "pointer",
-            margin: "0 auto",
-            gap: "12px",
-            transition: "transform 0.2s ease",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.transform = "scale(1.02)")
-          }
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
-          <Image
-            src="/images/GoogleIcon.svg"
-            alt="Google"
-            width={35}
-            height={35}
-          />
-          Entrar com Google
-        </button>
 
         <p
           style={{

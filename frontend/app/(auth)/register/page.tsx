@@ -22,6 +22,12 @@ export default function Cadastro() {
   const [localError, setLocalError] = useState("");
   const [showError3, setShowError3] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [fileInputKey, setFileInputKey] = useState(0);
+
+  // Guarda a conta já criada para que, em caso de falha no envio do documento,
+  // o retry não tente recriar o e-mail/senha/usuário.
+  const accountRef = useRef<{ userId: string; token: string } | null>(null);
 
   const [documentoFile, setDocumentoFile] = useState<File | null>(null);
   const [selfieFile, setSelfieFile] = useState<File | null>(null);
@@ -168,11 +174,28 @@ export default function Cadastro() {
     }
   };
 
-  const goToNextSection = () => {
-    if (validateSection(section)) {
-      setCompletedSections((prev) => prev.includes(section) ? prev : [...prev, section]);
-      setSection(section + 1);
+  const goToNextSection = async () => {
+    if (!validateSection(section)) return;
+
+    // Verifica se o e-mail já está cadastrado antes de sair da seção 1
+    if (section === 1) {
+      setIsCheckingEmail(true);
+      try {
+        const { existe } = await AuthGateway.verificarEmail(formData.email);
+        if (existe) {
+          triggerError("Este e-mail já está cadastrado.");
+          return;
+        }
+      } catch {
+        triggerError("Não foi possível validar o e-mail. Tente novamente.");
+        return;
+      } finally {
+        setIsCheckingEmail(false);
+      }
     }
+
+    setCompletedSections((prev) => prev.includes(section) ? prev : [...prev, section]);
+    setSection(section + 1);
   };
 
   const goToPreviousSection = () => {
@@ -193,43 +216,55 @@ export default function Cadastro() {
     setLocalError("");
 
     try {
-      // 1. Registra o usuário
-      const response = await AuthGateway.registerClient({
-        email: formData.email,
-        senha: formData.senha,
-        cpf: numeroDocumento.replace(/\D/g, ""),
-      });
+      // 1. Cria a conta apenas uma vez. Em um retry (falha no documento),
+      //    reaproveita a conta já criada e pula esta etapa.
+      if (!accountRef.current) {
+        const response = await AuthGateway.registerClient({
+          email: formData.email,
+          senha: formData.senha,
+          cpf: numeroDocumento.replace(/\D/g, ""),
+        });
 
-      const token = response.token;
-      const userId = (response.user as any)?.id;
+        const token = response.token;
+        const userId = (response.user as any)?.id;
 
-      if (!userId || !token) {
-        triggerError3("Erro ao identificar o usuário. Tente novamente.");
-        return;
+        if (!userId || !token) {
+          triggerError3("Erro ao identificar o usuário. Tente novamente.");
+          return;
+        }
+
+        // 2. Cria o perfil do usuário
+        await apiClient.post(
+          "/usuario/criarUsuario",
+          { user_id: userId, nome: formData.nome },
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+
+        accountRef.current = { userId, token };
       }
-
-      // 2. Cria o perfil do usuário
-      await apiClient.post(
-        "/usuario/criarUsuario",
-        { user_id: userId, nome: formData.nome },
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
 
       // 3. Envia documentos (aprovação automática)
       await DocumentoGateway.enviarDocumentos(
         {
-          user_id: userId,
+          user_id: accountRef.current.userId,
           tipo: "RG",
           numero_documento: numeroDocumento,
           documento: documentoFile,
           selfie: selfieFile,
         },
-        token,
+        accountRef.current.token,
       );
 
       router.push("/login");
     } catch (erro: any) {
       triggerError3(erro?.message || "Erro ao concluir o cadastro. Tente novamente.");
+      // Se a conta já existe, a falha foi no envio do documento:
+      // limpa as imagens para o usuário anexar novamente e tentar de novo.
+      if (accountRef.current) {
+        setDocumentoFile(null);
+        setSelfieFile(null);
+        setFileInputKey((k) => k + 1);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -252,6 +287,37 @@ export default function Cadastro() {
   };
 
   const fieldBorder = inputError ? "2px solid #D92B2E" : "2px solid transparent";
+
+  // Pontos de progresso (renderizados no fluxo, abaixo do "Já tem uma conta? Entrar")
+  const ProgressDots = () => (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "18px", marginTop: "24px" }}>
+      {Array.from({ length: TOTAL_SECTIONS }).map((_, i) => {
+        const targetSection = i + 1;
+        const isActive = section === targetSection;
+        const isCompleted = completedSections.includes(targetSection);
+        const isClickable = isCompleted && !isActive;
+        return (
+          <button
+            key={i}
+            onClick={() => handleDotClick(i)}
+            style={{
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              backgroundColor: isActive ? "#E0C271" : isCompleted ? "#C3A85E" : "#272727",
+              transform: isActive ? "scale(1.4)" : "scale(1)",
+              transition: "all 0.3s ease",
+              border: "none",
+              cursor: isClickable ? "pointer" : "default",
+              padding: 0,
+              opacity: isClickable ? 1 : isActive ? 1 : 0.5,
+            }}
+            aria-label={`Seção ${targetSection}`}
+          />
+        );
+      })}
+    </div>
+  );
 
   return (
     <div
@@ -297,48 +363,6 @@ export default function Cadastro() {
           margin-right: 18px;
         }
       `}</style>
-
-      {/* Dots de progresso */}
-      <div
-        style={{
-          position: "fixed",
-          bottom: "60px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          alignItems: "center",
-          gap: "18px",
-          zIndex: 50,
-          pointerEvents: "none",
-        }}
-      >
-        {Array.from({ length: TOTAL_SECTIONS }).map((_, i) => {
-          const targetSection = i + 1;
-          const isActive = section === targetSection;
-          const isCompleted = completedSections.includes(targetSection);
-          const isClickable = isCompleted && !isActive;
-          return (
-            <button
-              key={i}
-              onClick={() => handleDotClick(i)}
-              style={{
-                pointerEvents: "auto",
-                width: "10px",
-                height: "10px",
-                borderRadius: "50%",
-                backgroundColor: isActive ? "#E0C271" : isCompleted ? "#C3A85E" : "#272727",
-                transform: isActive ? "scale(1.4)" : "scale(1)",
-                transition: "all 0.3s ease",
-                border: "none",
-                cursor: isClickable ? "pointer" : "default",
-                padding: 0,
-                opacity: isClickable ? 1 : isActive ? 1 : 0.5,
-              }}
-              aria-label={`Seção ${targetSection}`}
-            />
-          );
-        })}
-      </div>
 
       {/* Imagem de fundo - Topo Direita */}
       <div style={{ position: "fixed", top: "30px", right: "150px", opacity: 0.05, pointerEvents: "none", zIndex: 0 }}>
@@ -417,31 +441,20 @@ export default function Cadastro() {
             </div>
 
             <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-              <button onClick={goToNextSection}
-                style={{ backgroundColor: "#FAF9F5", color: "#272727", border: "4px solid #272727", borderRadius: "60px", width: "400px", height: "80px", fontSize: "60px", fontWeight: 450, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", transition: "transform 0.2s ease" }}
-                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+              <button onClick={goToNextSection} disabled={isCheckingEmail}
+                style={{ backgroundColor: "#FAF9F5", color: "#272727", border: "4px solid #272727", borderRadius: "60px", width: "400px", height: "80px", fontSize: isCheckingEmail ? "40px" : "60px", fontWeight: 450, cursor: isCheckingEmail ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", transition: "transform 0.2s ease", opacity: isCheckingEmail ? 0.7 : 1 }}
+                onMouseEnter={(e) => { if (!isCheckingEmail) e.currentTarget.style.transform = "scale(1.03)"; }}
                 onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}>
-                Seguir
+                {isCheckingEmail ? "Verificando..." : "Seguir"}
               </button>
             </div>
-
-            <div style={{ display: "flex", alignItems: "center", width: "1000px", margin: "0 auto 24px auto" }}>
-              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
-              <span style={{ margin: "0 15px", color: "#535353", fontSize: "25px" }}>ou</span>
-              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
-            </div>
-
-            <button style={{ display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#272727", color: "#FAF9F5", border: "none", borderRadius: "50px", width: "470px", height: "60px", fontSize: "30px", fontWeight: 400, cursor: "pointer", margin: "0 auto", gap: "12px", transition: "transform 0.2s ease" }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}>
-              <Image src="/images/GoogleIcon.svg" alt="Google" width={35} height={35} />
-              Cadastrar-se com Google
-            </button>
 
             <p style={{ marginTop: "30px", textAlign: "center", color: "#535353", fontWeight: 500, fontSize: "25px" }}>
               Já tem uma conta?{" "}
               <a href="/login" style={{ color: "#535353", fontWeight: 500, textDecoration: "underline" }}>Entrar</a>
             </p>
+
+            <ProgressDots />
 
             <div onClick={() => router.push("/")}
               style={{ position: "fixed", top: "46px", left: "51px", fontSize: "30px", fontWeight: 500, color: "#272727", cursor: "pointer", userSelect: "none" }}
@@ -532,23 +545,12 @@ export default function Cadastro() {
               </button>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", width: "1000px", margin: "0 auto 25px auto" }}>
-              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
-              <span style={{ margin: "0 15px", color: "#535353", fontSize: "25px" }}>ou</span>
-              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
-            </div>
-
-            <button style={{ display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#272727", color: "#FAF9F5", border: "none", borderRadius: "50px", width: "470px", height: "60px", fontSize: "30px", fontWeight: 400, cursor: "pointer", margin: "0 auto", gap: "12px", transition: "transform 0.2s ease" }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}>
-              <Image src="/images/GoogleIcon.svg" alt="Google" width={35} height={35} />
-              Cadastrar-se com Google
-            </button>
-
             <p style={{ marginTop: "30px", textAlign: "center", color: "#535353", fontWeight: 500, fontSize: "25px" }}>
               Já tem uma conta?{" "}
               <a href="/login" style={{ color: "#535353", fontWeight: 500, textDecoration: "underline" }}>Entrar</a>
             </p>
+
+            <ProgressDots />
 
             <div onClick={goToPreviousSection}
               style={{ position: "fixed", top: "46px", left: "51px", fontSize: "30px", fontWeight: 500, color: "#272727", cursor: "pointer", userSelect: "none" }}
@@ -611,17 +613,21 @@ export default function Cadastro() {
               onClick={goToNextSection}>
               Seguir
             </button>
+
+            <ProgressDots />
           </>
         )}
 
         {/* ── SEÇÃO 4 — Upload de documentos ── */}
         {section === 4 && (
           <>
-            <div style={{ position: "relative", height: 0 }}>
-              <p style={{ position: "absolute", top: "20px", left: 0, right: 0, fontWeight: 400, fontSize: "20px", color: "#D92B2E", textAlign: "center", opacity: showError3 ? 1 : 0, transition: "opacity 0.3s ease", pointerEvents: "none", margin: 0, whiteSpace: "nowrap" }}>
-                {localError || "Envie a foto do documento e a selfie."}
-              </p>
-            </div>
+            {showError3 && (
+              <div style={{ maxWidth: "760px", width: "100%", margin: "10px auto 0 auto", backgroundColor: "#FBE9E9", border: "2px solid #D92B2E", borderRadius: "20px", padding: "14px 24px", boxSizing: "border-box" }}>
+                <p style={{ margin: 0, fontWeight: 500, fontSize: "20px", color: "#D92B2E", textAlign: "center" }}>
+                  {localError || "Envie a foto do documento e a selfie."}
+                </p>
+              </div>
+            )}
 
             <p style={{ fontSize: "35px", fontWeight: 510, color: "#272727", textAlign: "center", marginTop: "15px", marginBottom: "10px" }}>
               envie sua foto de documento
@@ -660,6 +666,7 @@ export default function Cadastro() {
                 </label>
                 <div style={{ width: "100%", minHeight: "65px", borderRadius: "40px", border: `2px solid ${showError3 && !documentoFile ? "#D92B2E" : "#E0C271"}`, padding: "14px 24px", backgroundColor: "#FAF9F5", boxSizing: "border-box", display: "flex", alignItems: "center" }}>
                   <input
+                    key={`doc-${fileInputKey}`}
                     type="file"
                     accept="image/*"
                     onChange={(e) => { setDocumentoFile(e.target.files?.[0] ?? null); setLocalError(""); setShowError3(false); }}
@@ -676,6 +683,7 @@ export default function Cadastro() {
                 </label>
                 <div style={{ width: "100%", minHeight: "65px", borderRadius: "40px", border: `2px solid ${showError3 && !selfieFile ? "#D92B2E" : "#E0C271"}`, padding: "14px 24px", backgroundColor: "#FAF9F5", boxSizing: "border-box", display: "flex", alignItems: "center" }}>
                   <input
+                    key={`selfie-${fileInputKey}`}
                     type="file"
                     accept="image/*"
                     onChange={(e) => { setSelfieFile(e.target.files?.[0] ?? null); setLocalError(""); setShowError3(false); }}
@@ -709,6 +717,8 @@ export default function Cadastro() {
               Já tem uma conta?{" "}
               <a href="/login" style={{ color: "#535353", fontWeight: 500, textDecoration: "underline" }}>Entrar</a>
             </div>
+
+            <ProgressDots />
           </>
         )}
       </div>

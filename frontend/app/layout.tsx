@@ -5,6 +5,7 @@ import { NotificationProvider } from "@/lib/contexts/NotificationContext";
 import { SessionProvider } from "@/lib/contexts/SessionContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { RouteGuard } from "@/components/RouteGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,7 @@ export default function RootLayout({
         <NotificationProvider>
           <SessionProvider>
             <ErrorBoundary>
-              {children}
+              <RouteGuard>{children}</RouteGuard>
               <NotificationCenter />
             </ErrorBoundary>
           </SessionProvider>

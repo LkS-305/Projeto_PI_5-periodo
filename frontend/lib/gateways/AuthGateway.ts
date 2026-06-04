@@ -14,4 +14,9 @@ export const AuthGateway = {
   async registerClient(dados: RegisterDto): Promise<AuthResponse> {
     return apiClient.post<AuthResponse>('/user/register', dados);
   },
+
+  // Verifica se um e-mail já está cadastrado
+  async verificarEmail(email: string): Promise<{ existe: boolean }> {
+    return apiClient.post<{ existe: boolean }>('/user/verificarEmail', { email });
+  },
 };

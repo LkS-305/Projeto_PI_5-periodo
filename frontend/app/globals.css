@@ -170,6 +170,18 @@ html {
   overflow: hidden;
 }
 
+/* Scrollbar invisível em toda a aplicação (mantém o scroll funcional) */
+html,
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
 h1,
 h2,
 h3,

@@ -9,6 +9,7 @@ import Language from "./components/Language";
 import Payments from "./components/Payments";
 import Personal from "./components/Personal";
 import ThemeMode from "./components/ThemeMode";
+import { useSession } from "@/lib/contexts/AuthContext";
 import "./settings.css";
 
 type SettingsMenuId =
@@ -51,6 +52,12 @@ const menuTitles: Record<SettingsMenuId, string> = {
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { logout } = useSession();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
   const [activeTab, setActiveTab] = useState<"contratante" | "profissional">(
     "contratante",
   );
@@ -223,7 +230,9 @@ export default function SettingsPage() {
                   <div
                     key={item.label}
                     onClick={() => {
-                      if (item.href) {
+                      if (item.label === "Sair da conta") {
+                        handleLogout();
+                      } else if (item.href) {
                         router.push(item.href);
                       }
                     }}
@@ -297,7 +306,7 @@ export default function SettingsPage() {
             <button
               type="button"
               className="settings-sidebar__logout"
-              onClick={() => router.push("/")}
+              onClick={handleLogout}
             >
               <span aria-hidden="true">←</span> Sair da conta
             </button>
