@@ -8,8 +8,7 @@
     "test": "jest",
     "test-user": "jest tests/User.test.ts",
     "test-categorias": "jest tests/Categoria.test.ts",
-    "test-avaliacoes": "jest tests/Avaliacao.test.ts",
-    "test-autenticacao": "jest tests/Autenticacao.test.ts"
+    "test-avaliacoes": "jest tests/Avaliacao.test.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
