@@ -199,7 +199,18 @@ CREATE TABLE IF NOT EXISTS prestador_categorias (
     PRIMARY KEY (prestador_id, categoria_id)
 );
 
--- 16. Tabela de AuditLogs
+-- 16. Tabela de Portfolio Items
+CREATE TABLE IF NOT EXISTS portfolio_items (
+    id TEXT PRIMARY KEY,
+    prestador_id TEXT NOT NULL REFERENCES prestadores(user_id) ON DELETE CASCADE,
+    url TEXT NOT NULL,
+    tipo TEXT NOT NULL CHECK (tipo IN ('imagem', 'video')),
+    descricao TEXT,
+    ordem INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 17. Tabela de AuditLogs
 CREATE TABLE IF NOT EXISTS audit_logs (
     id TEXT PRIMARY KEY,
     user_id TEXT REFERENCES users(id),
