@@ -35,10 +35,35 @@ export function useWallet(): WalletState {
           CarteiraGateway.getByUserId(user!.id),
           TransacaoGateway.getByUserId(user!.id),
         ]);
-        if (carteiraResult.status === "fulfilled") setCarteira(carteiraResult.value);
-        if (transacoesResult.status === "fulfilled") setTransacoes(transacoesResult.value ?? []);
-      } catch (err: any) {
-        setErro(err.message || "Erro ao carregar dados financeiros");
+        if (carteiraResult.status === "fulfilled") {
+          setCarteira(carteiraResult.value);
+        } else {
+          setCarteira(null);
+        }
+        if (transacoesResult.status === "fulfilled") {
+          setTransacoes(transacoesResult.value ?? []);
+        } else {
+          setTransacoes([]);
+        }
+
+        const msgs: string[] = [];
+        if (carteiraResult.status === "rejected") {
+          const r = carteiraResult.reason;
+          msgs.push(
+            r instanceof Error ? r.message : "Não foi possível carregar a carteira.",
+          );
+        }
+        if (transacoesResult.status === "rejected") {
+          const r = transacoesResult.reason;
+          msgs.push(
+            r instanceof Error ? r.message : "Não foi possível carregar as transações.",
+          );
+        }
+        setErro(msgs.length ? msgs.join(" ") : null);
+      } catch (err: unknown) {
+        const msg =
+          err instanceof Error ? err.message : "Erro ao carregar dados financeiros";
+        setErro(msg);
       } finally {
         setLoading(false);
       }

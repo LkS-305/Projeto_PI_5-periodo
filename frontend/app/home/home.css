@@ -145,3 +145,38 @@
 .home-card__expand--bottom {
   top: 265px;
 }
+
+/* Atalhos MVP (dashboard, mensagens, explorar) */
+.home-quick-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin: 20px 0 8px 105px;
+  max-width: min(1710px, calc(100vw - 120px));
+}
+
+.home-quick-strip__btn {
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #272727;
+  background: #fff;
+  border: 2px solid #e0c271;
+  border-radius: 999px;
+  padding: 10px 22px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+
+.home-quick-strip__btn:hover {
+  background: #f5f0e6;
+  transform: translateY(-1px);
+}
+
+.home-quick-strip__btn:focus-visible {
+  outline: 2px solid #2e7d32;
+  outline-offset: 2px;
+}

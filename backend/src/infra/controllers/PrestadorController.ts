@@ -5,6 +5,8 @@ import {
   AtualizarPrestadorUseCase,
   AcharPorUserId,
 } from "../../core/use-cases/prestador/PrestadorUseCase";
+import { logControllerError } from "../../core/utils/httpLogger";
+import { AppError } from "../../core/errors/AppError";
 
 export class PrestadorController {
   constructor(
@@ -24,6 +26,7 @@ export class PrestadorController {
       const resultado = await this.criarPrestador.executar({user_id: id, nome: req.body.nome, bio: req.body.bio, foto_url: req.body.foto_url});
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('PrestadorController', 'criar', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -42,6 +45,7 @@ export class PrestadorController {
       const resultado = await this.deletarPrestador.executar(req.body.user_id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('PrestadorController', 'deletar', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -55,6 +59,7 @@ export class PrestadorController {
       const resultado = await this.atualizarPrestador.executar({user_id: id, nome: req.body.nome, bio: req.body.bio, foto_url: req.body.foto_url});
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('PrestadorController', 'atualizar', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -67,7 +72,24 @@ export class PrestadorController {
       const resultado = await this.acharPorUserId.executar(req.body.user_id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('PrestadorController', 'findByUserId', erro);
       return res.status(400).json({ erro: erro.message });
+    }
+  }
+
+  /** Perfil público para vitrine (sem JWT). */
+  async findPublicByUserId(req: Request, res: Response) {
+    try {
+      const user_id = req.params.user_id as string;
+      if (!user_id?.trim()) {
+        throw new Error("Id necessário");
+      }
+      const resultado = await this.acharPorUserId.executar(user_id);
+      return res.status(200).json(resultado);
+    } catch (erro: any) {
+      logControllerError("PrestadorController", "findPublicByUserId", erro);
+      const status = erro instanceof AppError ? erro.statusCode : 400;
+      return res.status(status).json({ erro: erro.message });
     }
   }
 }

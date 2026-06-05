@@ -7,6 +7,7 @@ import {
   ReordenarPortfolioUseCase,
 } from '../../core/use-cases/portfolio/PortfolioUseCase';
 import { AppError } from '../../core/errors/AppError';
+import { logControllerError } from '../../core/utils/httpLogger';
 
 export class PortfolioController {
   constructor(
@@ -33,6 +34,7 @@ export class PortfolioController {
     } catch (erro: any) {
       if (file?.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
       const status = erro instanceof AppError ? erro.statusCode : 400;
+      logControllerError('PortfolioController', 'upload', erro, { httpStatus: status });
       return res.status(status).json({ erro: erro.message });
     }
   }
@@ -50,6 +52,7 @@ export class PortfolioController {
       return res.status(200).json({ mensagem: 'Item removido do portfólio.' });
     } catch (erro: any) {
       const status = erro instanceof AppError ? erro.statusCode : 400;
+      logControllerError('PortfolioController', 'delete', erro, { httpStatus: status });
       return res.status(status).json({ erro: erro.message });
     }
   }
@@ -60,6 +63,7 @@ export class PortfolioController {
       const resultado = await this.listarPorPrestador.executar(prestador_id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('PortfolioController', 'listar', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -71,6 +75,7 @@ export class PortfolioController {
       return res.status(200).json({ mensagem: 'Portfólio reordenado com sucesso.' });
     } catch (erro: any) {
       const status = erro instanceof AppError ? erro.statusCode : 400;
+      logControllerError('PortfolioController', 'reordenarItens', erro, { httpStatus: status });
       return res.status(status).json({ erro: erro.message });
     }
   }

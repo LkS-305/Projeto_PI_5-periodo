@@ -11,6 +11,12 @@ export function validarUUID(id: string, campo = 'ID'): void {
   }
 }
 
+export function validarId(id: string, campo = 'ID'): void {
+  if (!id?.trim()) {
+    throw new ValidationError(`${campo} inválido.`);
+  }
+}
+
 export function validarEmail(email: string): void {
   if (!email || !EMAIL_REGEX.test(email)) {
     throw new ValidationError('E-mail inválido.');

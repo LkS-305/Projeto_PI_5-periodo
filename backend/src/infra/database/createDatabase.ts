@@ -1,5 +1,6 @@
 import { Client } from 'pg';
 import dotenv from 'dotenv';
+import { logError, logInfo } from '../../core/utils/httpLogger';
 
 dotenv.config();
 
@@ -29,10 +30,13 @@ export async function createDatabaseIfNotExists() {
 
     if (result.rowCount === 0) {
       await client.query(`CREATE DATABASE "${dbName}"`);
-      console.log(`✅ Banco de dados "${dbName}" criado com sucesso!`);
+      logInfo('db.create_database', { created: true, database: dbName });
     } else {
-      console.log(`ℹ️  Banco de dados "${dbName}" já existe.`);
+      logInfo('db.create_database', { created: false, database: dbName });
     }
+  } catch (err) {
+    logError('db.create_database', err, { database: dbName });
+    throw err;
   } finally {
     await client.end();
   }

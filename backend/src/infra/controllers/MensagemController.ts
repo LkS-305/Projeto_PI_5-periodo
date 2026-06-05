@@ -6,6 +6,7 @@ import {
   BuscarMensagensPrestadorUseCase,
   MarcarMensagemLidaUseCase,
 } from "../../core/use-cases/mensagem/MensagemUseCase";
+import { logControllerError } from "../../core/utils/httpLogger";
 
 export class MensagemController {
   constructor(
@@ -26,6 +27,7 @@ export class MensagemController {
       });
       return res.status(201).json(resultado);
     } catch (erro: any) {
+      logControllerError('MensagemController', 'enviar', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -40,6 +42,7 @@ export class MensagemController {
       const resultado = await this.buscarPorServico.executar(servico_id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('MensagemController', 'listarPorServico', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -50,6 +53,7 @@ export class MensagemController {
       const resultado = await this.buscarPorUsuario.executar(user_id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('MensagemController', 'listarPorUsuario', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -64,6 +68,7 @@ export class MensagemController {
       const resultado = await this.buscarPorPrestador.executar(prestador_id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('MensagemController', 'listarPorPrestador', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -79,6 +84,7 @@ export class MensagemController {
       await this.marcarLida.executar({ mensagem_id, remetente_id });
       return res.status(204).send();
     } catch (erro: any) {
+      logControllerError('MensagemController', 'marcarComoLida', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }

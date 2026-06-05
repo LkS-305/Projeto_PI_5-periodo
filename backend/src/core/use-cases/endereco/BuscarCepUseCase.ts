@@ -1,6 +1,5 @@
-import { Request, Response } from 'express';
-import { Endereco } from '../../entities/Endereco';
 import { RetornoApi } from '../../dtos/endereco';
+import { logUseCaseCatch } from '../../utils/httpLogger';
 
 export class BuscarCepUseCase {
   constructor() {}
@@ -16,8 +15,9 @@ export class BuscarCepUseCase {
       
       if (data.erro) throw new Error("CEP não encontrado");
       return data;
-    } catch (error: any) {
-       return error.message? error.message : null;
+    } catch (error: unknown) {
+      logUseCaseCatch('BuscarCepUseCase', 'executar', error, { cep: sanitized });
+      return error instanceof Error ? error.message : null;
     }
   }
 }

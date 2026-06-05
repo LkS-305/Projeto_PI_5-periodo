@@ -6,6 +6,7 @@ import "./Balances.css";
 import { createInteractiveLineChart } from "./interactiveChart";
 import { Carteira } from "@/types/entities/carteira";
 import { Transacao } from "@/types/entities/transacao";
+import { isEntradaTipo } from "@/utils/transacaoTipo";
 
 type BalancesProps = {
   carteira?: Carteira | null;
@@ -28,7 +29,10 @@ export default function Balances({ carteira, transacoes = [] }: BalancesProps) {
   const disponivel = saldo - bloqueado;
 
   const entrada = useMemo(
-    () => transacoes.filter((t) => t.tipo === "credito").reduce((s, t) => s + parseFloat(t.valor), 0),
+    () =>
+      transacoes
+        .filter((t) => isEntradaTipo(t.tipo))
+        .reduce((s, t) => s + parseFloat(t.valor), 0),
     [transacoes],
   );
 
@@ -52,7 +56,11 @@ export default function Balances({ carteira, transacoes = [] }: BalancesProps) {
       return transacoes
         .filter((t) => {
           const dt = new Date(t.created_at);
-          return dt >= d && dt < next && t.tipo === "credito";
+          return (
+            dt >= d &&
+            dt < next &&
+            isEntradaTipo(t.tipo)
+          );
         })
         .reduce((s, t) => s + parseFloat(t.valor), 0);
     });
@@ -149,14 +157,21 @@ export default function Balances({ carteira, transacoes = [] }: BalancesProps) {
             {recentes.map((t) => (
               <div key={t.id} className="balances-row">
                 <span className="balances-type">
-                  <i className={`balances-dot ${t.tipo === "credito" ? "balances-dot--entry" : "balances-dot--available"}`} />
+                  <i
+                    className={`balances-dot ${isEntradaTipo(t.tipo) ? "balances-dot--entry" : "balances-dot--available"}`}
+                  />
                   {t.descricao ?? "Transação"}
                   <span style={{ marginLeft: 8, fontSize: "0.75rem", color: "#888" }}>
                     {new Date(t.created_at).toLocaleDateString("pt-BR")}
                   </span>
                 </span>
-                <strong style={{ color: t.tipo === "credito" ? "#2d6a4f" : "#c0392b" }}>
-                  {t.tipo === "credito" ? "+" : "-"}{formatCurrency(parseFloat(t.valor))}
+                <strong
+                  style={{
+                    color: isEntradaTipo(t.tipo) ? "#2d6a4f" : "#c0392b",
+                  }}
+                >
+                  {isEntradaTipo(t.tipo) ? "+" : "-"}
+                  {formatCurrency(parseFloat(t.valor))}
                 </strong>
               </div>
             ))}

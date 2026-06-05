@@ -8,7 +8,7 @@ import "./home.css";
 
 export default function Dashboard() {
   const router = useRouter();
-  const { logout } = useSession();
+  const { logout, user } = useSession();
 
   const handleLogout = () => {
     logout();
@@ -119,7 +119,9 @@ export default function Dashboard() {
         className={`home-menu-panel${menuOpen ? " home-menu-panel--open" : ""}`}
       >
         {/* Olá <usuário>! */}
-        <p className="home-menu-panel__greeting">Olá, Usuário!</p>
+        <p className="home-menu-panel__greeting">
+          Olá, {user?.email ? user.email.split("@")[0] : "utilizador"}!
+        </p>
 
         {/* ── Linhas divisórias + itens ── */}
         {/* As 6 linhas dividem a área abaixo do título em 5 células de 90px cada.
@@ -249,6 +251,30 @@ export default function Dashboard() {
           className="home-search-bar__input"
         />
       </div>
+
+      <nav className="home-quick-strip" aria-label="Atalhos da aplicação">
+        <button
+          type="button"
+          className="home-quick-strip__btn"
+          onClick={() => router.push("/dashboard")}
+        >
+          Dashboard
+        </button>
+        <button
+          type="button"
+          className="home-quick-strip__btn"
+          onClick={() => router.push("/messages")}
+        >
+          Mensagens
+        </button>
+        <button
+          type="button"
+          className="home-quick-strip__btn"
+          onClick={() => router.push("/explore")}
+        >
+          Explorar profissionais
+        </button>
+      </nav>
 
       {/* ── WRAPPER ANIMADO DAS SEÇÕES ── */}
       <div className={`tab-content${tabVisible ? " visible" : ""}`}>

@@ -1,8 +1,12 @@
+import { getAuthHeaders } from "./auth";
+
 type RequestOptions = {
   headers?: Record<string, string>;
   body?: any;
   params?: Record<string, string>;
   cache?: RequestCache;
+  /** Não envia Authorization (rotas públicas). */
+  skipAuth?: boolean;
 };
 
 async function apiFetch<T>(
@@ -10,7 +14,7 @@ async function apiFetch<T>(
   method: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { headers, body, params, cache } = options;
+  const { headers, body, params, cache, skipAuth } = options;
 
   // No cliente, pegamos o token de onde você o armazena (ex: cookies via js-cookie)
   // const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
@@ -27,7 +31,7 @@ async function apiFetch<T>(
     method,
     headers: {
       "Content-Type": "application/json",
-      // ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...(skipAuth ? {} : getAuthHeaders()),
       ...headers,
     },
     body: body ? JSON.stringify(body) : undefined,
@@ -73,7 +77,7 @@ async function apiFetch<T>(
 
 export const apiClient = {
   get: <T>(endpoint: string, options?: RequestOptions) =>
-    apiFetch<T>(endpoint, "GET", options),
+    apiFetch<T>(endpoint, "GET", options ?? {}),
   post: <T>(endpoint: string, body: any, options?: RequestOptions) =>
     apiFetch<T>(endpoint, "POST", { ...options, body }),
   put: <T>(endpoint: string, body: any, options?: RequestOptions) =>
@@ -81,5 +85,5 @@ export const apiClient = {
   patch: <T>(endpoint: string, body: any, options?: RequestOptions) =>
     apiFetch<T>(endpoint, "PATCH", { ...options, body }),
   delete: <T>(endpoint: string, options?: RequestOptions) =>
-    apiFetch<T>(endpoint, "DELETE", options),
+    apiFetch<T>(endpoint, "DELETE", options ?? {}),
 };

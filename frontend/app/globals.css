@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./mvp.css";
 @import "./messages/messages.css";
 @import "./not-found.css";
 @import "./shared/home-header.css";

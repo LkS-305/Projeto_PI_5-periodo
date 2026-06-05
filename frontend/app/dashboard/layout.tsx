@@ -16,7 +16,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (mounted && !loading && !isAuthenticated) {
-      router.push("/login");
+      const id = window.setTimeout(() => {
+        router.push("/login");
+      }, 0);
+      return () => window.clearTimeout(id);
     }
   }, [isAuthenticated, loading, mounted, router]);
 

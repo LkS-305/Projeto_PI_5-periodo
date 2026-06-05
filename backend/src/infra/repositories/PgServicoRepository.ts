@@ -12,20 +12,23 @@ export class PgServicoRepository implements IServicoRepository {
 
     const consulta = `
       INSERT INTO servicos (
-       id, user_id, prestador_id, categoria_id, titulo, descricao
-      ) VALUES ($1, $2, $3, $4, $5, $6)
+        id, user_id, prestador_id, categoria_id, titulo, descricao, preco_acordado,
+        data_inicio, duracao, status
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *;
     `;
 
     const valoresServico = [
-
       servico.id,
       servico.user_id,
       servico.prestador_id,
       servico.categoria_id,
       servico.titulo,
-      servico.descricao
-
+      servico.descricao,
+      servico.preco_acordado ?? 0,
+      servico.data_inicio,
+      servico.duracao ?? "",
+      servico.status ?? "criado",
     ];
 
     const { rows } = await executor.query(consulta, valoresServico);

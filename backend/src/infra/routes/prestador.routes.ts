@@ -40,6 +40,12 @@ const prestadorCategoriaController = new PrestadorCategoriaController(
   new ListarPrestadoresPorCategoriaUseCase(prestadorCategoriaRepo),
 );
 
+/** Vitrine: leitura pública do perfil (sem JWT). Deve vir antes das rotas com auth. */
+prestadorRouter.get(
+  "/vitrina/:user_id",
+  prestadorController.findPublicByUserId.bind(prestadorController),
+);
+
 prestadorRouter.post("/criarPrestador", ensureAuthenticated, prestadorController.criar.bind(prestadorController));
 prestadorRouter.delete("/deletarPrestador", ensureAuthenticated, prestadorController.deletar.bind(prestadorController));
 prestadorRouter.patch("/editarPrestador", ensureAuthenticated, prestadorController.atualizar.bind(prestadorController));

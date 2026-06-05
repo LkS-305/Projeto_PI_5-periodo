@@ -9,9 +9,11 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!isAuthenticated) return;
+    const id = window.setTimeout(() => {
       router.push("/home");
-    }
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [isAuthenticated, router]);
 
   return <>{children}</>;

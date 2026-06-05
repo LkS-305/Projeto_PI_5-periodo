@@ -1,5 +1,6 @@
 import { Response, Request } from 'express';
 import { CriarUsuarioUseCase, DeletarUsuarioUseCase, AtualizarUsuarioUseCase, PesquisarPorUserId} from '../../core/use-cases/usuario/UsuarioUseCase';
+import { logControllerError } from '../../core/utils/httpLogger';
 
 
 export class UsuarioController {
@@ -19,6 +20,7 @@ export class UsuarioController {
       const resultado = await this.criarUsuario.executar(id, req.body.nome);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('UsuarioController', 'criar', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -35,6 +37,7 @@ export class UsuarioController {
       const resultado = await this.deletarUsuario.executar(req.body.user_id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('UsuarioController', 'deletar', erro);
       return res.status(400).json({erro: erro.message})
     }
   }
@@ -48,6 +51,7 @@ export class UsuarioController {
       const resultado = await this.atualizarUsuario.executar({user_id: id, nome: req.body.nome, foto_url: req.body.url});
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('UsuarioController', 'atualizar', erro);
       return res.status(400).json({erro: erro.message})
     }
   }
@@ -60,6 +64,7 @@ export class UsuarioController {
       const resultado = await this.pesquisarPorUserId.executar(req.body.user_id);
       return res.status(201).json(resultado);
     } catch (erro: any) {
+      logControllerError('UsuarioController', 'findByUserId', erro);
       return res.status(400).json({erro: erro.message});
     }
 }

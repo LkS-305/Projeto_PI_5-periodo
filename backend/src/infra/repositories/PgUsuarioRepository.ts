@@ -10,28 +10,19 @@ export class PgUsuarioRepository implements IUsuarioRepository {
       VALUES ($1, $2)
       RETURNING *;
     `;
-    const valores = [
-      usuario.user_id,
-      usuario.nome
-    ];
+    const valores = [usuario.user_id, usuario.nome];
 
     try {
       await pool.query(consulta, valores);
     } catch (error: any) {
-
-      // Erro de violação de restrição única (Ex: Email ou CPF já existem)
-      if (error.code === '23505') {
-
-        const detail = error.detail; // O Postgres costuma dizer qual campo falhou
-        if (detail.includes('user_id')) {
-          throw new AppError('Este user_id ja esta em uso.', 400);
+      if (error.code === "23505") {
+        const detail = error.detail;
+        if (detail?.includes("user_id")) {
+          throw new AppError("Este user_id ja esta em uso.", 400);
         }
       }
-
-    // Erro genérico de banco (Conexão, sintaxe, etc)
-    console.error('Database Error:', error);
-    throw new AppError('Erro interno ao processar o cadastro no banco de dados.', 500);
-   }
+      throw new AppError("Erro interno ao processar o cadastro no banco de dados.", 500);
+    }
   }
 
   async delete(user_id: string): Promise<void> {
@@ -47,28 +38,18 @@ export class PgUsuarioRepository implements IUsuarioRepository {
         WHERE user_id = $3
         RETURNING *
     `;
-
     const valores = [dados.nome, dados.foto_url, dados.user_id];
 
-  try {
-    await pool.query(consulta, valores);
-  } catch (error: any) {
-    console.error(error);
-    throw new AppError("Erro de sintaxe na atualização: " + error.message);
-  }
+    try {
+      await pool.query(consulta, valores);
+    } catch (error: any) {
+      throw new AppError("Erro de sintaxe na atualização: " + error.message);
+    }
   }
 
   async findByUserId(user_id: string): Promise<Usuario | null> {
-    const consulta = "SELECT * FROM usuarios WHERE user_id = $1"; // Sem vírgula, sem RETURNING
-  
-try {
+    const consulta = "SELECT * FROM usuarios WHERE user_id = $1";
     const { rows } = await pool.query(consulta, [user_id]);
     return rows[0] || null;
-  } catch (error: any) {
-    // Esse log vai aparecer no terminal onde o SERVIDOR (npm run dev) está rodando
-    console.error("ERRO NA QUERY:", consulta);
-    console.error("MENSAGEM:", error.message);
-    throw error;
   }
- }
 }

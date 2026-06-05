@@ -2,7 +2,7 @@ import { IServicoRepository } from '../../repositories/IServicoRepository';
 import { CriarServicoDto, AtualizarServicoDto, AtualizarStatusServicoDto } from '../../dtos/servico';
 import { Servico } from '../../entities/Servico';
 import { ResourceNotFoundError, ValidationError } from '../../errors/AppError';
-import { validarUUID, validarTexto, sanitizarTexto, validarPreco, validarDataFutura, validarDuracao } from '../../utils/validate';
+import { validarUUID, validarId, validarTexto, sanitizarTexto, validarPreco, validarDataFutura, validarDuracao } from '../../utils/validate';
 
 
 export class CriarServicoUseCase {
@@ -40,12 +40,29 @@ export class CriarServicoUseCase {
  //  }
 // }
   async executar(dados: CriarServicoDto) {
-    validarUUID(dados.user_id, 'ID do usuário');
-    validarUUID(dados.prestador_id, 'ID do prestador');
+    if (!dados.user_id?.trim()) {
+      throw new ValidationError('ID do usuário é obrigatório.');
+    }
+    if (!dados.prestador_id?.trim()) {
+      throw new ValidationError('ID do prestador é obrigatório.');
+    }
+    if (!dados.categoria_id?.trim()) {
+      throw new ValidationError('Categoria é obrigatória.');
+    }
     validarTexto(dados.titulo, 'Título', 3, 100);
     dados.titulo = sanitizarTexto(dados.titulo);
 
-    const servico = new Servico(dados);
+    const payload: CriarServicoDto = {
+      ...dados,
+      descricao: dados.descricao ?? (dados.prioridade ? `Prioridade: ${dados.prioridade}` : ''),
+      preco_acordado: dados.preco_acordado ?? 0,
+      data_inicio: dados.data_inicio ?? null,
+      duracao: dados.duracao ?? '',
+      categoria: dados.categoria ?? '',
+      status: dados.status ?? 'criado',
+    };
+
+    const servico = new Servico(payload);
 
     const servicoCriado = await this.servicoRepository.create(servico);
 
@@ -63,7 +80,7 @@ export class PesquisarServicoId {
 ) {}
 
   async executar(id: string) {
-    validarUUID(id, 'ID do serviço');
+    validarId(id, 'ID do serviço');
     const servico2 = await this.servicoRepository.findById(id);
 
     if (!servico2){
@@ -80,7 +97,7 @@ export class PesquisarServicoUserId {
 ) {}
 
   async executar(id: string) {
-    validarUUID(id, 'ID do usuário');
+    validarId(id, 'ID do usuário');
     const servico2 = await this.servicoRepository.findByUserId(id);
 
     if (!servico2){
@@ -98,7 +115,7 @@ export class PesquisarServicoPrestadorId {
 ) {}
 
   async executar(id: string) {
-    validarUUID(id, 'ID do prestador');
+    validarId(id, 'ID do prestador');
     const servico2 = await this.servicoRepository.findByPrestadorId(id);
 
     if (!servico2){
@@ -127,7 +144,7 @@ export class AtualizarStatusUseCase {
 ) {}
 
   async executar(dados : AtualizarStatusServicoDto) {
-    validarUUID(dados.id, 'ID do serviço');
+    validarId(dados.id, 'ID do serviço');
     await this.servicoRepository.updateStatus(dados);
   }
 } 
@@ -136,7 +153,7 @@ export class AtualizarServicoUseCase{
   constructor(private servicoRepository : IServicoRepository) {}
 
   async executar(dados : AtualizarServicoDto){
-    validarUUID(dados.id, 'ID do serviço');
+    validarId(dados.id, 'ID do serviço');
     if(dados.titulo !== undefined) {
       validarTexto(dados.titulo, 'Título', 3, 100);
       dados.titulo = sanitizarTexto(dados.titulo);

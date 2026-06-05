@@ -2,6 +2,8 @@ import { pool } from "./postgres";
 import { createDatabaseIfNotExists } from "./createDatabase";
 import fs from "fs";
 import path from "path";
+import { logError, logInfo } from "../../core/utils/httpLogger";
+import { applySchemaPatches } from "./schemaPatches";
 
 export async function runMigrations() {
   try {
@@ -20,8 +22,10 @@ export async function runMigrations() {
       // Remove psql meta-commands (\i ...) que não funcionam via pool.query
       sql = sql.replace(/^\\i\s+.+$/gm, "");
       await pool.query(sql);
-      console.log(`✅ Executado: ${file}`);
+      logInfo("db.migrate.file_ok", { file });
     }
+
+    await applySchemaPatches();
 
     await pool.query(`
       ALTER TABLE IF EXISTS mensagens
@@ -35,9 +39,9 @@ export async function runMigrations() {
       ALTER COLUMN created_at SET NOT NULL;
     `);
 
-    console.log("Tabelas criadas/verificadas com sucesso!");
+    logInfo("db.migrate.done", { message: "tabelas_ok" });
   } catch (err) {
-    console.error("Erro ao rodar migrações:", err);
+    logError("db.migrate.failed", err, {});
     process.exit(1);
   }
 }

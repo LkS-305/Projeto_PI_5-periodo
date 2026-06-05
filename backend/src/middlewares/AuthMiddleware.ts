@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { UnauthorizedError } from '../core/errors/AppError';
 import { UserType } from '../core/dtos/user';
+import { logWarn } from '../core/utils/httpLogger';
 
 interface TokenPayload {
   id: string;
@@ -39,7 +40,10 @@ export function ensureAuthenticated(
     };
 
     return next();
-  } catch {
+  } catch (err) {
+    logWarn('auth.jwt.verify_failed', {
+      errMessage: err instanceof Error ? err.message : String(err),
+    });
     return next(new UnauthorizedError('Token inválido ou expirado.'));
   }
 }

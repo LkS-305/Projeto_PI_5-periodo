@@ -1,5 +1,10 @@
-export type TransacaoTipo = 'credito' | 'debito';
-export type TransacaoStatus = 'pendente' | 'concluido' | 'falhou';
+export type TransacaoTipo = "enviar" | "receber";
+export type TransacaoStatus =
+  | "pendente"
+  | "aprovada"
+  | "cancelada"
+  | "reembolsada";
+export type MetodosPagamento = "Pix" | "Credito" | "Boleto";
 
 export interface Transacao {
   readonly id: string;
@@ -9,6 +14,16 @@ export interface Transacao {
   valor: string;
   descricao?: string;
   metodo_pagamento: string;
-  readonly created_at: Date;
-  readonly updated_at: Date;
+  asaas_payment_id?: string;
+  readonly created_at?: string | Date;
+  readonly updated_at?: string | Date;
+}
+
+export interface IniciarPagamentoResponse {
+  transacao: Transacao;
+  pix?: {
+    qrCodeImage: string | null;
+    copyPaste: string | null;
+    invoiceUrl: string | null;
+  };
 }

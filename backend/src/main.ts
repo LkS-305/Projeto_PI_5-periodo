@@ -1,1 +1,2 @@
-import "./infra/http/server";
+import './infra/bootstrapLogging';
+import './infra/http/server';

@@ -29,6 +29,16 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Teste de integração do fluxo demo (API)
+
+Com o **backend** rodando (por padrão `http://localhost:3002`) e o banco populado com as contas de demo (`joao@email.com` / `senha123`, `pedro.encanador@email.com` / `senha123`):
+
+```bash
+npm run test:api-flow
+```
+
+Variáveis opcionais: `API_URL`, `DEMO_CLIENT_EMAIL`, `DEMO_CLIENT_PASSWORD`, `DEMO_PRESTADOR_EMAIL`, `DEMO_PRESTADOR_PASSWORD`, `PRESTADOR_ID`, `CATEGORIA_ID`.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.

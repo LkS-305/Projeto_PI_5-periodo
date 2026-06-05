@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { IMailProvider, IMessage } from '../../core/dtos/mail';
+import { logError, logInfo } from '../../core/utils/httpLogger';
 
 export class NodemailerMailProvider implements IMailProvider {
   private transporter;
@@ -17,11 +18,17 @@ export class NodemailerMailProvider implements IMailProvider {
   }
 
   async sendMail(message: IMessage): Promise<void> {
-    await this.transporter.sendMail({
-      from: 'Projeto PI <seu-email@gmail.com>',
-      to: message.to,
-      subject: message.subject,
-      html: message.body, // Enviando como HTML para ficar bonito
-    });
+    try {
+      await this.transporter.sendMail({
+        from: 'Projeto PI <seu-email@gmail.com>',
+        to: message.to,
+        subject: message.subject,
+        html: message.body,
+      });
+      logInfo('mail.sent', { to: message.to, subject: message.subject });
+    } catch (err) {
+      logError('mail.send_failed', err, { to: message.to, subject: message.subject });
+      throw err;
+    }
   }
 }

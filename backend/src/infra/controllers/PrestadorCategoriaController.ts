@@ -6,6 +6,7 @@ import {
   ListarPrestadoresPorCategoriaUseCase,
 } from '../../core/use-cases/prestador/PrestadorCategoriaUseCase';
 import { AppError } from '../../core/errors/AppError';
+import { logControllerError } from '../../core/utils/httpLogger';
 
 export class PrestadorCategoriaController {
   constructor(
@@ -22,6 +23,9 @@ export class PrestadorCategoriaController {
       return res.status(201).json({ mensagem: 'Categoria adicionada ao prestador com sucesso' });
     } catch (erro: any) {
       const status = erro instanceof AppError ? erro.statusCode : 400;
+      logControllerError('PrestadorCategoriaController', 'adicionar', erro, {
+        httpStatus: status,
+      });
       return res.status(status).json({ erro: erro.message });
     }
   }
@@ -33,6 +37,7 @@ export class PrestadorCategoriaController {
       return res.status(200).json({ mensagem: 'Categoria removida do prestador com sucesso' });
     } catch (erro: any) {
       const status = erro instanceof AppError ? erro.statusCode : 400;
+      logControllerError('PrestadorCategoriaController', 'remover', erro, { httpStatus: status });
       return res.status(status).json({ erro: erro.message });
     }
   }
@@ -44,6 +49,7 @@ export class PrestadorCategoriaController {
       return res.status(200).json(resultado);
     } catch (erro: any) {
       const status = erro instanceof AppError ? erro.statusCode : 400;
+      logControllerError('PrestadorCategoriaController', 'listarCategorias', erro, { httpStatus: status });
       return res.status(status).json({ erro: erro.message });
     }
   }
@@ -55,6 +61,7 @@ export class PrestadorCategoriaController {
       return res.status(200).json(resultado);
     } catch (erro: any) {
       const status = erro instanceof AppError ? erro.statusCode : 400;
+      logControllerError('PrestadorCategoriaController', 'listarPrestadores', erro, { httpStatus: status });
       return res.status(status).json({ erro: erro.message });
     }
   }

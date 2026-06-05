@@ -7,6 +7,8 @@ import "./Overview.css";
 import { createInteractiveLineChart } from "./interactiveChart";
 import { Carteira } from "@/types/entities/carteira";
 import { Transacao } from "@/types/entities/transacao";
+import { isEntradaTipo, isSaidaTipo } from "@/utils/transacaoTipo";
+import { formatDateTimePtBR } from "@/utils/formatDisplay";
 
 type PeriodKey = "1d" | "7d" | "30d" | "1y";
 type CompareKey =
@@ -283,11 +285,11 @@ function buildRealOverviewSeries(
       const d = new Date(t.created_at);
       return d >= periodStart && d < periodEnd;
     });
-    const gross = curr.filter((t) => t.tipo === "credito").reduce((s, t) => s + parseFloat(t.valor), 0);
-    const debit = curr.filter((t) => t.tipo === "debito").reduce((s, t) => s + parseFloat(t.valor), 0);
+    const gross = curr.filter((t) => isEntradaTipo(t.tipo)).reduce((s, t) => s + parseFloat(t.valor), 0);
+    const debit = curr.filter((t) => isSaidaTipo(t.tipo)).reduce((s, t) => s + parseFloat(t.valor), 0);
     currentGross.push(gross);
     currentNet.push(Math.max(gross - debit, 0));
-    currentCustomers.push(curr.filter((t) => t.tipo === "credito").length);
+    currentCustomers.push(curr.filter((t) => isEntradaTipo(t.tipo)).length);
 
     const compDate = shiftDateByCompareMode(new Date(pointDate), compareMode, period);
     comparisonPointLabels.push(
@@ -313,11 +315,11 @@ function buildRealOverviewSeries(
       const d = new Date(t.created_at);
       return d >= compStart && d < compEnd;
     });
-    const cGross = comp.filter((t) => t.tipo === "credito").reduce((s, t) => s + parseFloat(t.valor), 0);
-    const cDebit = comp.filter((t) => t.tipo === "debito").reduce((s, t) => s + parseFloat(t.valor), 0);
+    const cGross = comp.filter((t) => isEntradaTipo(t.tipo)).reduce((s, t) => s + parseFloat(t.valor), 0);
+    const cDebit = comp.filter((t) => isSaidaTipo(t.tipo)).reduce((s, t) => s + parseFloat(t.valor), 0);
     comparisonGross.push(cGross);
     comparisonNet.push(Math.max(cGross - cDebit, 0));
-    comparisonCustomers.push(comp.filter((t) => t.tipo === "credito").length);
+    comparisonCustomers.push(comp.filter((t) => isEntradaTipo(t.tipo)).length);
   }
 
   return { labels, currentPointLabels, comparisonPointLabels, currentNet, comparisonNet, currentGross, comparisonGross, currentCustomers, comparisonCustomers };
@@ -338,7 +340,7 @@ function buildRealTodaySeries(transacoes: Transacao[], selectedDate: string) {
       const s = new Date(base); s.setHours(h, 0, 0, 0);
       const e = new Date(base); e.setHours(h + 1, 0, 0, 0);
       return transacoes
-        .filter((t) => { const d = new Date(t.created_at); return d >= s && d < e && t.tipo === "credito"; })
+        .filter((t) => { const d = new Date(t.created_at); return d >= s && d < e && isEntradaTipo(t.tipo); })
         .reduce((sum, t) => sum + parseFloat(t.valor), 0);
     });
 
@@ -465,6 +467,27 @@ export default function Overview({ onViewBalances, carteira, transacoes = [] }: 
     () => series.comparisonCustomers.reduce((s, v) => s + v, 0),
     [series.comparisonCustomers],
   );
+
+  const pgtResumo = useMemo(() => {
+    const ok = transacoes.filter((t) => t.status === "aprovada").length;
+    const pend = transacoes.filter((t) => t.status === "pendente").length;
+    const cancel = transacoes.filter(
+      (t) => t.status === "cancelada" || t.status === "reembolsada",
+    ).length;
+    return { ok, pend, cancel };
+  }, [transacoes]);
+
+  const atualizadoLabel = useMemo(() => {
+    const sorted = [...transacoes].sort(
+      (a, b) =>
+        new Date(b.created_at ?? 0).getTime() -
+        new Date(a.created_at ?? 0).getTime(),
+    );
+    const last = sorted[0]?.created_at;
+    return last
+      ? `Último movimento: ${formatDateTimePtBR(last)}`
+      : "Sem movimentos na conta";
+  }, [transacoes]);
 
   const getComparisonDateLabel = useCallback(
     () =>
@@ -734,7 +757,16 @@ export default function Overview({ onViewBalances, carteira, transacoes = [] }: 
         <div className="overview-grid">
           <article className="overview-widget">
             <h3 className="overview-widget-title">Pagamentos</h3>
-            <div className="overview-empty">Sem dados</div>
+            <p className="overview-widget-value">
+              {pgtResumo.ok} aprovados · {pgtResumo.pend} pendentes
+            </p>
+            {pgtResumo.cancel > 0 ? (
+              <p className="overview-widget-sub">
+                {pgtResumo.cancel} cancelados/reembolsados
+              </p>
+            ) : (
+              <p className="overview-widget-sub">Com base nas suas transações</p>
+            )}
           </article>
 
           <article className="overview-widget">
@@ -744,8 +776,7 @@ export default function Overview({ onViewBalances, carteira, transacoes = [] }: 
             <div className="overview-chart-wrap">
               <canvas ref={grossChartRef} />
             </div>
-            <p className="overview-widget-foot">Atualizado em ha 4 minutos</p>{" "}
-            {/*Mudaremos aqui no futuro para inserção dos valores reais*/}
+            <p className="overview-widget-foot">{atualizadoLabel}</p>
           </article>
 
           <article className="overview-widget">
@@ -755,12 +786,19 @@ export default function Overview({ onViewBalances, carteira, transacoes = [] }: 
             <div className="overview-chart-wrap">
               <canvas ref={netChartRef} />
             </div>
-            <p className="overview-widget-foot">Atualizado em ha 4 minutos</p>
+            <p className="overview-widget-foot">{atualizadoLabel}</p>
           </article>
 
           <article className="overview-widget">
             <h3 className="overview-widget-title">Pagamentos malsucedidos</h3>
-            <div className="overview-empty">Sem dados</div>
+            {pgtResumo.cancel > 0 ? (
+              <>
+                <p className="overview-widget-value">{pgtResumo.cancel}</p>
+                <p className="overview-widget-sub">Cancelados ou reembolsados</p>
+              </>
+            ) : (
+              <div className="overview-empty">Sem registos</div>
+            )}
           </article>
 
           <article className="overview-widget">
@@ -770,7 +808,7 @@ export default function Overview({ onViewBalances, carteira, transacoes = [] }: 
             <div className="overview-chart-wrap">
               <canvas ref={customersChartRef} />
             </div>
-            <p className="overview-widget-foot">Atualizado em ha 4 minutos</p>
+            <p className="overview-widget-foot">{atualizadoLabel}</p>
           </article>
         </div>
       </section>

@@ -8,6 +8,7 @@ import {
   AcharPorUserId,
   AtualizarStatus,
 } from "../../core/use-cases/documento/DocumentoUseCase";
+import { logControllerError } from "../../core/utils/httpLogger";
 
 export class DocumentoController {
   constructor(
@@ -44,6 +45,7 @@ export class DocumentoController {
       if (selfieFile?.path && fs.existsSync(selfieFile.path)) {
         fs.unlinkSync(selfieFile.path);
       }
+      logControllerError('DocumentoController', 'upload', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -53,6 +55,7 @@ export class DocumentoController {
       await this.deletarDocumento.executar(req.body.id);
       return res.status(200).json({ mensagem: "Documento deletado." });
     } catch (erro: any) {
+      logControllerError('DocumentoController', 'delete', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -62,6 +65,7 @@ export class DocumentoController {
       const resultado = await this.atualizarDocumento.executar(req.body);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('DocumentoController', 'update', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -72,22 +76,28 @@ export class DocumentoController {
       const resultado = await this.acharPorUserId.executar(id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('DocumentoController', 'findByUserId', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
 
   async updateStatus(req: Request, res: Response) {
     try {
-      const id = req.params.id;
+      const raw = req.params.id;
+      const id = Array.isArray(raw) ? raw[0] : raw;
       const { status } = req.body;
 
       if (!status) {
         return res.status(400).json({ erro: "Status é obrigatório." });
       }
+      if (!id) {
+        return res.status(400).json({ erro: "Id do documento é obrigatório." });
+      }
 
       await this.atualizarStatus.executar(id, status);
       return res.status(200).json({ mensagem: "Status atualizado com sucesso." });
     } catch (erro: any) {
+      logControllerError('DocumentoController', 'updateStatus', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }

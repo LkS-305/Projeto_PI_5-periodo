@@ -2,21 +2,47 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useMensagem } from "@/utils/hooks/useMensagem";
-import { apiClient } from "@/lib/api/client";
+import { useServicosInbox } from "@/utils/hooks/useServicosInbox";
+import { useSession } from "@/lib/contexts/AuthContext";
+import { MvpShell } from "@/components/MvpShell";
 import { Mensagem } from "@/types/entities/mensagem";
 import { Servico } from "@/types/entities/servico";
+import { PrestadorGateway } from "@/lib/gateways/PrestadorGateway";
+import { formatDateTimePtBR } from "@/utils/formatDisplay";
+import { labelServicoStatus } from "@/utils/servicoUi";
 
-// ─── Tipos locais de UI ───────────────────────────────────────────────────────
+const DEFAULT_AVATAR = "/images/fotoPerfil.svg";
+
+function vitrinaAvatarSrc(foto_url: string | null | undefined): {
+  src: string;
+  unoptimized: boolean;
+} {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002";
+  if (!foto_url?.trim()) return { src: DEFAULT_AVATAR, unoptimized: false };
+  const u = foto_url.trim();
+  if (u.startsWith("http://") || u.startsWith("https://")) {
+    return { src: u, unoptimized: true };
+  }
+  if (u.startsWith("/")) return { src: `${apiBase}${u}`, unoptimized: true };
+  return { src: `${apiBase}/${u}`, unoptimized: true };
+}
+
+type PrestadorVitrinaBrief = { nome: string; foto_url: string | null };
 
 type ConversationItem = {
   servico_id: string;
   nome: string;
+  counterparty: string;
+  statusLabel: string;
   role: string;
   preview: string;
   time: string;
   unread: number;
+  avatarSrc: string;
+  avatarUnoptimized: boolean;
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -42,43 +68,40 @@ function sortMessagesByTime(messages: Mensagem[]) {
   });
 }
 
-function getStoredAuth() {
-  if (typeof window === "undefined") {
-    return { userId: "", token: "" };
+function counterpartyLabelForServico(
+  s: Servico,
+  currentUserId: string,
+  prestadorNomes: Record<string, string>,
+): string {
+  if (s.user_id === currentUserId) {
+    return prestadorNomes[s.prestador_id] ?? "Prestador";
   }
-
-  const rawUser =
-    localStorage.getItem("authUser") ?? localStorage.getItem("user");
-  const token = localStorage.getItem("authToken") ?? "";
-
-  if (!rawUser) {
-    return { userId: "", token };
+  if (s.prestador_id === currentUserId) {
+    return `Cliente (${s.user_id.slice(0, 8)}…)`;
   }
-
-  try {
-    const parsed = JSON.parse(rawUser);
-    return {
-      userId: typeof parsed?.id === "string" ? parsed.id : "",
-      token:
-        typeof parsed?.token === "string" && parsed.token
-          ? parsed.token
-          : token,
-    };
-  } catch {
-    return { userId: "", token };
-  }
+  return "Conversa";
 }
-
-// ─── Componentes auxiliares ──────────────────────────────────────────────────
-
 function MessageBubble({
   message,
   currentUserId,
+  servico,
+  prestadorVitrina,
 }: {
   message: Mensagem;
   currentUserId: string;
+  servico: Servico | null;
+  prestadorVitrina: Record<string, PrestadorVitrinaBrief>;
 }) {
   const isMe = message.remetente_id === currentUserId;
+
+  const peerAvatar = (() => {
+    if (isMe || !servico) return vitrinaAvatarSrc(null);
+    if (message.remetente_id === servico.prestador_id) {
+      const raw = prestadorVitrina[servico.prestador_id]?.foto_url;
+      return vitrinaAvatarSrc(raw);
+    }
+    return vitrinaAvatarSrc(null);
+  })();
 
   return (
     <div
@@ -88,10 +111,11 @@ function MessageBubble({
         <div className={`message-meta ${isMe ? "message-meta--me" : ""}`}>
           {!isMe ? (
             <Image
-              src="/images/fotoPerfil.svg"
-              alt="Perfil"
+              src={peerAvatar.src}
+              alt=""
               width={16}
               height={16}
+              unoptimized={peerAvatar.unoptimized}
               className="message-meta__avatar"
             />
           ) : null}
@@ -131,68 +155,82 @@ function IconButton({ iconSrc, label }: { iconSrc: string; label: string }) {
 
 // ─── Página principal ─────────────────────────────────────────────────────────
 
-export default function MessagesPage() {
+function MessagesPageContent() {
   const router = useRouter();
-  const [servicos, setServicos] = useState<Servico[]>([]);
-  const [selectedServicoId, setSelectedServicoId] = useState<string | null>(
+  const searchParams = useSearchParams();
+  const servicoFromUrl = searchParams.get("servico");
+  const { user, loading: authLoading } = useSession();
+  const userId = user?.id ?? "";
+  const { servicos, loading: servicosLoading, error: servicosError } =
+    useServicosInbox(userId || undefined);
+  /** Conversa escolhida na lista (query `servico` tem prioridade no cálculo abaixo). */
+  const [userPickedServicoId, setUserPickedServicoId] = useState<string | null>(
     null,
   );
+  const [prestadorVitrina, setPrestadorVitrina] = useState<
+    Record<string, PrestadorVitrinaBrief>
+  >({});
 
-  const [currentUserId, setCurrentUserId] = useState("");
+  const prestadorNomes = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(prestadorVitrina).map(([id, v]) => [id, v.nome]),
+      ),
+    [prestadorVitrina],
+  );
+
+  const prestadorIdsKey = useMemo(() => {
+    if (!userId) return "";
+    const ids = new Set<string>();
+    servicos.forEach((s) => {
+      if (s.user_id === userId && s.prestador_id) ids.add(s.prestador_id);
+    });
+    return [...ids].sort().join("|");
+  }, [servicos, userId]);
 
   useEffect(() => {
-    const { userId, token } = getStoredAuth();
-    if (!userId) return;
-
-    startTransition(() => {
-      setCurrentUserId(userId);
-    });
-
-    const carregarServicos = async () => {
-      try {
-        const listaUsuario = await apiClient.get<Servico[]>(
-          `/servico/buscarPorUserId?id=${userId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-
-        if (listaUsuario.length > 0) {
-          setServicos(listaUsuario);
-          setSelectedServicoId(listaUsuario[0].id ?? null);
-          return;
-        }
-
-        const prestador = await apiClient.post<{ user_id: string } | null>(
-          "/prestador/buscarPorUserId",
-          { user_id: userId },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-
-        if (!prestador) return;
-
-        const listaPrestador = await apiClient.get<Servico[]>(
-          `/servico/buscarPorPrestadorId?id=${prestador.user_id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-
-        if (listaPrestador.length > 0) {
-          setServicos(listaPrestador);
-          setSelectedServicoId(listaPrestador[0].id ?? null);
-        }
-      } catch (err) {
-        console.error("Erro ao buscar serviços:", err);
+    let cancelled = false;
+    void (async () => {
+      if (!prestadorIdsKey) {
+        await Promise.resolve();
+        if (!cancelled) setPrestadorVitrina({});
+        return;
       }
+      const ids = prestadorIdsKey.split("|").filter(Boolean);
+      const map: Record<string, PrestadorVitrinaBrief> = {};
+      for (const id of ids) {
+        try {
+          const p = await PrestadorGateway.getByUserId(id);
+          map[id] = {
+            nome: p?.nome ?? "Prestador",
+            foto_url: p?.foto_url ?? null,
+          };
+        } catch {
+          map[id] = { nome: "Prestador", foto_url: null };
+        }
+      }
+      if (!cancelled) setPrestadorVitrina(map);
+    })();
+    return () => {
+      cancelled = true;
     };
+  }, [prestadorIdsKey]);
 
-    carregarServicos();
-  }, []);
+  const selectedServicoId = useMemo(() => {
+    if (!servicos.length) return null;
+    if (servicoFromUrl && servicos.some((s) => s.id === servicoFromUrl)) {
+      return servicoFromUrl;
+    }
+    if (
+      userPickedServicoId &&
+      servicos.some((s) => s.id === userPickedServicoId)
+    ) {
+      return userPickedServicoId;
+    }
+    return servicos[0].id ?? null;
+  }, [servicos, servicoFromUrl, userPickedServicoId]);
 
-  // Chat do serviço selecionado com polling
+  const currentUserId = userId;
   const { mensagens, loading, enviando, enviar, marcarLida } =
     useMensagem(selectedServicoId);
 
@@ -232,26 +270,44 @@ export default function MessagesPage() {
           m.remetente_id !== currentUserId,
       ).length;
 
+      const listAvatar =
+        s.user_id === currentUserId && s.prestador_id
+          ? vitrinaAvatarSrc(prestadorVitrina[s.prestador_id]?.foto_url)
+          : { src: DEFAULT_AVATAR, unoptimized: false };
+
       return {
         servico_id: s.id ?? "",
         nome: s.titulo,
-        role: s.categoria,
+        counterparty: counterpartyLabelForServico(
+          s,
+          currentUserId,
+          prestadorNomes,
+        ),
+        statusLabel: labelServicoStatus(s.status),
+        role: s.categoria?.trim() ? s.categoria : "Sem categoria",
         preview: ultimaMensagem?.conteudo ?? "Sem mensagens ainda",
         time:
           ultimaMensagem && getMessageTime(ultimaMensagem)
-            ? formatTime(new Date(getMessageTime(ultimaMensagem)))
-            : "",
+            ? formatDateTimePtBR(getMessageTime(ultimaMensagem))
+            : s.created_at
+              ? formatDateTimePtBR(s.created_at)
+              : "",
         unread: naoLidas,
+        avatarSrc: listAvatar.src,
+        avatarUnoptimized: listAvatar.unoptimized,
       };
     });
-  }, [servicos, mensagens, currentUserId]);
+  }, [servicos, mensagens, currentUserId, prestadorNomes, prestadorVitrina]);
 
   const visibleConversations = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return conversationList.filter((c) => {
       const matchUnread = filter !== "Não lidas" || c.unread > 0;
       const matchSearch =
-        q.length === 0 || `${c.nome} ${c.role}`.toLowerCase().includes(q);
+        q.length === 0 ||
+        `${c.nome} ${c.role} ${c.counterparty} ${c.statusLabel}`
+          .toLowerCase()
+          .includes(q);
       return matchUnread && matchSearch;
     });
   }, [conversationList, filter, searchQuery]);
@@ -259,6 +315,26 @@ export default function MessagesPage() {
   const selectedConv = conversationList.find(
     (c) => c.servico_id === selectedServicoId,
   );
+
+  const selectedServico = useMemo(
+    () => servicos.find((s) => s.id === selectedServicoId) ?? null,
+    [servicos, selectedServicoId],
+  );
+
+  const selectedHeaderAvatar = useMemo(() => {
+    if (!selectedServico || !userId) {
+      return { src: DEFAULT_AVATAR, unoptimized: false };
+    }
+    if (
+      selectedServico.user_id === userId &&
+      selectedServico.prestador_id
+    ) {
+      return vitrinaAvatarSrc(
+        prestadorVitrina[selectedServico.prestador_id]?.foto_url,
+      );
+    }
+    return { src: DEFAULT_AVATAR, unoptimized: false };
+  }, [selectedServico, prestadorVitrina, userId]);
 
   const handleSendMessage = async () => {
     const trimmed = newMessage.trim();
@@ -274,27 +350,8 @@ export default function MessagesPage() {
   };
 
   return (
-    <>
-      <div className="messages-page">
-        <header className="messages-header">
-          <div className="messages-header__logo-wrap">
-            <Image
-              src="/images/logo_domi.svg"
-              alt="DOMI"
-              width={70}
-              height={60}
-              priority
-            />
-          </div>
-          <span className="messages-header__brand">DOMI</span>
-          <div
-            className="messages-header__back"
-            onClick={() => router.push("/home")}
-          >
-            ← Voltar
-          </div>
-        </header>
-
+    <MvpShell backHref="/dashboard" backLabel="← Dashboard">
+      <div className="messages-page messages-page--mvp">
         <main className="messages-main">
           <aside className="messages-sidebar">
             <div className="messages-sidebar__header">
@@ -358,10 +415,26 @@ export default function MessagesPage() {
                   </button>
                 ))}
               </div>
+
+              {servicosError ? (
+                <div
+                  className="mvp-alert mvp-alert--error"
+                  role="alert"
+                  style={{ margin: "0 0.75rem 0.75rem", fontSize: "0.85rem" }}
+                >
+                  {servicosError}
+                </div>
+              ) : null}
             </div>
 
             <div className="messages-sidebar__list scrollbar-hidden">
-              {visibleConversations.length === 0 ? (
+              {authLoading || servicosLoading ? (
+                <p
+                  style={{ padding: "1rem", color: "var(--color-text-muted)" }}
+                >
+                  A carregar conversas…
+                </p>
+              ) : visibleConversations.length === 0 ? (
                 <p
                   style={{ padding: "1rem", color: "var(--color-text-muted)" }}
                 >
@@ -374,7 +447,7 @@ export default function MessagesPage() {
                     <button
                       key={conv.servico_id}
                       type="button"
-                      onClick={() => setSelectedServicoId(conv.servico_id)}
+                      onClick={() => setUserPickedServicoId(conv.servico_id)}
                       className={`messages-conversation-item ${
                         isSelected
                           ? "messages-conversation-item--selected"
@@ -382,10 +455,11 @@ export default function MessagesPage() {
                       }`}
                     >
                       <Image
-                        src="/images/fotoPerfil.svg"
-                        alt="Perfil"
+                        src={conv.avatarSrc}
+                        alt=""
                         width={45}
                         height={45}
+                        unoptimized={conv.avatarUnoptimized}
                         className="messages-conversation-item__avatar"
                       />
                       <div className="messages-conversation-item__content">
@@ -393,13 +467,16 @@ export default function MessagesPage() {
                           <span className="messages-conversation-item__name">
                             {conv.nome}
                           </span>
-                          <span className="messages-conversation-item__separator">
-                            -
-                          </span>
-                          <span className="messages-conversation-item__role">
-                            {conv.role}
-                          </span>
                         </div>
+                        <p
+                          style={{
+                            fontSize: "0.72rem",
+                            color: "var(--color-text-muted)",
+                            margin: "0.15rem 0 0.2rem",
+                          }}
+                        >
+                          {conv.counterparty} · {conv.statusLabel} · {conv.role}
+                        </p>
                         <p className="messages-conversation-item__preview">
                           {conv.preview}
                         </p>
@@ -420,9 +497,7 @@ export default function MessagesPage() {
               )}
 
               <div className="messages-sidebar__end">
-                ...
-                <br />
-                Parece que você chegou ao fim!
+                <span style={{ opacity: 0.65 }}>Fim da lista</span>
               </div>
             </div>
           </aside>
@@ -431,10 +506,11 @@ export default function MessagesPage() {
             <div className="messages-chat__header">
               <div className="messages-chat__contact">
                 <Image
-                  src="/images/fotoPerfil.svg"
-                  alt="Perfil"
+                  src={selectedHeaderAvatar.src}
+                  alt=""
                   width={55}
                   height={55}
+                  unoptimized={selectedHeaderAvatar.unoptimized}
                   className="messages-chat__contact-avatar"
                 />
                 <div className="messages-chat__contact-info">
@@ -442,13 +518,32 @@ export default function MessagesPage() {
                     {selectedConv?.nome ?? "Selecione uma conversa"}
                   </h2>
                   <p className="messages-chat__contact-role">
-                    {selectedConv?.role ?? ""}
+                    {selectedConv
+                      ? `${selectedConv.counterparty} · ${selectedConv.statusLabel} · ${selectedConv.role}`
+                      : ""}
                   </p>
+                  {selectedServico?.created_at ? (
+                    <p
+                      style={{
+                        margin: "0.2rem 0 0",
+                        fontSize: "0.75rem",
+                        color: "var(--color-text-muted)",
+                      }}
+                    >
+                      Pedido: {formatDateTimePtBR(selectedServico.created_at)}
+                    </p>
+                  ) : null}
                 </div>
               </div>
-              <button type="button" className="messages-chat__project-button">
-                Mostrar projeto
-              </button>
+              {selectedServicoId ? (
+                <button
+                  type="button"
+                  className="messages-chat__project-button"
+                  onClick={() => router.push(`/servicos/${selectedServicoId}/acordo`)}
+                >
+                  Acordo
+                </button>
+              ) : null}
             </div>
 
             <div
@@ -468,6 +563,8 @@ export default function MessagesPage() {
                       key={m.id}
                       message={m}
                       currentUserId={currentUserId}
+                      servico={selectedServico}
+                      prestadorVitrina={prestadorVitrina}
                     />
                   ))}
                 </div>
@@ -509,6 +606,22 @@ export default function MessagesPage() {
           </section>
         </main>
       </div>
-    </>
+    </MvpShell>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense
+      fallback={
+        <MvpShell backHref="/dashboard" backLabel="← Dashboard">
+          <div style={{ padding: "clamp(24px, 5vw, 48px)" }}>
+            A carregar mensagens…
+          </div>
+        </MvpShell>
+      }
+    >
+      <MessagesPageContent />
+    </Suspense>
   );
 }

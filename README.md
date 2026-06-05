@@ -97,6 +97,30 @@ Para parar os containers:
 docker compose down
 ```
 
+#### Se `/health` ou o backend der `28P01` (falha de autenticação)
+
+1. **Confirma que o Postgres do projeto está a correr** — abre o Docker Desktop e, na pasta `backend`, executa `docker compose ps`. O container `pi_postgres` deve estar **Up** e a mapear `5432:5432`.
+2. **Outro PostgreSQL na mesma porta** — se tiveres Postgres instalado no Windows a ouvir na **5432**, o Node liga a esse (com outra senha para `postgres`). Soluções: para o serviço local, ou muda a porta no `docker-compose.yml` (ex. `5433:5432`) e no `.env` usa `DB_PORT=5433`.
+3. **Volume antigo do Docker** — a password `POSTGRES_PASSWORD` só se aplica na **primeira** criação do volume. Se já criaste o volume com outra senha, altera a password dentro do container ou recria o volume (`docker compose down -v` apaga dados; só em desenvolvimento).
+
+Credenciais do **compose** deste repo: utilizador `postgres`, password `postgre123` (atenção ao “postgre”), base `projeto_pi`.
+
+#### Se aparecer `database "projeto_pi" does not exist` (código Postgres `3D000`)
+
+Isto acontece quando ligas a um **Postgres local** (ex. porta 5433) onde **ainda não criaste** a base `projeto_pi`.
+
+- **Opção A — Criar a base** (ligado ao mesmo servidor que o `.env`):
+
+  ```sql
+  CREATE DATABASE projeto_pi;
+  ```
+
+  Depois importa o schema: na pasta `backend`, com Postgres acessível, corre `npm run db:setup` (usa `migrate.ts` e os SQL em `src/infra/database/`) ou executa manualmente `init.sql` e `populate.sql` no pgAdmin/psql.
+
+- **Opção B — Usar o Postgres do Docker** do projeto (`docker compose up -d` na pasta `backend`): a base `projeto_pi` é criada na primeira subida e os scripts em `docker-entrypoint-initdb.d` correm sozinhos.
+
+- **Opção C — Teste rápido só do `/health`**: no `.env` podes temporariamente usar `DB_DATABASE=postgres` (a base `postgres` existe por defeito), mas a API do projeto espera tabelas do `init.sql` em `projeto_pi`.
+
 ---
 
 ### 3. Backend
@@ -136,14 +160,51 @@ Acesse em **`http://localhost:3001`**
 ```env
 DB_HOST=localhost
 DB_PORT=5432
-DB_DATABASE=dataset
+DB_DATABASE=projeto_pi
+DB_USER=postgres
+DB_PASSWORD=postgre123
+```
+
+#### Logs e métricas (observabilidade)
+
+| Variável | Efeito |
+|----------|--------|
+| `LOG_REQUEST_BODY` | Se `0` ou `false`, não inclui corpo da requisição nos logs (default: ligado, com sanitização de senhas/tokens). |
+| `LOG_COLORS` | Se `0` ou `false`, desativa cores no log legível do middleware. |
+| `METRICS_SECRET` | Se definido, os endpoints abaixo exigem o header **`X-Metrics-Secret`** com o mesmo valor. |
+| `LOG_SLOW_QUERY_MS` | Se > `0`, regista em nível **info** consultas `pool.query` que demoram ≥ esse valor (ms). |
+| `LOG_DB_NOTICE` | Se `1` ou `true`, avisos do Postgres (`NOTICE`) vão para JSON (`db.client.notice`); senão mantêm saída colorida no console. |
+| `LOG_DEBUG` | Se `1` ou `true`, ativa eventos `debug` no logger (poucos por defeito). |
+
+Todas as falhas de **`pool.query`** (repositórios, `/health`, migrações) geram JSON: `db.pool.query` (erro) ou `db.pool.query.unique_violation` (código Postgres `23505`).
+
+Endpoints internos (montados em `/internal`, fora do rate limit global):
+
+- **`GET /internal/metrics`** — JSON com contadores (`success`, erros 4xx/5xx, `noResponse`, etc.) e amostras recentes.
+- **`GET /internal/metrics/stream`** — SSE com o mesmo snapshot a cada ~2 segundos (útil para ferramentas que suportam SSE; no browser costuma ser mais simples fazer polling no `/internal/metrics`).
+
+Exemplo com `curl`:
+
+```bash
+curl -s http://localhost:3002/internal/metrics
+# com segredo:
+curl -s -H "X-Metrics-Secret: seu_segredo" http://localhost:3002/internal/metrics
 ```
 
 ### Frontend — `frontend/.env`
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3002
+# Opcional: se o backend usar METRICS_SECRET, define o mesmo valor para o painel de métricas.
+NEXT_PUBLIC_METRICS_SECRET=
 ```
+
+Ficheiros de exemplo: **`backend/.env.example`** e **`frontend/.env.example`** (copiar para `.env` / `.env.local`).
+
+### Painel de métricas (desenvolvimento)
+
+Com o backend a correr, abre **`http://localhost:3001/dev/metrics`** no frontend: polling a cada 2s em `GET /internal/metrics` (usa `NEXT_PUBLIC_API_URL` e, se necessário, `NEXT_PUBLIC_METRICS_SECRET`).
+
 
 ---
 

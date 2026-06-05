@@ -67,11 +67,11 @@ describe('CriarPrestadorUseCase', () => {
     ).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
-  it('deve lançar ValidationError para UUID inválido', async () => {
+  it('deve lançar ValidationError para ID vazio', async () => {
     const sut = new CriarPrestadorUseCase(makeUserRepo(), makePrestadorRepo());
 
     await expect(
-      sut.executar({ user_id: 'id-invalido', nome: 'João', bio: 'Bio válida com texto suficiente' })
+      sut.executar({ user_id: '  ', nome: 'João', bio: 'Bio válida com texto suficiente' })
     ).rejects.toBeInstanceOf(ValidationError);
   });
 
@@ -112,10 +112,10 @@ describe('DeletarPrestadorUseCase', () => {
     await expect(sut.executar(UUID_VALIDO)).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
-  it('deve lançar ValidationError para UUID com formato inválido', async () => {
+  it('deve lançar ValidationError para ID vazio', async () => {
     const sut = new DeletarPrestadorUseCase(makePrestadorRepo());
 
-    await expect(sut.executar('id-invalido')).rejects.toBeInstanceOf(ValidationError);
+    await expect(sut.executar('')).rejects.toBeInstanceOf(ValidationError);
   });
 });
 
@@ -137,10 +137,10 @@ describe('AcharPorUserId', () => {
     await expect(sut.executar(UUID_VALIDO)).rejects.toBeInstanceOf(ResourceNotFoundError);
   });
 
-  it('deve lançar ValidationError para UUID com formato inválido', async () => {
+  it('deve lançar ValidationError para ID vazio', async () => {
     const sut = new AcharPorUserId(makePrestadorRepo());
 
-    await expect(sut.executar('id-invalido')).rejects.toBeInstanceOf(ValidationError);
+    await expect(sut.executar('  ')).rejects.toBeInstanceOf(ValidationError);
   });
 });
 
@@ -194,11 +194,11 @@ describe('AtualizarPrestadorUseCase', () => {
     ).rejects.toBeInstanceOf(ValidationError);
   });
 
-  it('deve lançar ValidationError para UUID com formato inválido', async () => {
+  it('deve lançar ValidationError para ID vazio', async () => {
     const sut = new AtualizarPrestadorUseCase(makePrestadorRepo());
 
     await expect(
-      sut.executar({ user_id: 'id-invalido', nome: 'Nome' })
+      sut.executar({ user_id: '', nome: 'Nome' })
     ).rejects.toBeInstanceOf(ValidationError);
   });
 });

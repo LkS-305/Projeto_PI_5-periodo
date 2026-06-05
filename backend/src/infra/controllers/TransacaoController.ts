@@ -9,6 +9,7 @@ import {
   ProcessarWebhookAsaasUseCase,
 } from '../../core/use-cases/financeiro/TransacaoUseCase';
 import { AppError } from '../../core/errors/AppError';
+import { logControllerError, logError } from '../../core/utils/httpLogger';
 
 export class TransacaoController {
   constructor(
@@ -26,6 +27,7 @@ export class TransacaoController {
       const resultado = await this.acharPorUserId.executar(req.query.id as string);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('TransacaoController', 'findByUserId', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -35,6 +37,7 @@ export class TransacaoController {
       const resultado = await this.acharPorPrestadorId.executar(req.query.id as string);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('TransacaoController', 'findByPrestadorId', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -44,6 +47,7 @@ export class TransacaoController {
       const resultado = await this.acharPorServicoId.executar(req.query.id as string);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('TransacaoController', 'findByServicoId', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -56,6 +60,7 @@ export class TransacaoController {
       });
       return res.status(201).json(resultado);
     } catch (erro: any) {
+      logControllerError('TransacaoController', 'iniciar', erro);
       const status = erro instanceof AppError ? erro.statusCode : 400;
       return res.status(status).json({ erro: erro.message });
     }
@@ -67,6 +72,7 @@ export class TransacaoController {
       const resultado = await this.liberarPagamento.executar({ servico_id, prestador_id });
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('TransacaoController', 'liberar', erro);
       const status = erro instanceof AppError ? erro.statusCode : 400;
       return res.status(status).json({ erro: erro.message });
     }
@@ -78,6 +84,7 @@ export class TransacaoController {
       const resultado = await this.reembolsarPagamento.executar({ servico_id });
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('TransacaoController', 'reembolsar', erro);
       const status = erro instanceof AppError ? erro.statusCode : 400;
       return res.status(status).json({ erro: erro.message });
     }
@@ -93,7 +100,7 @@ export class TransacaoController {
       // Always respond 200 quickly so Asaas doesn't retry
       return res.sendStatus(200);
     } catch (erro: any) {
-      console.error('[Webhook Asaas] Erro:', erro.message);
+      logError('http.webhook.asaas', erro, { event: req.body?.event, paymentId: req.body?.payment?.id });
       return res.sendStatus(200); // still 200 — errors are logged, not retried
     }
   }

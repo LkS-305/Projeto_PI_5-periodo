@@ -1,12 +1,11 @@
 import { IAgendamentosRepository } from '../../repositories/IAgendamentosRepository';
 import { Agendamento } from '../../entities/Agendamento';
-
-
+import { CriarAgendamentoDto } from '../../dtos/agendamento';
 
 export class CriarAgendamentoUseCase {
   constructor(private agendamentosRepository: IAgendamentosRepository) {}
 
-  async executar(dados: Agendamento) {
+  async executar(dados: CriarAgendamentoDto) {
     const agendamento = new Agendamento(dados);
     
     const agendamentoCriado = await this.agendamentosRepository.create(agendamento);

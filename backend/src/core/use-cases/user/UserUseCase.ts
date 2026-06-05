@@ -11,6 +11,7 @@ import {
 } from '../../errors/AppError';
 import { IMailProvider } from '../../dtos/mail';  
 import { validarUUID } from '../../utils/validate';
+import { logInfo } from '../../utils/httpLogger';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -192,7 +193,7 @@ export class ChangeForgotPassword {
     // 6. Limpeza (Segurança): invalida o código para que ele não possa ser usado de novo
     await this.userRepository.updateRecoveryToken(usuario.id, null, null);
 
-    console.log(`[AUTH] Senha alterada com sucesso para: ${props.email}`);
+    logInfo('auth.password_recovered', { email: props.email });
   }
 }
 

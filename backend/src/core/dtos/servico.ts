@@ -5,12 +5,13 @@ export interface CriarServicoDto {
     prestador_id: string,
     categoria_id: string,
     titulo: string,
-    descricao: string,
-    preco_acordado: number,
-    data_inicio: Date,
-    duracao: string,
-    categoria: string
-    status: ServicoStatus
+    descricao?: string,
+    preco_acordado?: number,
+    data_inicio?: Date | string | null,
+    duracao?: string,
+    categoria?: string,
+    status?: ServicoStatus,
+    prioridade?: string,
 }
 
 export interface AtualizarServicoDto {

@@ -27,7 +27,6 @@ export class PgDocumentoRepository implements IDocumentoRepository {
       if (error.code === '23505') {
         throw new AppError('Usuário já possui um documento cadastrado.', 400);
       }
-      console.error('Database Error:', error);
       throw new AppError('Erro ao salvar documento no banco de dados.', 500);
     }
   }
@@ -51,7 +50,6 @@ export class PgDocumentoRepository implements IDocumentoRepository {
     try {
       await pool.query(consulta, valores);
     } catch (error: any) {
-      console.error(error);
       throw new AppError('Erro ao atualizar documento.', 500);
     }
   }
@@ -62,25 +60,20 @@ export class PgDocumentoRepository implements IDocumentoRepository {
 
   async findByUserId(user_id: string): Promise<Documento | null> {
     const consulta = "SELECT * FROM documentos WHERE user_id = $1 LIMIT 1";
-    try {
-      const { rows } = await pool.query(consulta, [user_id]);
-      if (!rows[0]) return null;
-      return new Documento(
-        {
-          user_id: rows[0].user_id,
-          tipo: rows[0].tipo,
-          numero_documento: rows[0].numero_documento,
-          arquivo_url: rows[0].arquivo_url,
-          selfie_url: rows[0].selfie_url,
-          data_expiracao: rows[0].data_expiracao,
-          status: rows[0].status,
-        },
-        rows[0].id,
-      );
-    } catch (error: any) {
-      console.error('Erro ao buscar documento:', error.message);
-      throw error;
-    }
+    const { rows } = await pool.query(consulta, [user_id]);
+    if (!rows[0]) return null;
+    return new Documento(
+      {
+        user_id: rows[0].user_id,
+        tipo: rows[0].tipo,
+        numero_documento: rows[0].numero_documento,
+        arquivo_url: rows[0].arquivo_url,
+        selfie_url: rows[0].selfie_url,
+        data_expiracao: rows[0].data_expiracao,
+        status: rows[0].status,
+      },
+      rows[0].id,
+    );
   }
 
   async updateStatus(id: string, status: verificacaoStatus): Promise<void> {
@@ -88,7 +81,6 @@ export class PgDocumentoRepository implements IDocumentoRepository {
     try {
       await pool.query(consulta, [status, id]);
     } catch (error: any) {
-      console.error(error);
       throw new AppError('Erro ao atualizar status do documento.', 500);
     }
   }

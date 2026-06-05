@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
-import { CriarAvaliacaoDto } from '../../core/dtos/avaliacao';
-
 import { CriarAvaliacaoUseCase, AtualizarAvaliacaoUseCase, DeletarAvaliacaoUseCase, ListarPorId } from '../../core/use-cases/avaliacao/AvaliacaoUseCase';
+import { logControllerError } from '../../core/utils/httpLogger';
 
 export class AvaliacaoController {
     constructor(
@@ -18,6 +17,7 @@ export class AvaliacaoController {
       return res.status(200).json(resultado);
     } 
       catch (erro: any) {
+      logControllerError('AvaliacaoController', 'create', erro);
       return res.status(400).json({erro: erro.message});
     }
   }
@@ -29,6 +29,7 @@ export class AvaliacaoController {
 
     } 
     catch (erro: any) {
+      logControllerError('AvaliacaoController', 'delete', erro);
       return res.status(400).json({erro: erro.message});
 
     }
@@ -40,6 +41,7 @@ export class AvaliacaoController {
       return res.status(200).json(resultado);
     } 
     catch(erro: any){
+      logControllerError('AvaliacaoController', 'update', erro);
       return res.status(400).json({erro: erro.message});
     }
   }
@@ -51,6 +53,7 @@ export class AvaliacaoController {
       return res.status(200).json(resultado);
     }
     catch (erro: any) {
+      logControllerError('AvaliacaoController', 'listByServico', erro);
       return res.status(400).json({erro: erro.message});
     }
   }
@@ -61,6 +64,7 @@ export class AvaliacaoController {
       return res.status(200).json(resultado);
     }
     catch (erro: any) {
+      logControllerError('AvaliacaoController', 'listByUser', erro);
       return res.status(400).json({erro: erro.message});
     }
   }
@@ -71,6 +75,7 @@ export class AvaliacaoController {
       return res.status(200).json(resultado);
     }
     catch (erro: any) {
+      logControllerError('AvaliacaoController', 'listByPrestador', erro);
       return res.status(400).json({erro: erro.message});
     }
   }

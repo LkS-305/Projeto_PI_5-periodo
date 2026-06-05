@@ -27,12 +27,12 @@ export class Servico {
     this.prestador_id = props.prestador_id;
     this.categoria_id = props.categoria_id;
     this.titulo = props.titulo;
-    this.descricao = props.descricao;
-    this.preco_acordado = props.preco_acordado;
-    this.data_inicio = props.data_inicio;
-    this.duracao = props.duracao;
-    this.categoria = props.categoria;
-    this.status = props.status;
+    this.descricao = props.descricao ?? '';
+    this.preco_acordado = props.preco_acordado ?? 0;
+    this.data_inicio = props.data_inicio ? new Date(props.data_inicio) : new Date();
+    this.duracao = props.duracao ?? '';
+    this.categoria = props.categoria ?? '';
+    this.status = props.status ?? 'criado';
     this.created_at = new Date();
     this.updated_at = new Date();
   }

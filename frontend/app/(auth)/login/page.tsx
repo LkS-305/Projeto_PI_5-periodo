@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
-import { useSession } from "@/lib/contexts/SessionContext";
+import { useSession } from "@/lib/contexts/AuthContext";
 
 export default function Login() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function Login() {
 
     const user = await login({ email, senha: password });
     if (user) {
-      router.push("/home");
+      router.push("/dashboard");
       return;
     }
 
@@ -450,6 +451,26 @@ export default function Login() {
         >
           Entrar
         </h2>
+
+        <p
+          style={{
+            textAlign: "center",
+            margin: "0 0 24px 0",
+            fontFamily: "'SF Pro Text', system-ui, sans-serif",
+            fontSize: "clamp(16px, 2.5vw, 22px)",
+            fontWeight: 500,
+            color: "#535353",
+          }}
+        >
+          <Link
+            href="/explore"
+            prefetch={false}
+            style={{ color: "#2fa066", textDecoration: "underline" }}
+          >
+            Explorar serviços
+          </Link>{" "}
+          sem criar conta.
+        </p>
 
         {/* Mensagem de erro */}
         <div style={{ position: "relative", height: 0 }}>

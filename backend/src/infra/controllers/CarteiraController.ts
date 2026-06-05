@@ -1,5 +1,14 @@
 import { Request, Response } from 'express';
-import { CriarCarteiraUseCase, DeletarCarteiraUseCase, AtualizarMetodosDePagamentoUseCase, AtualizarStatus, AtualizarSaldoUseCase, AcharPorUserId, AcharPorPrestadorId } from '../../core/use-cases/financeiro/CarteiraUseCase';
+import {
+  CriarCarteiraUseCase,
+  DeletarCarteiraUseCase,
+  AtualizarMetodosDePagamentoUseCase,
+  AtualizarStatus,
+  AtualizarSaldoUseCase,
+  AcharPorUserId,
+  AcharPorPrestadorId,
+} from '../../core/use-cases/financeiro/CarteiraUseCase';
+import { logControllerError } from '../../core/utils/httpLogger';
 
 export class CarteiraController {
   constructor(
@@ -9,15 +18,15 @@ export class CarteiraController {
     private atualizarStatus: AtualizarStatus,
     private atualizarSaldo: AtualizarSaldoUseCase,
     private acharPorUserId: AcharPorUserId,
-    private acharPorPrestadorId: AcharPorPrestadorId
+    private acharPorPrestadorId: AcharPorPrestadorId,
   ) {}
 
-
-  async create(req: Request, res: Response){
+  async create(req: Request, res: Response) {
     try {
-        const resultado = await this.criarCarteira.executar(req.body);
+      const resultado = await this.criarCarteira.executar(req.body);
       return res.status(201).json(resultado);
     } catch (erro: any) {
+      logControllerError('CarteiraController', 'create', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -27,7 +36,8 @@ export class CarteiraController {
       const resultado = await this.deletarCarteira.executar(req.body.id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
-      return res.status(400).json({erro: erro.message})
+      logControllerError('CarteiraController', 'delete', erro);
+      return res.status(400).json({ erro: erro.message });
     }
   }
 
@@ -36,52 +46,48 @@ export class CarteiraController {
       const resultado = await this.atualizarMetodosDePagamento.executar(req.body.id, req.body.dados);
       return res.status(200).json(resultado);
     } catch (erro: any) {
-      return res.status(400).json({erro: erro.message})
+      logControllerError('CarteiraController', 'updatePaymentMethods', erro);
+      return res.status(400).json({ erro: erro.message });
     }
   }
 
-  async updateStatus(req: Request, res: Response){
+  async updateStatus(req: Request, res: Response) {
     try {
       const resultado = await this.atualizarStatus.executar(req.body.id, req.body.status);
       return res.status(201).json(resultado);
-
     } catch (erro: any) {
+      logControllerError('CarteiraController', 'updateStatus', erro);
       return res.status(400).json({ erro: erro.message });
     }
-}
-
+  }
 
   async updateBalance(req: Request, res: Response) {
     try {
       const resultado = await this.atualizarSaldo.executar(req.body.id, req.body.saldo);
       return res.status(201).json(resultado);
     } catch (erro: any) {
-      return res.status(400).json({erro: erro.message});
+      logControllerError('CarteiraController', 'updateBalance', erro);
+      return res.status(400).json({ erro: erro.message });
     }
-}
-
+  }
 
   async findByUserId(req: Request, res: Response) {
     try {
       const resultado = await this.acharPorUserId.executar(req.query.id as string);
       return res.status(200).json(resultado);
     } catch (erro: any) {
-      return res.status(400).json({erro: erro.message});
+      logControllerError('CarteiraController', 'findByUserId', erro);
+      return res.status(400).json({ erro: erro.message });
     }
-}
+  }
 
   async findByPrestadorId(req: Request, res: Response) {
     try {
       const resultado = await this.acharPorPrestadorId.executar(req.query.id as string);
       return res.status(200).json(resultado);
     } catch (erro: any) {
-      return res.status(400).json({erro: erro.message});
+      logControllerError('CarteiraController', 'findByPrestadorId', erro);
+      return res.status(400).json({ erro: erro.message });
     }
-}
-
-
-
-
-
-  
+  }
 }

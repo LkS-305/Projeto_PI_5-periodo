@@ -12,9 +12,7 @@ import {
 } from "../../core/use-cases/endereco/EnderecoUseCase";
 import { BuscarCepUseCase } from "../../core/use-cases/endereco/BuscarCepUseCase";
 import { CalcularDistanciaUseCase } from "../../core/use-cases/endereco/CalcularDistanciaUseCase";
-
-import { CriarEnderecoDto } from "../../core/dtos/endereco";
-import { Endereco } from "../../core/entities/Endereco";
+import { logControllerError } from "../../core/utils/httpLogger";
 
 export class EnderecoController {
   constructor(
@@ -36,6 +34,7 @@ export class EnderecoController {
       const resultado = await this.criarEndereco.executar(endereco);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('EnderecoController', 'criar', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -46,6 +45,7 @@ export class EnderecoController {
       const resultado = await this.deletarEndereco.executar(id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('EnderecoController', 'delete', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -57,6 +57,7 @@ export class EnderecoController {
       const resultado = await this.atualizarEndereco.executar(endereco);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('EnderecoController', 'update', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -67,6 +68,7 @@ export class EnderecoController {
       const resultado = await this.acharPorUserId.executar(id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('EnderecoController', 'findByUserId', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -77,6 +79,7 @@ export class EnderecoController {
       const resultado = await this.acharPorPrestadorId.executar(id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('EnderecoController', 'findByPrestadorId', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -87,6 +90,7 @@ export class EnderecoController {
       const resultado = await this.acharPorCidade.executar(cidade);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('EnderecoController', 'findByCity', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -96,6 +100,7 @@ export class EnderecoController {
       const resultado = await this.setPrincipal.executar(req.body.id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('EnderecoController', 'setIsPrincipal', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -105,6 +110,7 @@ export class EnderecoController {
       const resultado = await this.unsetPrincipal.executar(req.body.id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('EnderecoController', 'unsetIsPrincipal', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -114,6 +120,7 @@ export class EnderecoController {
       const resultado = await this.buscarCep.executar(req.body.cep);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('EnderecoController', 'getCep', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }
@@ -124,6 +131,7 @@ export class EnderecoController {
       const resultado = await this.calcularDistancia.executar(user_id, prestador_id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('EnderecoController', 'getDistancia', erro);
       return res.status(400).json({ erro: erro.message });
     }
   }

@@ -3,6 +3,7 @@ import { EnviarMensagemDto, MarcarLidaDto } from "../../dtos/mensagem";
 import { Mensagem } from "../../entities/Mensagem";
 import { ValidationError, ResourceNotFoundError } from "../../errors/AppError";
 import {
+  validarId,
   validarUUID,
   validarTexto,
   sanitizarTexto,
@@ -12,8 +13,8 @@ export class EnviarMensagemUseCase {
   constructor(private mensagemRepository: IMensagemRepository) {}
 
   async executar(dados: EnviarMensagemDto): Promise<Mensagem> {
-    validarUUID(dados.servico_id, "ID do serviço");
-    validarUUID(dados.remetente_id, "ID do remetente");
+    validarId(dados.servico_id, "ID do serviço");
+    validarId(dados.remetente_id, "ID do remetente");
     validarTexto(dados.conteudo, "Conteúdo", 1, 2000);
 
     dados.conteudo = sanitizarTexto(dados.conteudo);
@@ -80,7 +81,7 @@ export class MarcarMensagemLidaUseCase {
 
   async executar(dados: MarcarLidaDto): Promise<void> {
     validarUUID(dados.mensagem_id, "ID da mensagem");
-    validarUUID(dados.remetente_id, "ID do remetente");
+    validarId(dados.remetente_id, "ID do remetente");
     await this.mensagemRepository.marcarComoLida(
       dados.mensagem_id,
       dados.remetente_id,

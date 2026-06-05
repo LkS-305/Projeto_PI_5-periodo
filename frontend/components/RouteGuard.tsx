@@ -5,10 +5,21 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "@/lib/contexts/SessionContext";
 
 // Rotas acessíveis sem login. Todo o resto exige autenticação.
-const PUBLIC_PATHS = ["/", "/login", "/register", "/termos", "/privacidade"];
+const PUBLIC_PATHS = [
+  "/",
+  "/login",
+  "/register",
+  "/termos",
+  "/privacidade",
+  "/dev/metrics",
+  "/explore",
+];
 
 function isPublic(pathname: string): boolean {
-  return PUBLIC_PATHS.includes(pathname);
+  if (PUBLIC_PATHS.includes(pathname)) return true;
+  // Perfil público na vitrine (API de prestador exige login; página mostra CTA para entrar)
+  if (pathname.startsWith("/prestador/")) return true;
+  return false;
 }
 
 export function RouteGuard({ children }: { children: ReactNode }) {
@@ -21,7 +32,11 @@ export function RouteGuard({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (loading) return;
     if (!isPublic(pathname) && !isAuthenticated) {
-      router.replace("/");
+      // Evita "Router action dispatched before initialization" no primeiro paint/hidratação
+      const id = window.setTimeout(() => {
+        router.replace("/");
+      }, 0);
+      return () => window.clearTimeout(id);
     }
   }, [loading, isAuthenticated, pathname, router]);
 

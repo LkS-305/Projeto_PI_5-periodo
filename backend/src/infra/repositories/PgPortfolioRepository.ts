@@ -1,5 +1,6 @@
 import { pool } from '../database/postgres';
 import { IPortfolioRepository, PortfolioItem } from '../../core/repositories/IPortfolioRepository';
+import { logError } from '../../core/utils/httpLogger';
 
 export class PgPortfolioRepository implements IPortfolioRepository {
   async create(item: Omit<PortfolioItem, 'created_at'>): Promise<PortfolioItem> {
@@ -48,6 +49,7 @@ export class PgPortfolioRepository implements IPortfolioRepository {
       }
       await client.query('COMMIT');
     } catch (err) {
+      logError('db.client.transaction', err, { operation: 'portfolio.reordenar' });
       await client.query('ROLLBACK');
       throw err;
     } finally {

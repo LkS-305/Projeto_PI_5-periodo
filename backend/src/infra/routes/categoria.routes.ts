@@ -22,7 +22,7 @@ categoriaRouter.post('/criarCategoria', ensureAuthenticated, categoriaController
 categoriaRouter.patch('/editarCategoria', ensureAuthenticated, categoriaController.atualizar.bind(categoriaController));
 categoriaRouter.delete('/deletarCategoria', ensureAuthenticated, categoriaController.delete.bind(categoriaController));
 categoriaRouter.post('/buscarPorId', ensureAuthenticated, categoriaController.findById.bind(categoriaController));
-categoriaRouter.get('/buscarCategorias', ensureAuthenticated, categoriaController.findAll.bind(categoriaController));
+categoriaRouter.get('/buscarCategorias', categoriaController.findAll.bind(categoriaController));
 categoriaRouter.post('/buscarPorNome', ensureAuthenticated, categoriaController.findByName.bind(categoriaController));
 
 

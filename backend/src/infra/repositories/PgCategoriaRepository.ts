@@ -23,9 +23,7 @@ export class PgCategoriaRepository implements ICategoriaRepository {
         }
       }
 
-    // Erro genérico de banco (Conexão, sintaxe, etc)
-    console.error('Database Error:', error);
-    throw new AppError('Erro interno ao processar o cadastro no banco de dados.', 500);
+      throw new AppError('Erro interno ao processar o cadastro no banco de dados.', 500);
    }
 
   }

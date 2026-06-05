@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { CriarCategoriaUseCase, AtualizarCategoriaUseCase, DeletarCategoriaUseCase, PesquisarPorId, PesquisarTudo, PesquisarPorNome } from '../../core/use-cases/categoria/CategoriaUseCase';
+import { logControllerError } from '../../core/utils/httpLogger';
 
 
 export class CategoriaController {
@@ -19,6 +20,7 @@ export class CategoriaController {
       
 
     } catch (erro: any) {
+      logControllerError('CategoriaController', 'criar', erro);
       return res.status(400).json({erro: erro.message});
     }
   }
@@ -28,6 +30,7 @@ export class CategoriaController {
       return res.status(201).json(resultado);
       
     } catch (erro: any) {
+      logControllerError('CategoriaController', 'atualizar', erro);
       return res.status(400).json({erro: erro.message});
     }
   }
@@ -37,6 +40,7 @@ export class CategoriaController {
       const resultado = await this.deletarCategoria.executar(req.body.id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
+      logControllerError('CategoriaController', 'delete', erro);
       return res.status(400).json({erro: erro.message})
     }
 
@@ -50,6 +54,7 @@ export class CategoriaController {
       
 
     } catch (erro: any) {
+      logControllerError('CategoriaController', 'findById', erro);
       return res.status(400).json({erro: erro.message});
     }
   }
@@ -61,6 +66,7 @@ export class CategoriaController {
       
 
     } catch (erro: any) {
+      logControllerError('CategoriaController', 'findAll', erro);
       return res.status(400).json({erro: erro.message});
     }
   }
@@ -72,6 +78,7 @@ export class CategoriaController {
       
 
     } catch (erro: any) {
+      logControllerError('CategoriaController', 'findByName', erro);
       return res.status(400).json({erro: erro.message});
     }
   }

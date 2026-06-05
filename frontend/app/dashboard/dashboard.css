@@ -8,6 +8,23 @@
   font-family: "SF Pro Text", system-ui, sans-serif;
 }
 
+/* Dentro de MvpShell: sem header dourado próprio */
+.dashboard-page--mvp {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--mvp-header-h, 64px));
+  max-height: calc(100dvh - var(--mvp-header-h, 64px));
+  overflow: hidden;
+}
+
+.dashboard-page--mvp .dashboard-main {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+
 .dashboard-header {
   position: relative;
   z-index: 10;
@@ -117,6 +134,13 @@
 }
 
 @media (max-width: 1200px) {
+  .dashboard-page--mvp {
+    height: auto;
+    max-height: none;
+    min-height: calc(100dvh - var(--mvp-header-h, 64px));
+    overflow-y: auto;
+  }
+
   .dashboard-main {
     flex-direction: column;
     height: auto;
@@ -157,5 +181,26 @@
 
   .dashboard-content {
     padding: 14px;
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard-page--mvp .dashboard-sidebar__nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .dashboard-page--mvp .dashboard-sidebar__button {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 140px;
+    justify-content: center;
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+
+  .dashboard-page--mvp .dashboard-sidebar__button img {
+    width: 22px;
+    height: 22px;
   }
 }

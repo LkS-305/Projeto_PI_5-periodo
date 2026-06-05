@@ -1,3 +1,6 @@
+-- Demo: joao@email.com e pedro.encanador@email.com usam senha "senha123" (bcrypt abaixo).
+-- Reimporta este ficheiro após mudanças ou usa docker compose down -v para base limpa.
+
 -- 1. Categorias
 INSERT INTO categorias (id, nome, slug, icon_url) VALUES
 ('cat1', 'Limpeza',              'limpeza',    'https://cdn.icon/limpeza.png'),
@@ -9,16 +12,19 @@ INSERT INTO categorias (id, nome, slug, icon_url) VALUES
 
 -- 2. Users (autenticação)
 INSERT INTO users (id, email, senha, cpf) VALUES
-('u1',  'joao@email.com',           'hash_senha_1',  '11111111111'),
+('u1',  'joao@email.com',           '$2b$10$iemptuB.Mwgk30cRKQgaAeS0A.U93Us/0Ez59SBXC21XGRq4ZM24O',  '11111111111'),
 ('u2',  'maria@email.com',          'hash_senha_2',  '22222222222'),
-('u3',  'pedro.encanador@email.com','hash_senha_3',  '33333333333'),
+('u3',  'pedro.encanador@email.com','$2b$10$iemptuB.Mwgk30cRKQgaAeS0A.U93Us/0Ez59SBXC21XGRq4ZM24O',  '33333333333'),
 ('u4',  'ana.limpeza@email.com',    'hash_senha_4',  '44444444444'),
 ('u5',  'carlos.eletrica@email.com','hash_senha_5',  '55555555555'),
 ('u6',  'fernanda@email.com',       'hash_senha_6',  '66666666666'),
 ('u7',  'roberto@email.com',        'hash_senha_7',  '77777777777'),
 ('u8',  'lucas.tech@email.com',     'hash_senha_8',  '88888888888'),
 ('u9',  'juliana@email.com',        'hash_senha_9',  '99999999999'),
-('u10', 'admin@sistema.com',        'hash_senha_10', '00000000000');
+('u10', 'admin@sistema.com',        'hash_senha_10', '00000000000'),
+-- Contas de desenvolvimento (mesma senha que demo: senha123 — hash igual a u1/u3)
+('dev-1', 'dev1@localhost',         '$2b$10$iemptuB.Mwgk30cRKQgaAeS0A.U93Us/0Ez59SBXC21XGRq4ZM24O', '10000000001'),
+('dev-user', 'dev@dev.com',         '$2b$10$iemptuB.Mwgk30cRKQgaAeS0A.U93Us/0Ez59SBXC21XGRq4ZM24O', '10000000002');
 
 -- 3. Usuarios (perfis — clientes + prestadores precisam estar aqui para ter endereço)
 INSERT INTO usuarios (user_id, nome, score, foto_url) VALUES
@@ -30,7 +36,9 @@ INSERT INTO usuarios (user_id, nome, score, foto_url) VALUES
 ('u6',  'Fernanda Souza',  88,  'https://ui-avatars.com/api/?name=Fernanda+Souza'),
 ('u7',  'Roberto Carlos',  92,  'https://ui-avatars.com/api/?name=Roberto+Carlos'),
 ('u8',  'Lucas Tech',      49,  'https://ui-avatars.com/api/?name=Lucas+Tech'),
-('u9',  'Juliana Lima',    98,  'https://ui-avatars.com/api/?name=Juliana+Lima');
+('u9',  'Juliana Lima',    98,  'https://ui-avatars.com/api/?name=Juliana+Lima'),
+('dev-1', 'Cliente local dev-1', 90, 'https://ui-avatars.com/api/?name=Dev+1'),
+('dev-user', 'Cliente mock dev', 90, 'https://ui-avatars.com/api/?name=Dev+User');
 
 -- 4. Prestadores
 INSERT INTO prestadores (user_id, nome, bio, score, foto_url, status_verificacao) VALUES
@@ -39,7 +47,14 @@ INSERT INTO prestadores (user_id, nome, bio, score, foto_url, status_verificacao
 ('u5', 'Carlos Elétrica', 'Eletricista certificado. Instalações e manutenção de ar-condicionado.', 45, 'https://ui-avatars.com/api/?name=Carlos+Eletrica',  'aprovado'),
 ('u8', 'Lucas Tech',      'Suporte técnico, formatação de computadores e configuração de redes.',  49, 'https://ui-avatars.com/api/?name=Lucas+Tech',       'pendente');
 
--- 5. Endereços (CEPs reais de cidades brasileiras para testar distância)
+-- 5. Prestador x Categorias (necessário para /explore)
+INSERT INTO prestador_categorias (prestador_id, categoria_id) VALUES
+('u3', 'cat3'),
+('u4', 'cat1'),
+('u5', 'cat2'),
+('u8', 'cat6');
+
+-- 6. Endereços (CEPs reais de cidades brasileiras para testar distância)
 INSERT INTO enderecos (id, user_id, rotulo, logradouro, numero, bairro, cidade, estado, cep, is_principal) VALUES
 -- Clientes
 (gen_random_uuid()::text, 'u1', 'Casa',      'Rua das Flores',  '123', 'Jardim América',  'São Paulo',       'SP', '01310100', TRUE),  -- Av. Paulista, SP
@@ -65,6 +80,8 @@ INSERT INTO servicos (id, user_id, prestador_id, categoria_id, titulo, descricao
 -- 7. Carteiras
 INSERT INTO carteiras (user_id, prestador_id, saldo, status) VALUES
 ('u1', NULL,  '500.00',  'ativa'),
+('dev-1', NULL, '0.00', 'ativa'),
+('dev-user', NULL, '0.00', 'ativa'),
 ('u2', NULL,  '1250.50', 'ativa'),
 ('u6', NULL,  '300.00',  'ativa'),
 ('u7', NULL,  '750.00',  'ativa'),

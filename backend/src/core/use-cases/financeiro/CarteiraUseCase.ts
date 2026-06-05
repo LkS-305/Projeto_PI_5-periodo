@@ -2,7 +2,7 @@ import { CriarCarteiraDto } from '../../dtos/carteira';
 import { Carteira, CarteiraStatus } from '../../entities/Carteira';
 import { ICarteiraRepository } from '../../repositories/ICarteiraRepository';
 import { ResourceAlreadyExistsError } from '../../errors/AppError';
-import { validarUUID } from '../../utils/validate';
+import { validarId, validarUUID } from '../../utils/validate';
 
 
 export class CriarCarteiraUseCase {
@@ -10,7 +10,7 @@ export class CriarCarteiraUseCase {
 
   async executar(dados: Carteira) {
     if (dados.user_id) {
-      validarUUID(dados.user_id, 'ID do usuário');
+      validarId(dados.user_id, 'ID do usuário');
       const duplicada = await this.carteiraRepository.findByUserId(dados.user_id);
       if (duplicada) throw new ResourceAlreadyExistsError('Usuário já possui uma carteira.');
     }
@@ -61,7 +61,7 @@ export class AcharPorUserId {
   constructor(private carteiraRepository: ICarteiraRepository) {}
 
   async executar(id: string) {
-    validarUUID(id, 'ID do usuário');
+    validarId(id, 'ID do usuário');
     return await this.carteiraRepository.findByUserId(id);
   }
 }
@@ -70,7 +70,7 @@ export class AcharPorPrestadorId {
   constructor(private carteiraRepository: ICarteiraRepository) {}
 
   async executar(id: string) {
-    validarUUID(id, 'ID do prestador');
+    validarId(id, 'ID do prestador');
     return await this.carteiraRepository.findByPrestadorId(id);
   }
 }
