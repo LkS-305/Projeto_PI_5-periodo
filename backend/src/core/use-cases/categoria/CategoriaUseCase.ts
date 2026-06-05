@@ -46,7 +46,7 @@ export class AtualizarCategoriaUseCase {
     const categoriaExiste = await this.categoriaRepository.findById(dados.id);
 
     if (!categoriaExiste) {
-      throw new ResourceAlreadyExistsError('Esta categoria ja existe');
+      throw new ResourceNotFoundError('Categoria');
     }
 
     const categoriaInstanciada = new Categoria(categoriaExiste);

@@ -256,7 +256,8 @@ export default function Dashboard() {
         {activeTab === "contratante" && (
           <div className="home-section">
             {/* Box 1 — Criar demanda inteligente */}
-            <div className="home-card home-card--full">
+            <div className="home-card home-card--full"
+            onClick={() => router.push("/demand")}>
               {/* Imagem + Título na mesma linha */}
               <div className="home-card__title-row">
                 <Image
@@ -286,7 +287,9 @@ export default function Dashboard() {
             {/* Row: Box 2 + Box 3 */}
             <div className="home-card-grid">
               {/* Box 2 — Meus contratos */}
-              <div className="home-card home-card--half">
+              <div className="home-card home-card--half"
+              onClick={() => router.push("/contracts")}
+              >
                 <div className="home-card__title-row">
                   <Image
                     src="/images/deal.svg"
@@ -346,7 +349,8 @@ export default function Dashboard() {
         {activeTab === "profissional" && (
           <div className="home-section">
             {/* Box 1 — Portifólio */}
-            <div className="home-card home-card--full">
+            <div className="home-card home-card--full"
+            onClick={() => router.push("/portifolio")}>
               <div className="home-card__title-row">
                 <Image
                   src="/images/portifolio.svg"
@@ -375,7 +379,8 @@ export default function Dashboard() {
             {/* Row: Box 2 + Box 3 */}
             <div className="home-card-grid">
               {/* Box 2 — Meus contratos */}
-              <div className="home-card home-card--half">
+              <div className="home-card home-card--half"
+              onClick={() => router.push("/contracts")}>
                 <div className="home-card__title-row">
                   <Image
                     src="/images/deal.svg"

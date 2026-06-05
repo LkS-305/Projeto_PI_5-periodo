@@ -38,10 +38,13 @@ const servicoController = new ServicoController(
 servicoRouter.get("/listarTodos", (req, res) =>
   servicoController.listAll(req, res),
 );
+
 servicoRouter.get("/stats", (req, res) => servicoController.stats(req, res));
+
 servicoRouter.post("/criarServico", (req, res) =>
   servicoController.create(req, res),
 );
+
 servicoRouter.get("/buscarPorId", (req, res) =>
   servicoController.findById(req, res),
 );
@@ -49,12 +52,9 @@ servicoRouter.get("/buscarPorId", (req, res) =>
 servicoRouter.patch("/atualizarStatus", (req, res) =>
   servicoController.updateStatus(req, res),
 );
+
 servicoRouter.patch("/atualizarServico", (req, res) =>
   servicoController.updateServico(req, res),
-);
-
-servicoRouter.get("/buscarPorId", (req, res) =>
-  servicoController.findById(req, res),
 );
 
 servicoRouter.get("/buscarPorUserId", (req, res) =>

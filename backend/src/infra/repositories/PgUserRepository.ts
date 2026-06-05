@@ -39,7 +39,7 @@ export class PgUserRepository implements IUserRepository {
 
   async login(props: LoginDto): Promise<Omit<User, "senha"> | null> {
     const { rows } = await pool.query(
-      "SELECT * FROM usuarios WHERE email = $1",
+      "SELECT * FROM users WHERE email = $1",
       [props.email],
     );
     return rows[0] || null;
@@ -51,7 +51,7 @@ export class PgUserRepository implements IUserRepository {
     expiracao: Date | null,
   ): Promise<void> {
     const query = `
-        UPDATE usuarios 
+        UPDATE users 
         SET recovery_token = $1, 
             recovery_token_expires = $2 
         WHERE id = $3
@@ -63,7 +63,7 @@ export class PgUserRepository implements IUserRepository {
 
   async changePassword(id: string, nova_senha_hash: string): Promise<void> {
     const query = `
-        UPDATE usuarios 
+        UPDATE users 
         SET senha = $1 
         WHERE id = $2
       `;
@@ -84,9 +84,9 @@ export class PgUserRepository implements IUserRepository {
     const query = `
         UPDATE users 
         SET 
-            nome = $1, 
-            email = $2, 
-            senha = $3
+            email = $1, 
+            senha = $2,
+            cpf = $3
         WHERE id = $4
         RETURNING *
     `;

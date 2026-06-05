@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
 import { pool } from "../database/postgres";
 import { userRouter } from "../routes/user.routes";
 import { usuarioRouter } from "../routes/usuario.routes";
@@ -15,11 +16,14 @@ import { documentoRouter } from "../routes/documento.routes";
 import { carteiraRouter } from "../routes/carteira.routes";
 import { mensagemRouter } from "../routes/mensagem.routes";
 import { transacaoRouter } from "../routes/transacao.routes";
+import { portfolioRouter } from "../routes/portfolio.routes";
+import { exploreRouter } from "../routes/explore.routes";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.resolve('uploads')));
 app.use(logFullCycle);
 app.use(globalRateLimit);
 
@@ -34,6 +38,8 @@ app.use("/documento", documentoRouter); // SCRUM-23/43: documentos e verificaç�
 app.use("/carteira", carteiraRouter); // SCRUM-42: carteira do usuário
 app.use("/mensagem", mensagemRouter);
 app.use("/transacao", transacaoRouter);
+app.use("/portfolio", portfolioRouter);
+app.use("/explore", exploreRouter);
 
 app.get("/health", async (req, res) => {
   try {

@@ -1,4 +1,5 @@
 export type destinatario = 'usuario' | 'prestador' | 'servico' | 'avaliacao';
+export type ListBy = destinatario;
 
 export interface CriarAvaliacaoDto {
   servico_id: string | undefined,

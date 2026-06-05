@@ -68,7 +68,7 @@ export class UserController {
   async findByEmail(req: Request, res: Response) {
     try {
       exigirCampos(req.body, ['email']);
-      const resultado = await this.loginUC.executar(req.body.email);
+      const resultado = await this.acharPorEmail.executar(req.body.email);
       return res.status(200).json(resultado);
     } catch (erro: unknown) {
       if (erro instanceof AppError) return res.status(erro.statusCode).json({ status: 'error', message: erro.message });
@@ -81,7 +81,7 @@ export class UserController {
   async findById(req: Request, res: Response) {
     try {
       exigirCampos(req.body, ['id']);
-      const resultado = await this.loginUC.executar(req.body.id);
+      const resultado = await this.acharPorId.executar(req.body.id);
       return res.status(200).json(resultado);
     } catch (erro: unknown) {
       if (erro instanceof AppError) return res.status(erro.statusCode).json({ status: 'error', message: erro.message });

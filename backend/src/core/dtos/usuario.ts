@@ -10,7 +10,7 @@ export type UserType = 'Usuario' | 'Prestador' | 'Admin';
 }
 export interface AtualizarUsuarioDto {
   user_id: string;
-  nome: string,
-  foto_url: string,
+  nome?: string,
+  foto_url?: string,
 }
 

@@ -11,7 +11,7 @@ export class BuscarCepUseCase {
       if (sanitized.length !== 8) throw new Error("CEP inválido");
 
     try {
-      const res = await fetch('https://viacep.com.br/ws/${sanitized}/json/');
+      const res = await fetch(`https://viacep.com.br/ws/${sanitized}/json/`);
       const data: RetornoApi = await res.json();
       
       if (data.erro) throw new Error("CEP não encontrado");

@@ -104,7 +104,6 @@ export class PesquisarServicoPrestadorId {
     if (!servico2){
       throw new ResourceNotFoundError('Serviço');
     }
-console.log('aaaaaaaaaaa');
     return servico2;
   }
 }

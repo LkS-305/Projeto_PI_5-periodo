@@ -115,6 +115,7 @@ CREATE TABLE IF NOT EXISTS transacoes (
     valor TEXT NOT NULL,
     descricao TEXT,
     metodo_pagamento TEXT NOT NULL,
+    asaas_payment_id TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -191,7 +192,26 @@ CREATE TABLE IF NOT EXISTS documentos (
     status TEXT NOT NULL CHECK (status IN ('pendente', 'aprovado', 'rejeitado'))
 );
 
--- 15. Tabela de AuditLogs
+-- 15. Tabela de Prestador_Categorias (N:N)
+CREATE TABLE IF NOT EXISTS prestador_categorias (
+    prestador_id TEXT NOT NULL REFERENCES prestadores(user_id) ON DELETE CASCADE,
+    categoria_id TEXT NOT NULL REFERENCES categorias(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (prestador_id, categoria_id)
+);
+
+-- 16. Tabela de Portfolio Items
+CREATE TABLE IF NOT EXISTS portfolio_items (
+    id TEXT PRIMARY KEY,
+    prestador_id TEXT NOT NULL REFERENCES prestadores(user_id) ON DELETE CASCADE,
+    url TEXT NOT NULL,
+    tipo TEXT NOT NULL CHECK (tipo IN ('imagem', 'video')),
+    descricao TEXT,
+    ordem INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 17. Tabela de AuditLogs
 CREATE TABLE IF NOT EXISTS audit_logs (
     id TEXT PRIMARY KEY,
     user_id TEXT REFERENCES users(id),
