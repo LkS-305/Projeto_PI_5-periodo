@@ -18,6 +18,18 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_DEV_MOCK_AUTH === "true") {
+      setUser({
+        id: "dev-user",
+        email: "dev@dev.com",
+        cpf: "000.000.000-00",
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+      setLoading(false);
+      return;
+    }
+
     const token = localStorage.getItem("authToken");
     const savedUser = localStorage.getItem("authUser");
     if (token && savedUser) {
