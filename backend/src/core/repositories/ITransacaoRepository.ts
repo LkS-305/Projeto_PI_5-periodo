@@ -7,4 +7,6 @@ export interface ITransacaoRepository {
   findByServicoId(id: string): Promise<Transacao | null>;
   findByUserId(id: string): Promise<Transacao[] | null>;
   findByPrestadorId(id: string): Promise<Transacao[] | null>;
+  findByAsaasPaymentId(asaas_payment_id: string): Promise<Transacao | null>;
+  findPrestadorIdByServicoId(servico_id: string): Promise<string | null>;
 }

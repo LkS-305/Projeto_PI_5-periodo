@@ -115,6 +115,7 @@ CREATE TABLE IF NOT EXISTS transacoes (
     valor TEXT NOT NULL,
     descricao TEXT,
     metodo_pagamento TEXT NOT NULL,
+    asaas_payment_id TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
