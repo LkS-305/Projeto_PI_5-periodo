@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { ClientGateway } from "@/lib/gateways/ClientGateway";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -108,39 +109,6 @@ const PROFESSIONS: Profession[] = [
 
 // ─── Mock de profissionais ────────────────────────────────────────────────────
 
-const ALL_WORKERS: Worker[] = [
-  // Pintores
-  { id: 1, name: "Matheus S.", role: "Pintor", city: "São Paulo, SP", rating: 4.9, media: [{ type: "photo" }, { type: "photo" }, { type: "video" }, { type: "photo" }, { type: "video" }], tags: ["Paredes", "Tetos"], distanceKm: 1.2, distance: "1,2km", availability: "hoje", profession: "pintor" },
-  { id: 2, name: "Fernanda C.", role: "Pintora", city: "Fortaleza, CE", rating: 5.0, media: [{ type: "photo" }, { type: "video" }, { type: "photo" }, { type: "video" }, { type: "photo" }], tags: ["Fachada", "Tetos", "Gesso"], distanceKm: 3.4, distance: "3,4km", availability: "hoje", profession: "pintor" },
-  { id: 3, name: "Márcio A.", role: "Pintor", city: "Aracaju, SE", rating: 4.9, media: [{ type: "photo" }, { type: "video" }, { type: "photo" }], tags: ["Madeira", "Verniz"], distanceKm: 8.2, distance: "8,2km", availability: "amanha", profession: "pintor" },
-  { id: 4, name: "Davi P.", role: "Pintor", city: "Belém, PA", rating: 4.7, media: [{ type: "photo" }, { type: "photo" }, { type: "video" }], tags: ["Paredes", "Gesso"], distanceKm: 5.6, distance: "5,6km", availability: "indisponivel", profession: "pintor" },
-  { id: 5, name: "Carla M.", role: "Pintora", city: "Rio de Janeiro, RJ", rating: 4.8, media: [{ type: "photo" }, { type: "video" }, { type: "photo" }, { type: "photo" }], tags: ["Fachada", "Madeira"], distanceKm: 12.1, distance: "12,1km", availability: "semana", profession: "pintor" },
-  { id: 6, name: "Rafael B.", role: "Pintor", city: "Belo Horizonte, MG", rating: 4.6, media: [{ type: "photo" }, { type: "photo" }], tags: ["Tetos", "Verniz"], distanceKm: 2.8, distance: "2,8km", availability: "quinze", profession: "pintor" },
-  // Pedreiros
-  { id: 7, name: "Matheus A.", role: "Pedreiro", city: "São Paulo, SP", rating: 4.9, media: [{ type: "photo" }, { type: "video" }, { type: "photo" }], tags: ["Alvenaria", "Reboco"], distanceKm: 2.1, distance: "2,1km", availability: "hoje", profession: "pedreiro" },
-  { id: 8, name: "Márcio B.", role: "Pedreiro", city: "Aracaju, SE", rating: 4.9, media: [{ type: "photo" }, { type: "video" }, { type: "photo" }, { type: "photo" }], tags: ["Azulejo", "Piso", "Contrapiso"], distanceKm: 6.7, distance: "6,7km", availability: "amanha", profession: "pedreiro" },
-  { id: 9, name: "Davi R.", role: "Pedreiro", city: "Belém, PA", rating: 4.6, media: [{ type: "photo" }, { type: "video" }], tags: ["Demolição", "Estrutura"], distanceKm: 9.3, distance: "9,3km", availability: "hoje", profession: "pedreiro" },
-  { id: 10, name: "Jorge L.", role: "Pedreiro", city: "Campinas, SP", rating: 4.8, media: [{ type: "photo" }, { type: "photo" }, { type: "video" }, { type: "photo" }], tags: ["Piso", "Reboco"], distanceKm: 4.5, distance: "4,5km", availability: "semana", profession: "pedreiro" },
-  // Eletricistas
-  { id: 11, name: "Lucas F.", role: "Eletricista", city: "São Paulo, SP", rating: 4.8, media: [{ type: "photo" }, { type: "video" }, { type: "photo" }], tags: ["Quadro Elétrico", "Tomadas"], distanceKm: 0.8, distance: "0,8km", availability: "hoje", profession: "eletricista" },
-  { id: 12, name: "Ana S.", role: "Eletricista", city: "Curitiba, PR", rating: 4.7, media: [{ type: "photo" }, { type: "photo" }, { type: "video" }], tags: ["Iluminação", "Projeto Elétrico"], distanceKm: 7.1, distance: "7,1km", availability: "amanha", profession: "eletricista" },
-  { id: 13, name: "Roberto F.", role: "Eletricista", city: "Recife, PE", rating: 5.0, media: [{ type: "photo" }, { type: "video" }, { type: "photo" }, { type: "video" }], tags: ["Ar-condicionado", "Quadro Elétrico"], distanceKm: 3.2, distance: "3,2km", availability: "hoje", profession: "eletricista" },
-  // Encanadores
-  { id: 14, name: "Pedro H.", role: "Encanador", city: "São Paulo, SP", rating: 4.9, media: [{ type: "photo" }, { type: "video" }, { type: "photo" }], tags: ["Tubulação", "Hidráulica"], distanceKm: 1.5, distance: "1,5km", availability: "hoje", profession: "encanador" },
-  { id: 15, name: "Tatiane B.", role: "Encanadora", city: "Belo Horizonte, MG", rating: 4.8, media: [{ type: "photo" }, { type: "photo" }], tags: ["Aquecedor", "Desentupimento"], distanceKm: 6.3, distance: "6,3km", availability: "semana", profession: "encanador" },
-  // Marceneiros
-  { id: 16, name: "João V.", role: "Marceneiro", city: "Porto Alegre, RS", rating: 5.0, media: [{ type: "photo" }, { type: "video" }, { type: "photo" }, { type: "photo" }, { type: "video" }], tags: ["Móveis Planejados", "Cozinha"], distanceKm: 4.0, distance: "4,0km", availability: "hoje", profession: "marceneiro" },
-  { id: 17, name: "Lucas S.", role: "Marceneiro", city: "São Paulo, SP", rating: 4.9, media: [{ type: "photo" }, { type: "photo" }, { type: "video" }], tags: ["Portas", "Janelas", "Deck"], distanceKm: 7.5, distance: "7,5km", availability: "amanha", profession: "marceneiro" },
-  // Azulejistas
-  { id: 18, name: "Miguel A.", role: "Azulejista", city: "Manaus, AM", rating: 5.0, media: [{ type: "photo" }, { type: "video" }, { type: "photo" }], tags: ["Piso", "Banheiro"], distanceKm: 2.3, distance: "2,3km", availability: "hoje", profession: "azulejista" },
-  { id: 19, name: "Mariana C.", role: "Azulejista", city: "Florianópolis, SC", rating: 4.8, media: [{ type: "photo" }, { type: "photo" }, { type: "video" }, { type: "photo" }], tags: ["Revestimento", "Área Externa"], distanceKm: 8.9, distance: "8,9km", availability: "semana", profession: "azulejista" },
-  // Técnicos A/C
-  { id: 20, name: "Ricardo T.", role: "Técnico de A/C", city: "Curitiba, PR", rating: 4.9, media: [{ type: "photo" }, { type: "video" }, { type: "photo" }], tags: ["Instalação", "Manutenção"], distanceKm: 5.5, distance: "5,5km", availability: "hoje", profession: "tecnico_ac" },
-  { id: 21, name: "Bianca L.", role: "Técnica de A/C", city: "Goiânia, GO", rating: 4.7, media: [{ type: "photo" }, { type: "video" }], tags: ["Higienização", "Recarga de Gás"], distanceKm: 11.3, distance: "11,3km", availability: "amanha", profession: "tecnico_ac" },
-  // Gesseiros
-  { id: 22, name: "Sandra O.", role: "Gesseira", city: "São Paulo, SP", rating: 4.8, media: [{ type: "photo" }, { type: "video" }, { type: "photo" }], tags: ["Teto", "Sancas", "Rebaixamento"], distanceKm: 3.7, distance: "3,7km", availability: "hoje", profession: "gesseiro" },
-  { id: 23, name: "Eduardo M.", role: "Gesseiro", city: "Santos, SP", rating: 5.0, media: [{ type: "photo" }, { type: "photo" }, { type: "video" }, { type: "photo" }], tags: ["Moldura", "Parede", "Teto"], distanceKm: 9.1, distance: "9,1km", availability: "semana", profession: "gesseiro" },
-];
 
 // ─── Helpers de disponibilidade ───────────────────────────────────────────────
 
@@ -162,31 +130,7 @@ const availabilityColor: Record<AvailabilityKey, string> = {
   indisponivel: "#AAAAAA",
 };
 
-// Prioridade para filtro de disponibilidade
-const avPriority: Record<AvailabilityKey | "", number> = {
-  "": 0,
-  indisponivel: 1,
-  mes: 2,
-  quinze: 3,
-  semana: 4,
-  amanha: 5,
-  hoje: 6,
-};
 
-// ─── Lógica de filtro ─────────────────────────────────────────────────────────
-
-function filterWorkers(workers: Worker[], form: FormState): Worker[] {
-  return workers.filter((w) => {
-    if (form.profession && w.profession !== form.profession) return false;
-    if (form.specialties.length > 0 && !form.specialties.some((s) => w.tags.includes(s))) return false;
-    if (form.maxKm !== null && w.distanceKm > form.maxKm) return false;
-    if (form.availability) {
-      if (avPriority[w.availability] < avPriority[form.availability]) return false;
-    }
-    if (form.minRating !== null && w.rating < form.minRating) return false;
-    return true;
-  });
-}
 
 // ─── Chip ─────────────────────────────────────────────────────────────────────
 
@@ -681,18 +625,68 @@ export default function DemandPage() {
   const setMinRating = (rating: number | null) =>
     setForm((f) => ({ ...f, minRating: rating }));
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!form.profession) {
       setProfError(true);
       setTimeout(() => setProfError(false), 600);
       return;
     }
     setView("searching");
-    // Simula chamada à API
-    setTimeout(() => {
-      setResults(filterWorkers(ALL_WORKERS, form));
+
+    try {
+      // Busca prestadores reais do backend (mesma fonte do /explore)
+      const data = await ClientGateway.getExplore();
+
+      let counter = 0;
+      const profLabel =
+        PROFESSIONS.find((p) => p.value === form.profession)?.label ?? "";
+      const profTerm = profLabel.split("(")[0].trim().toLowerCase();
+
+      const workers: Worker[] = data.flatMap((cat) =>
+        cat.prestadores.map((p) => {
+          const city = [p.cidade, p.estado].filter(Boolean).join(", ");
+          return {
+            id: ++counter,
+            name: p.nome,
+            role: cat.categoria,
+            city: city || "Localização não informada",
+            rating: Number(p.score ?? 0),
+            media: (p.portfolio ?? []).map((it) => ({
+              type: it.tipo === "video" ? "video" : "photo",
+            })) as MediaItem[],
+            tags: p.tags ?? [],
+            distanceKm: 0,
+            distance: "",
+            availability: "hoje",
+            profession: cat.categoria,
+          } as Worker;
+        }),
+      );
+
+      // Filtra pela profissão (comparação solta com a categoria), especialidades e nota
+      const filtered = workers.filter((w) => {
+        const role = w.role.toLowerCase();
+        const matchProfissao =
+          !profTerm ||
+          role.includes(profTerm) ||
+          profTerm.includes(role) ||
+          (profTerm.length >= 4 && role.startsWith(profTerm.slice(0, 4)));
+        if (!matchProfissao) return false;
+        if (
+          form.specialties.length > 0 &&
+          !form.specialties.some((s) => w.tags.includes(s))
+        )
+          return false;
+        if (form.minRating !== null && w.rating < form.minRating) return false;
+        return true;
+      });
+
+      setResults(filtered);
+    } catch {
+      setResults([]);
+    } finally {
       setView("results");
-    }, 1800);
+    }
   };
 
   const profLabel =

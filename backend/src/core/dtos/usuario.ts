@@ -3,6 +3,7 @@ export type UserType = 'Usuario' | 'Prestador' | 'Admin';
  export interface CriarUsuarioDto {
   user_id: string,
   nome?: string,
+  telefone?: string,
   email?: string,
   senha?: string,
   cpf?: string,
@@ -11,6 +12,7 @@ export type UserType = 'Usuario' | 'Prestador' | 'Admin';
 export interface AtualizarUsuarioDto {
   user_id: string;
   nome?: string,
+  telefone?: string,
   foto_url?: string,
 }
 

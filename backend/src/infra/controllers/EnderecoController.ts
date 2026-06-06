@@ -63,7 +63,8 @@ export class EnderecoController {
 
   async findByUserId(req: Request, res: Response) {
     try {
-      const id = req.body.id;
+      // rota GET: aceita ?id= na query (e mantém body por compatibilidade)
+      const id = (req.query.id as string) ?? req.body?.id;
       const resultado = await this.acharPorUserId.executar(id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
@@ -111,7 +112,9 @@ export class EnderecoController {
 
   async getCep(req: Request, res: Response) {
     try {
-      const resultado = await this.buscarCep.executar(req.body.cep);
+      // rota GET: aceita ?cep= na query (e mantém body por compatibilidade)
+      const cep = (req.query.cep as string) ?? req.body?.cep;
+      const resultado = await this.buscarCep.executar(cep);
       return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({ erro: erro.message });

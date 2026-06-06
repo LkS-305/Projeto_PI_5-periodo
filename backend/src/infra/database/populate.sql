@@ -1,11 +1,11 @@
 -- 1. Categorias
 INSERT INTO categorias (id, nome, slug, icon_url) VALUES
-('cat1', 'Limpeza',              'limpeza',    'https://cdn.icon/limpeza.png'),
-('cat2', 'Manutenção Elétrica',  'eletrica',   'https://cdn.icon/eletrica.png'),
-('cat3', 'Encanador',            'encanador',  'https://cdn.icon/encanador.png'),
-('cat4', 'Aulas Particulares',   'aulas',      'https://cdn.icon/aulas.png'),
-('cat5', 'Beleza e Estética',    'beleza',     'https://cdn.icon/beleza.png'),
-('cat6', 'TI e Suporte',         'ti-suporte', 'https://cdn.icon/ti.png');
+('cat1', 'Limpeza',              'limpeza',    'https://placehold.co/100x100?text=Limpeza'),
+('cat2', 'Manutenção Elétrica',  'eletrica',   'https://placehold.co/100x100?text=Eletrica'),
+('cat3', 'Encanador',            'encanador',  'https://placehold.co/100x100?text=Encanador'),
+('cat4', 'Aulas Particulares',   'aulas',      'https://placehold.co/100x100?text=Aulas'),
+('cat5', 'Beleza e Estética',    'beleza',     'https://placehold.co/100x100?text=Beleza'),
+('cat6', 'TI e Suporte',         'ti-suporte', 'https://placehold.co/100x100?text=TI');
 
 -- 2. Users (autenticação)
 INSERT INTO users (id, email, senha, cpf) VALUES
@@ -21,23 +21,23 @@ INSERT INTO users (id, email, senha, cpf) VALUES
 ('u10', 'admin@sistema.com',        'hash_senha_10', '00000000000');
 
 -- 3. Usuarios (perfis — clientes + prestadores precisam estar aqui para ter endereço)
-INSERT INTO usuarios (user_id, nome, score, foto_url) VALUES
-('u1',  'João Silva',      95,  'https://ui-avatars.com/api/?name=Joao+Silva'),
-('u2',  'Maria Oliveira',  100, 'https://ui-avatars.com/api/?name=Maria+Oliveira'),
-('u3',  'Pedro Encanador', 48,  'https://ui-avatars.com/api/?name=Pedro+Encanador'),
-('u4',  'Ana Limpezas',    50,  'https://ui-avatars.com/api/?name=Ana+Limpezas'),
-('u5',  'Carlos Elétrica', 45,  'https://ui-avatars.com/api/?name=Carlos+Eletrica'),
-('u6',  'Fernanda Souza',  88,  'https://ui-avatars.com/api/?name=Fernanda+Souza'),
-('u7',  'Roberto Carlos',  92,  'https://ui-avatars.com/api/?name=Roberto+Carlos'),
-('u8',  'Lucas Tech',      49,  'https://ui-avatars.com/api/?name=Lucas+Tech'),
-('u9',  'Juliana Lima',    98,  'https://ui-avatars.com/api/?name=Juliana+Lima');
+INSERT INTO usuarios (user_id, nome, telefone, score, foto_url) VALUES
+('u1',  'João Silva',      '(11) 91111-1111', 95,  'https://ui-avatars.com/api/?name=Joao+Silva'),
+('u2',  'Maria Oliveira',  '(41) 92222-2222', 100, 'https://ui-avatars.com/api/?name=Maria+Oliveira'),
+('u3',  'Pedro Encanador', '(11) 93333-3333', 5,  'https://ui-avatars.com/api/?name=Pedro+Encanador'),
+('u4',  'Ana Limpezas',    '(11) 94444-4444', 4,  'https://ui-avatars.com/api/?name=Ana+Limpezas'),
+('u5',  'Carlos Elétrica', '(19) 95555-5555', 4,  'https://ui-avatars.com/api/?name=Carlos+Eletrica'),
+('u6',  'Fernanda Souza',  '(31) 96666-6666', 88,  'https://ui-avatars.com/api/?name=Fernanda+Souza'),
+('u7',  'Roberto Carlos',  '(21) 97777-7777', 92,  'https://ui-avatars.com/api/?name=Roberto+Carlos'),
+('u8',  'Lucas Tech',      '(16) 98888-8888', 4,  'https://ui-avatars.com/api/?name=Lucas+Tech'),
+('u9',  'Juliana Lima',    '(71) 99999-9999', 98,  'https://ui-avatars.com/api/?name=Juliana+Lima');
 
 -- 4. Prestadores
 INSERT INTO prestadores (user_id, nome, bio, score, foto_url, status_verificacao) VALUES
-('u3', 'Pedro Encanador', 'Especialista em encanamentos e vazamentos com 10 anos de experiência.', 48, 'https://ui-avatars.com/api/?name=Pedro+Encanador', 'aprovado'),
-('u4', 'Ana Limpezas',    'Limpeza residencial e comercial pós-obra. Detalhista e ágil.',          50, 'https://ui-avatars.com/api/?name=Ana+Limpezas',    'aprovado'),
-('u5', 'Carlos Elétrica', 'Eletricista certificado. Instalações e manutenção de ar-condicionado.', 45, 'https://ui-avatars.com/api/?name=Carlos+Eletrica',  'aprovado'),
-('u8', 'Lucas Tech',      'Suporte técnico, formatação de computadores e configuração de redes.',  49, 'https://ui-avatars.com/api/?name=Lucas+Tech',       'pendente');
+('u3', 'Pedro Encanador', 'Especialista em encanamentos e vazamentos com 10 anos de experiência.', 4, 'https://ui-avatars.com/api/?name=Pedro+Encanador', 'aprovado'),
+('u4', 'Ana Limpezas',    'Limpeza residencial e comercial pós-obra. Detalhista e ágil.',          5, 'https://ui-avatars.com/api/?name=Ana+Limpezas',    'aprovado'),
+('u5', 'Carlos Elétrica', 'Eletricista certificado. Instalações e manutenção de ar-condicionado.', 4, 'https://ui-avatars.com/api/?name=Carlos+Eletrica',  'aprovado'),
+('u8', 'Lucas Tech',      'Suporte técnico, formatação de computadores e configuração de redes.',  4, 'https://ui-avatars.com/api/?name=Lucas+Tech',       'pendente');
 
 -- 5. Endereços (CEPs reais de cidades brasileiras para testar distância)
 INSERT INTO enderecos (id, user_id, rotulo, logradouro, numero, bairro, cidade, estado, cep, is_principal) VALUES
@@ -95,3 +95,19 @@ INSERT INTO mensagens (id, servico_id, remetente_id, conteudo, tipo_midia) VALUE
 (gen_random_uuid()::text, 's1', 'u3', 'Posso ir segunda às 9h!',                  'texto'),
 (gen_random_uuid()::text, 's2', 'u2', 'Preciso de limpeza pesada, tem disponível?','texto'),
 (gen_random_uuid()::text, 's2', 'u4', 'Sim! Posso ir na quarta às 14h.',           'texto');
+
+-- 11. Prestador <-> Categorias (necessário para a tela /explore)
+INSERT INTO prestador_categorias (prestador_id, categoria_id) VALUES
+('u3', 'cat3'),  -- Pedro Encanador -> Encanador
+('u4', 'cat1'),  -- Ana Limpezas   -> Limpeza
+('u5', 'cat2'),  -- Carlos Elétrica -> Manutenção Elétrica
+('u8', 'cat6');  -- Lucas Tech      -> TI e Suporte
+
+-- 12. Itens de portfólio (aparecem nos cards do /explore e em /portifolio)
+INSERT INTO portfolio_items (id, prestador_id, url, tipo, descricao, ordem) VALUES
+(gen_random_uuid()::text, 'u3', 'https://picsum.photos/seed/pedro1/600/400', 'imagem', 'Troca de tubulação', 0),
+(gen_random_uuid()::text, 'u3', 'https://picsum.photos/seed/pedro2/600/400', 'imagem', 'Reparo de vazamento', 1),
+(gen_random_uuid()::text, 'u4', 'https://picsum.photos/seed/ana1/600/400',   'imagem', 'Limpeza pós-obra',    0),
+(gen_random_uuid()::text, 'u4', 'https://picsum.photos/seed/ana2/600/400',   'imagem', 'Cozinha higienizada', 1),
+(gen_random_uuid()::text, 'u5', 'https://picsum.photos/seed/carlos1/600/400','imagem', 'Quadro elétrico novo', 0),
+(gen_random_uuid()::text, 'u8', 'https://picsum.photos/seed/lucas1/600/400', 'imagem', 'Setup montado',        0);

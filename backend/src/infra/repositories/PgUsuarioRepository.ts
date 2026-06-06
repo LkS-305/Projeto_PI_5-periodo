@@ -6,13 +6,14 @@ import { AppError } from "../../core/errors/AppError";
 export class PgUsuarioRepository implements IUsuarioRepository {
   async create(usuario: Usuario): Promise<void> {
     const consulta = `
-      INSERT INTO usuarios (user_id, nome)
-      VALUES ($1, $2)
+      INSERT INTO usuarios (user_id, nome, telefone)
+      VALUES ($1, $2, $3)
       RETURNING *;
     `;
     const valores = [
       usuario.user_id,
-      usuario.nome
+      usuario.nome,
+      usuario.telefone ?? null
     ];
 
     try {
@@ -41,14 +42,15 @@ export class PgUsuarioRepository implements IUsuarioRepository {
 
   async update(dados: Usuario): Promise<void> {
     const consulta = `
-        UPDATE usuarios 
+        UPDATE usuarios
         SET nome = $1,
-            foto_url = $2
-        WHERE user_id = $3
+            telefone = $2,
+            foto_url = $3
+        WHERE user_id = $4
         RETURNING *
     `;
 
-    const valores = [dados.nome, dados.foto_url, dados.user_id];
+    const valores = [dados.nome, dados.telefone ?? null, dados.foto_url ?? null, dados.user_id];
 
   try {
     await pool.query(consulta, valores);

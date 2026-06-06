@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useSession } from "@/lib/contexts/AuthContext";
+import { ClientGateway, type ExploreCategoria } from "@/lib/gateways/ClientGateway";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -131,6 +132,32 @@ function applyFiltersAndSort(
       return { ...cat, workers };
     })
     .filter((cat) => cat.workers.length > 0);
+}
+
+// ─── Mapeia a resposta do backend (/explore) para o formato da tela ─────────────
+
+function mapExploreToCategories(data: ExploreCategoria[]): Category[] {
+  let counter = 0;
+  return data.map((cat) => ({
+    label: cat.categoria,
+    workers: cat.prestadores.map((p) => {
+      const city = [p.cidade, p.estado].filter(Boolean).join(", ");
+      return {
+        id: ++counter,
+        name: p.nome,
+        role: cat.categoria,
+        city: city || "Localização não informada",
+        rating: Number(p.score ?? 0),
+        media: (p.portfolio ?? []).map((item) => ({
+          type: item.tipo === "video" ? "video" : "photo",
+        })) as MediaItem[],
+        tags: p.tags ?? [],
+        distance: "",
+        distanceKm: 0,
+        availability: "hoje",
+      } as Worker;
+    }),
+  }));
 }
 
 // ─── WorkerCard ───────────────────────────────────────────────────────────────
@@ -473,9 +500,26 @@ export default function Dashboard() {
 
   const currentSortLabel = SORT_OPTIONS.find((o) => o.key === sort)?.label ?? "Ordenar";
 
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingExplore, setLoadingExplore] = useState(true);
+  const [errorExplore, setErrorExplore] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await ClientGateway.getExplore();
+        setCategories(mapExploreToCategories(data));
+      } catch (err: any) {
+        setErrorExplore(err?.message || "Não foi possível carregar os prestadores.");
+      } finally {
+        setLoadingExplore(false);
+      }
+    })();
+  }, []);
+
   const visibleCategories = useMemo(
-    () => applyFiltersAndSort(CATEGORIES, filters, sort),
-    [filters, sort]
+    () => applyFiltersAndSort(categories, filters, sort),
+    [categories, filters, sort]
   );
 
   return (
@@ -591,7 +635,19 @@ export default function Dashboard() {
         </div>
 
         {/* Categorias */}
-        {visibleCategories.length === 0 ? (
+        {loadingExplore ? (
+          <div style={{ display: "flex", justifyContent: "center", paddingTop: "60px" }}>
+            <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "32px", color: "#8E8D8C", margin: 0 }}>Carregando prestadores...</p>
+          </div>
+        ) : errorExplore ? (
+          <div style={{ display: "flex", justifyContent: "center", paddingTop: "60px" }}>
+            <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "32px", color: "#D92B2E", margin: 0 }}>{errorExplore}</p>
+          </div>
+        ) : categories.length === 0 ? (
+          <div style={{ display: "flex", justifyContent: "center", paddingTop: "60px" }}>
+            <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "32px", color: "#8E8D8C", margin: 0 }}>Nenhum prestador encontrado.</p>
+          </div>
+        ) : visibleCategories.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: "60px", gap: "16px" }}>
             <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "32px", color: "#8E8D8C", margin: 0 }}>Nenhum profissional encontrado com os filtros aplicados.</p>
             <button onClick={() => setFilters({ specialties: [], maxKm: null, availability: "", minRating: null })} style={{ padding: "14px 36px", borderRadius: "30px", backgroundColor: "#E0C271", border: "none", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: "26px", color: "#272727", cursor: "pointer" }}>Limpar filtros</button>

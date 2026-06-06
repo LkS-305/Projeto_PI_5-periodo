@@ -16,7 +16,7 @@ export class UsuarioController {
       return res.status(401).json({ erro: "User não identificado no jwt." });
     }
       const { id } = req.user
-      const resultado = await this.criarUsuario.executar(id, req.body.nome);
+      const resultado = await this.criarUsuario.executar(id, req.body.nome, req.body.telefone);
       return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({ erro: erro.message });
@@ -45,7 +45,7 @@ export class UsuarioController {
       return res.status(401).json({ erro: "User não identificado no jwt." });
     }
       const {id} = req.user;
-      const resultado = await this.atualizarUsuario.executar({user_id: id, nome: req.body.nome, foto_url: req.body.url});
+      const resultado = await this.atualizarUsuario.executar({user_id: id, nome: req.body.nome, telefone: req.body.telefone, foto_url: req.body.url});
       return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({erro: erro.message})
