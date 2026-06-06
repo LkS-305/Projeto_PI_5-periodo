@@ -12,8 +12,6 @@ export class EnviarMensagemUseCase {
   constructor(private mensagemRepository: IMensagemRepository) {}
 
   async executar(dados: EnviarMensagemDto): Promise<Mensagem> {
-    validarUUID(dados.servico_id, "ID do serviço");
-    validarUUID(dados.remetente_id, "ID do remetente");
     validarTexto(dados.conteudo, "Conteúdo", 1, 2000);
 
     dados.conteudo = sanitizarTexto(dados.conteudo);
@@ -39,7 +37,6 @@ export class BuscarMensagensServicoUseCase {
   constructor(private mensagemRepository: IMensagemRepository) {}
 
   async executar(servico_id: string): Promise<Mensagem[]> {
-    validarUUID(servico_id, "ID do serviço");
     return this.mensagemRepository.findByServicoId(servico_id);
   }
 }
@@ -48,14 +45,7 @@ export class BuscarMensagensUsuarioUseCase {
   constructor(private mensagemRepository: IMensagemRepository) {}
 
   async executar(user_id: string): Promise<Mensagem[]> {
-    validarUUID(user_id, "ID do usuário");
-    const mensagens = await this.mensagemRepository.findByUserId(user_id);
-
-    if (!mensagens || mensagens.length === 0) {
-      throw new ResourceNotFoundError("Mensagens do usuário");
-    }
-
-    return mensagens;
+    return this.mensagemRepository.findByUserId(user_id) ?? [];
   }
 }
 
@@ -63,15 +53,7 @@ export class BuscarMensagensPrestadorUseCase {
   constructor(private mensagemRepository: IMensagemRepository) {}
 
   async executar(prestador_id: string): Promise<Mensagem[]> {
-    validarUUID(prestador_id, "ID do prestador");
-    const mensagens =
-      await this.mensagemRepository.findByPrestadorId(prestador_id);
-
-    if (!mensagens || mensagens.length === 0) {
-      throw new ResourceNotFoundError("Mensagens do prestador");
-    }
-
-    return mensagens;
+    return this.mensagemRepository.findByPrestadorId(prestador_id) ?? [];
   }
 }
 
@@ -79,8 +61,6 @@ export class MarcarMensagemLidaUseCase {
   constructor(private mensagemRepository: IMensagemRepository) {}
 
   async executar(dados: MarcarLidaDto): Promise<void> {
-    validarUUID(dados.mensagem_id, "ID da mensagem");
-    validarUUID(dados.remetente_id, "ID do remetente");
     await this.mensagemRepository.marcarComoLida(
       dados.mensagem_id,
       dados.remetente_id,

@@ -131,13 +131,15 @@ function IconButton({ iconSrc, label }: { iconSrc: string; label: string }) {
 
 // ─── Página principal ─────────────────────────────────────────────────────────
 
+function getServicoIdFromUrl(): string | null {
+  if (typeof window === "undefined") return null;
+  return new URLSearchParams(window.location.search).get("servico_id");
+}
+
 export default function MessagesPage() {
   const router = useRouter();
   const [servicos, setServicos] = useState<Servico[]>([]);
-  const [selectedServicoId, setSelectedServicoId] = useState<string | null>(
-    null,
-  );
-
+  const [selectedServicoId, setSelectedServicoId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState("");
 
   useEffect(() => {
@@ -159,7 +161,9 @@ export default function MessagesPage() {
 
         if (listaUsuario.length > 0) {
           setServicos(listaUsuario);
-          setSelectedServicoId(listaUsuario[0].id ?? null);
+          const fromUrl = getServicoIdFromUrl();
+          const exists = fromUrl && listaUsuario.some((s) => s.id === fromUrl);
+          setSelectedServicoId(exists ? fromUrl : (listaUsuario[0].id ?? null));
           return;
         }
 
@@ -182,7 +186,9 @@ export default function MessagesPage() {
 
         if (listaPrestador.length > 0) {
           setServicos(listaPrestador);
-          setSelectedServicoId(listaPrestador[0].id ?? null);
+          const fromUrl = getServicoIdFromUrl();
+          const exists = fromUrl && listaPrestador.some((s) => s.id === fromUrl);
+          setSelectedServicoId(exists ? fromUrl : (listaPrestador[0].id ?? null));
         }
       } catch (err) {
         console.error("Erro ao buscar serviços:", err);

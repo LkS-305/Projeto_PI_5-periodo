@@ -31,12 +31,26 @@ export function useWallet(): WalletState {
       setLoading(true);
       setErro(null);
       try {
-        const [carteiraResult, transacoesResult] = await Promise.allSettled([
-          CarteiraGateway.getByUserId(user!.id),
-          TransacaoGateway.getByUserId(user!.id),
+        // Busca carteira: tenta como usuário primeiro, depois como prestador
+        let carteira = await CarteiraGateway.getByUserId(user!.id).catch(() => null);
+        if (!carteira) {
+          carteira = await CarteiraGateway.getByPrestadorId(user!.id).catch(() => null);
+        }
+
+        // Busca transações: combina as do usuário como contratante e como prestador
+        const [txUsuario, txPrestador] = await Promise.all([
+          TransacaoGateway.getByUserId(user!.id).catch(() => [] as import("@/types/entities/transacao").Transacao[]),
+          TransacaoGateway.getByPrestadorId(user!.id).catch(() => [] as import("@/types/entities/transacao").Transacao[]),
         ]);
-        if (carteiraResult.status === "fulfilled") setCarteira(carteiraResult.value);
-        if (transacoesResult.status === "fulfilled") setTransacoes(transacoesResult.value ?? []);
+
+        // Deduplica por id
+        const porId = new Map<string, import("@/types/entities/transacao").Transacao>();
+        [...(txUsuario ?? []), ...(txPrestador ?? [])].forEach((t) => porId.set(t.id, t));
+        const transacoes = Array.from(porId.values())
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+        setCarteira(carteira);
+        setTransacoes(transacoes);
       } catch (err: any) {
         setErro(err.message || "Erro ao carregar dados financeiros");
       } finally {

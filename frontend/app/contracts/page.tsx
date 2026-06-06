@@ -221,6 +221,7 @@ function ContractCard({
   onOpenPicker,
   onClosePicker,
   onRate,
+  onContact,
 }: {
   contract: Contract;
   isVigente: boolean;
@@ -229,6 +230,7 @@ function ContractCard({
   onOpenPicker: () => void;
   onClosePicker: () => void;
   onRate: (r: number) => void;
+  onContact: (servicoId: string) => void;
 }) {
   const { status } = contract;
   const color  = statusColor[status];
@@ -499,6 +501,7 @@ function ContractCard({
       >
         {isVigente ? (
           <button
+            onClick={() => onContact(contract.id)}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -597,16 +600,17 @@ function formatDate(value: Date | string | undefined): string {
   return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function mapServicoToContract(s: Servico, prestadorNome?: string): Contract {
+function mapServicoToContract(s: Servico, prestadorNome?: string, categoriaNome?: string): Contract {
+  const cat = categoriaNome || s.categoria || "";
   return {
     id: s.id,
     titulo: s.titulo || "Serviço",
     provider: {
       name: prestadorNome || "Prestador",
-      role: s.categoria || "",
+      role: cat,
       city: "",
     },
-    category: s.categoria || "",
+    category: cat,
     status: (STATUS_MAP as Record<string, ContractStatus>)[s.status] ?? "aguardando",
     startDate: formatDate(s.data_inicio),
     endDate: "",
@@ -649,19 +653,25 @@ export default function ContractsPage() {
         [...comoUser, ...comoPrestador].forEach((s) => porId.set(s.id, s));
         const servicos = Array.from(porId.values());
 
-        // 3. Busca nomes dos prestadores envolvidos (paralelo)
+        // 3. Busca nomes dos prestadores e categorias em paralelo
         const prestadorIds = [...new Set(servicos.map((s) => s.prestador_id).filter(Boolean))];
         const prestadorNomes: Record<string, string> = {};
-        await Promise.allSettled(
-          prestadorIds.map(async (pid) => {
-            const p = await ClientGateway.getPrestador(pid).catch(() => null);
-            if (p?.nome) prestadorNomes[pid] = p.nome;
-          }),
-        );
+        const categoriaNomes: Record<string, string> = {};
 
-        // 4. Mapeia para contratos com nome do prestador
+        const [, categorias] = await Promise.all([
+          Promise.allSettled(
+            prestadorIds.map(async (pid) => {
+              const p = await ClientGateway.getPrestador(pid).catch(() => null);
+              if (p?.nome) prestadorNomes[pid] = p.nome;
+            }),
+          ),
+          ClientGateway.getCategorias().catch(() => []),
+        ]);
+        categorias.forEach((c) => { categoriaNomes[c.id] = c.nome; });
+
+        // 4. Mapeia para contratos com nome do prestador e categoria
         const contratos = servicos.map((s) =>
-          mapServicoToContract(s, prestadorNomes[s.prestador_id]),
+          mapServicoToContract(s, prestadorNomes[s.prestador_id], categoriaNomes[s.categoria_id]),
         );
 
         const passadosStatus: ContractStatus[] = ["concluido", "cancelado"];
@@ -886,6 +896,7 @@ export default function ContractsPage() {
                     setRatings((prev) => ({ ...prev, [contract.id]: r }));
                     setPickerOpen(null);
                   }}
+                  onContact={(id) => router.push(`/messages?servico_id=${id}`)}
                 />
               );
             })

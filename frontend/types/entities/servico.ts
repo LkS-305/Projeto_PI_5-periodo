@@ -4,6 +4,7 @@ export interface Servico {
   readonly id: string;
   user_id: string;
   prestador_id: string;
+  categoria_id: string;
   titulo: string;
   descricao?: string;
   imagem?: string;
