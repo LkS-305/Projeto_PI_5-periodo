@@ -25,7 +25,7 @@
 .not-found-card__eyebrow {
   margin: 12px;
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 50px;
+  font-size: clamp(1.5rem, 2.6vw, 3.125rem);
   font-weight: 500;
   color: #e0c271;
 }

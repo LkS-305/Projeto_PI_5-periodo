@@ -18,7 +18,7 @@
 
 .personal-info-item__label {
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 36px;
+  font-size: clamp(1rem, 1.875vw, 2.25rem);
   font-weight: 500;
   color: #272727;
   margin: 0 0 4px;
@@ -26,7 +26,7 @@
 
 .personal-info-item__value {
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 32px;
+  font-size: clamp(0.875rem, 1.67vw, 2rem);
   font-weight: 500;
   color: #878787;
   margin: 0;
@@ -36,7 +36,7 @@
   background: transparent;
   border: none;
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 36px;
+  font-size: clamp(1rem, 1.875vw, 2.25rem);
   font-weight: 500;
   color: #272727;
   text-decoration: underline;
@@ -71,7 +71,7 @@
   background: #fffdf5;
   padding: 12px 14px;
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 28px;
+  font-size: clamp(0.875rem, 1.46vw, 1.75rem);
   font-weight: 400;
   color: #272727;
   outline: none;

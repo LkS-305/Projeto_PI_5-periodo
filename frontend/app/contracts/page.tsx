@@ -19,6 +19,7 @@ type Tab = "vigentes" | "passados";
 
 interface Contract {
   id: string;
+  titulo: string;
   provider: { name: string; role: string; city: string };
   category: string;
   status: ContractStatus;
@@ -27,6 +28,7 @@ interface Contract {
   durationDays: number;
   address: string;
   value: number;
+  duracao: string;
   progressPct?: number;
   rating?: number;
   cancelReason?: string;
@@ -319,6 +321,13 @@ function ContractCard({
         </span>
       </div>
 
+      {/* ── Service title ── */}
+      <div style={{ padding: "0 40px 8px" }}>
+        <p style={{ ...SF, fontWeight: 700, fontSize: "34px", color: "#272727", margin: 0, lineHeight: 1.2 }}>
+          {contract.titulo}
+        </p>
+      </div>
+
       {/* ── Provider row ── */}
       <div
         style={{
@@ -330,8 +339,8 @@ function ContractCard({
       >
         <div
           style={{
-            width: 64,
-            height: 64,
+            width: 56,
+            height: 56,
             borderRadius: "50%",
             backgroundColor: "#EAEAEA",
             flexShrink: 0,
@@ -345,18 +354,20 @@ function ContractCard({
           <Image
             src="/images/profile_explore.svg"
             alt={contract.provider.name}
-            width={64}
-            height={64}
+            width={56}
+            height={56}
             style={{ display: "block" }}
           />
         </div>
         <div>
-          <p style={{ ...SF, fontWeight: 600, fontSize: "30px", color: "#272727", margin: 0, lineHeight: 1.2 }}>
+          <p style={{ ...SF, fontWeight: 600, fontSize: "26px", color: "#272727", margin: 0, lineHeight: 1.2 }}>
             {contract.provider.name}
           </p>
-          <p style={{ ...SF, fontWeight: 400, fontSize: "24px", color: "#8E8D8C", margin: 0, marginTop: "4px", lineHeight: 1 }}>
-            {contract.provider.role} • {contract.provider.city}
-          </p>
+          {contract.provider.role && (
+            <p style={{ ...SF, fontWeight: 400, fontSize: "22px", color: "#8E8D8C", margin: 0, marginTop: "4px", lineHeight: 1 }}>
+              {contract.provider.role}{contract.provider.city ? ` • ${contract.provider.city}` : ""}
+            </p>
+          )}
         </div>
       </div>
 
@@ -570,12 +581,13 @@ function ContractCard({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 const STATUS_MAP: Record<ServicoStatus, ContractStatus> = {
+  criado:      "aguardando",
   emAndamento: "em_andamento",
-  aceito: "em_andamento",
-  pendente: "aguardando",
-  finalizado: "concluido",
-  cancelado: "cancelado",
-  recusado: "cancelado",
+  aceito:      "em_andamento",
+  pendente:    "aguardando",
+  finalizado:  "concluido",
+  cancelado:   "cancelado",
+  recusado:    "cancelado",
 };
 
 function formatDate(value: Date | string | undefined): string {
@@ -585,21 +597,23 @@ function formatDate(value: Date | string | undefined): string {
   return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function mapServicoToContract(s: Servico): Contract {
+function mapServicoToContract(s: Servico, prestadorNome?: string): Contract {
   return {
     id: s.id,
+    titulo: s.titulo || "Serviço",
     provider: {
-      name: s.titulo || "Prestador",
+      name: prestadorNome || "Prestador",
       role: s.categoria || "",
       city: "",
     },
     category: s.categoria || "",
-    status: STATUS_MAP[s.status] ?? "aguardando",
+    status: (STATUS_MAP as Record<string, ContractStatus>)[s.status] ?? "aguardando",
     startDate: formatDate(s.data_inicio),
     endDate: "",
     durationDays: 0,
-    address: "",
+    address: s.duracao ? `Duração: ${s.duracao}` : "",
     value: Number(s.preco_acordado ?? 0),
+    duracao: s.duracao || "",
     rating: s.nota,
   };
 }
@@ -624,16 +638,31 @@ export default function ContractsPage() {
     }
     (async () => {
       try {
-        // serviços onde o usuário é contratante e onde é prestador
+        // 1. Busca serviços como contratante e como prestador
         const [comoUser, comoPrestador] = await Promise.all([
           ClientGateway.getServicosPorUser(userId).catch(() => []),
           ClientGateway.getServicosPorPrestador(userId).catch(() => []),
         ]);
 
-        // deduplica por id
+        // 2. Deduplica por id
         const porId = new Map<string, Servico>();
         [...comoUser, ...comoPrestador].forEach((s) => porId.set(s.id, s));
-        const contratos = Array.from(porId.values()).map(mapServicoToContract);
+        const servicos = Array.from(porId.values());
+
+        // 3. Busca nomes dos prestadores envolvidos (paralelo)
+        const prestadorIds = [...new Set(servicos.map((s) => s.prestador_id).filter(Boolean))];
+        const prestadorNomes: Record<string, string> = {};
+        await Promise.allSettled(
+          prestadorIds.map(async (pid) => {
+            const p = await ClientGateway.getPrestador(pid).catch(() => null);
+            if (p?.nome) prestadorNomes[pid] = p.nome;
+          }),
+        );
+
+        // 4. Mapeia para contratos com nome do prestador
+        const contratos = servicos.map((s) =>
+          mapServicoToContract(s, prestadorNomes[s.prestador_id]),
+        );
 
         const passadosStatus: ContractStatus[] = ["concluido", "cancelado"];
         setVigentes(contratos.filter((c) => !passadosStatus.includes(c.status)));

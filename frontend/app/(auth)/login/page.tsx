@@ -112,8 +112,8 @@ export default function Login() {
             className="popup-card"
             onClick={(e) => e.stopPropagation()}
             style={{
-              width: "850px",
-              height: "560px",
+              width: "min(850px, 92vw)",
+              minHeight: "min(560px, 90vh)",
               borderRadius: "40px",
               backgroundColor: "#FAF9F5",
               boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
@@ -121,7 +121,7 @@ export default function Login() {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              padding: "0 70px",
+              padding: "clamp(40px, 5vh, 80px) clamp(24px, 5vw, 70px)",
               position: "relative",
               boxSizing: "border-box",
             }}
@@ -164,7 +164,7 @@ export default function Login() {
                   style={{
                     fontFamily: "'SF Pro Text', system-ui, sans-serif",
                     fontWeight: 700,
-                    fontSize: "50px",
+                    fontSize: "clamp(1.25rem, 2.6vw, 3.125rem)",
                     color: "#272727",
                     textAlign: "center",
                     margin: "0 0 20px 0",
@@ -176,7 +176,7 @@ export default function Login() {
                   style={{
                     fontFamily: "'SF Pro Text', system-ui, sans-serif",
                     fontWeight: 400,
-                    fontSize: "30px",
+                    fontSize: "clamp(0.875rem, 1.56vw, 1.875rem)",
                     color: "#535353",
                     textAlign: "justify",
                     lineHeight: 1.4,
@@ -199,7 +199,7 @@ export default function Login() {
                   <label
                     style={{
                       fontFamily: "'SF Pro Text', system-ui, sans-serif",
-                      fontSize: "30px",
+                      fontSize: "clamp(0.875rem, 1.56vw, 1.875rem)",
                       fontWeight: 510,
                       color: "#272727",
                       alignSelf: "flex-start",
@@ -216,7 +216,7 @@ export default function Login() {
                       borderRadius: "60px",
                       padding: "0 30px",
                       width: "100%",
-                      height: "65px",
+                      height: "clamp(44px, 3.39vw, 65px)",
                       marginBottom: "30px",
                       border: "2px solid transparent",
                       boxSizing: "border-box",
@@ -240,7 +240,7 @@ export default function Login() {
                         outline: "none",
                         marginLeft: "15px",
                         fontWeight: 400,
-                        fontSize: "30px",
+                        fontSize: "clamp(0.875rem, 1.56vw, 1.875rem)",
                         color: "#535353",
                       }}
                       required
@@ -254,11 +254,11 @@ export default function Login() {
                       color: "#FAF9F5",
                       border: "none",
                       borderRadius: "65px",
-                      width: "260px",
+                      width: "clamp(140px, 13.54vw, 260px)",
                       justifyContent: "center",
                       alignItems: "center",
-                      height: "65px",
-                      fontSize: "45px",
+                      height: "clamp(44px, 3.39vw, 65px)",
+                      fontSize: "clamp(1.125rem, 2.34vw, 2.8125rem)",
                       fontWeight: 600,
                       cursor: "pointer",
                       transition: "transform 0.2s ease",
@@ -287,7 +287,7 @@ export default function Login() {
                   style={{
                     fontFamily: "'SF Pro Text', system-ui, sans-serif",
                     fontWeight: 700,
-                    fontSize: "50px",
+                    fontSize: "clamp(1.25rem, 2.6vw, 3.125rem)",
                     color: "#272727",
                     textAlign: "center",
                     margin: "0 0 40px 0",
@@ -299,7 +299,7 @@ export default function Login() {
                   style={{
                     fontFamily: "'SF Pro Text', system-ui, sans-serif",
                     fontWeight: 400,
-                    fontSize: "30px",
+                    fontSize: "clamp(0.875rem, 1.56vw, 1.875rem)",
                     color: "#535353",
                     textAlign: "center",
                     lineHeight: 1.4,
@@ -323,11 +323,11 @@ export default function Login() {
                     color: resendCooldown > 0 ? "#535353" : "#FAF9F5",
                     border: "none",
                     borderRadius: "65px",
-                    width: "420px",
+                    width: "clamp(200px, 21.875vw, 420px)",
                     justifyContent: "center",
                     alignItems: "center",
-                    height: "70px",
-                    fontSize: "40px",
+                    height: "clamp(44px, 3.65vw, 70px)",
+                    fontSize: "clamp(1rem, 2.1vw, 2.5rem)",
                     fontWeight: 600,
                     cursor: resendCooldown > 0 ? "default" : "pointer",
                     transition:
@@ -396,9 +396,9 @@ export default function Login() {
         onClick={() => router.push("/")}
         style={{
           position: "fixed",
-          top: "46px",
-          left: "51px",
-          fontSize: "30px",
+          top: "clamp(20px, 2.4vw, 46px)",
+          left: "clamp(20px, 2.66vw, 51px)",
+          fontSize: "clamp(0.875rem, 1.56vw, 1.875rem)",
           fontFamily: "'SF Pro Text', system-ui, sans-serif",
           fontWeight: 500,
           color: "#272727",
@@ -417,21 +417,23 @@ export default function Login() {
       <div
         style={{
           width: "100%",
-          maxWidth: "1000px",
+          maxWidth: "min(1000px, 92vw)",
+          padding: "0 clamp(16px, 3vw, 40px)",
           display: "flex",
           flexDirection: "column",
           position: "relative",
           zIndex: 10,
+          boxSizing: "border-box",
         }}
       >
         <h1
           style={{
             fontFamily: "'Clash Display', sans-serif",
-            fontSize: "60px",
+            fontSize: "clamp(1.75rem, 3.125vw, 3.75rem)",
             fontWeight: 900,
             textAlign: "center",
             marginTop: "10px",
-            marginBottom: "-30px",
+            marginBottom: "clamp(-10px, -1vw, -30px)",
             color: "#272727",
           }}
         >
@@ -441,7 +443,7 @@ export default function Login() {
         <h2
           style={{
             fontFamily: "'SF Pro Text', system-ui, sans-serif",
-            fontSize: "130px",
+            fontSize: "clamp(3rem, 6.77vw, 8.125rem)",
             fontWeight: 700,
             textAlign: "center",
             marginBottom: "0px",
@@ -452,35 +454,29 @@ export default function Login() {
         </h2>
 
         {/* Mensagem de erro */}
-        <div style={{ position: "relative", height: 0 }}>
-          <p
-            style={{
-              position: "absolute",
-              top: "345px",
-              left: 0,
-              right: 0,
-              fontFamily: "'SF Pro Text', system-ui, sans-serif",
-              fontWeight: 400,
-              fontSize: "20px",
-              color: "#D92B2E",
-              textAlign: "center",
-              opacity: showError ? 1 : 0,
-              transition: "opacity 0.3s ease",
-              pointerEvents: "none",
-              margin: 0,
-              whiteSpace: "nowrap",
-            }}
-          >
-            Verifique suas credenciais e tente novamente.
-          </p>
-        </div>
+        <p
+          style={{
+            fontFamily: "'SF Pro Text', system-ui, sans-serif",
+            fontWeight: 400,
+            fontSize: "clamp(0.75rem, 1.04vw, 1.25rem)",
+            color: "#D92B2E",
+            textAlign: "center",
+            opacity: showError ? 1 : 0,
+            transition: "opacity 0.3s ease",
+            pointerEvents: "none",
+            margin: "8px 0 0",
+            minHeight: "1.5em",
+          }}
+        >
+          Verifique suas credenciais e tente novamente.
+        </p>
 
         <form onSubmit={handleSubmit}>
           {/* Campo E-mail */}
           <label
             style={{
               fontFamily: "'SF Pro Text', system-ui, sans-serif",
-              fontSize: "50px",
+              fontSize: "clamp(1.25rem, 2.6vw, 3.125rem)",
               fontWeight: 510,
               color: "#272727",
               marginBottom: "15px",
@@ -494,9 +490,9 @@ export default function Login() {
               alignItems: "center",
               backgroundColor: "#EAEAEA",
               borderRadius: "60px",
-              padding: "0 40px",
+              padding: "0 clamp(16px, 2.1vw, 40px)",
               width: "100%",
-              height: "80px",
+              height: "clamp(48px, 4.17vw, 80px)",
               marginBottom: "20px",
               border: inputError
                 ? "2px solid #D92B2E"
@@ -518,7 +514,7 @@ export default function Login() {
                 outline: "none",
                 marginLeft: "15px",
                 fontWeight: 400,
-                fontSize: "30px",
+                fontSize: "clamp(0.875rem, 1.56vw, 1.875rem)",
                 color: "#535353",
               }}
               required
@@ -529,7 +525,7 @@ export default function Login() {
           <label
             style={{
               fontFamily: "'SF Pro Text', system-ui, sans-serif",
-              fontSize: "50px",
+              fontSize: "clamp(1.25rem, 2.6vw, 3.125rem)",
               fontWeight: 510,
               color: "#272727",
               marginBottom: "15px",
@@ -543,9 +539,9 @@ export default function Login() {
               alignItems: "center",
               backgroundColor: "#EAEAEA",
               borderRadius: "60px",
-              padding: "0 40px",
+              padding: "0 clamp(16px, 2.1vw, 40px)",
               width: "100%",
-              height: "80px",
+              height: "clamp(48px, 4.17vw, 80px)",
               marginBottom: "15px",
               border: inputError
                 ? "2px solid #D92B2E"
@@ -572,7 +568,7 @@ export default function Login() {
                 outline: "none",
                 marginLeft: "15px",
                 fontWeight: 400,
-                fontSize: "30px",
+                fontSize: "clamp(0.875rem, 1.56vw, 1.875rem)",
                 color: "#535353",
               }}
               required
@@ -636,11 +632,11 @@ export default function Login() {
               color: "#FAF9F5",
               border: "none",
               borderRadius: "60px",
-              width: "400px",
+              width: "clamp(180px, 20.83vw, 400px)",
               justifyContent: "center",
               alignItems: "center",
-              height: "80px",
-              fontSize: "60px",
+              height: "clamp(48px, 4.17vw, 80px)",
+              fontSize: "clamp(1.5rem, 3.125vw, 3.75rem)",
               fontWeight: 600,
               margin: "0 auto 30px auto",
               cursor: loading ? "default" : "pointer",
@@ -661,7 +657,7 @@ export default function Login() {
             textAlign: "center",
             color: "#535353",
             fontWeight: 500,
-            fontSize: "25px",
+            fontSize: "clamp(0.875rem, 1.3vw, 1.5625rem)",
           }}
         >
           Não tem conta?{" "}

@@ -26,10 +26,10 @@
 }
 
 .dashboard-header__brand {
-  margin-left: 130px;
+  margin-left: clamp(70px, 7.5vw, 130px);
   user-select: none;
   font-family: "Clash Display", sans-serif;
-  font-size: 70px;
+  font-size: clamp(1.75rem, 3.65vw, 4.375rem);
   font-weight: 700;
   line-height: 1;
   letter-spacing: -1px;
@@ -38,11 +38,11 @@
 
 .dashboard-header__back {
   margin-left: auto;
-  margin-right: 50px;
+  margin-right: clamp(16px, 2.6vw, 50px);
   border: 0;
   background: transparent;
   color: #272727;
-  font-size: 30px;
+  font-size: clamp(0.875rem, 1.56vw, 1.875rem);
   font-weight: 500;
   cursor: pointer;
 }
@@ -71,7 +71,7 @@
 .dashboard-sidebar__title {
   margin: 0 0 22px;
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 38px;
+  font-size: clamp(1.125rem, 2vw, 2.375rem);
   font-weight: 600;
   color: #272727;
 }
@@ -91,7 +91,7 @@
   border-radius: 12px;
   background: #9c834a;
   color: #272727;
-  font-size: 30px;
+  font-size: clamp(0.875rem, 1.56vw, 1.875rem);
   font-weight: 500;
   padding: 14px 16px;
   cursor: pointer;

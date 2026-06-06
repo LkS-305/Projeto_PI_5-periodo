@@ -25,10 +25,10 @@
 }
 
 .messages-header__brand {
-  margin-left: 130px;
+  margin-left: clamp(70px, 7.5vw, 130px);
   user-select: none;
   font-family: "Clash Display", sans-serif;
-  font-size: 70px;
+  font-size: clamp(1.75rem, 3.65vw, 4.375rem);
   font-weight: 700;
   line-height: 1;
   letter-spacing: -1px;
@@ -60,10 +60,11 @@
 
 .messages-sidebar {
   display: flex;
-  width: 420px;
+  width: clamp(260px, 22vw, 420px);
   flex-direction: column;
   border-right: 2px solid #e0c271;
   background: #faf9f5;
+  flex-shrink: 0;
 }
 
 .messages-sidebar__header {
@@ -80,7 +81,7 @@
 
 .messages-sidebar__title {
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 38px;
+  font-size: clamp(1.125rem, 2vw, 2.375rem);
   font-weight: 700;
   line-height: 1;
   color: #272727;
@@ -315,7 +316,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 34px;
+  font-size: clamp(1rem, 1.77vw, 2.125rem);
   font-weight: 500;
   line-height: 1;
   color: #272727;
@@ -562,4 +563,54 @@
 
 .composer__remove-attachment:hover {
   background: #b7b7b7;
+}
+
+@media (max-width: 768px) {
+  .messages-header {
+    height: 60px;
+  }
+
+  .messages-header__logo-wrap {
+    top: 10px;
+  }
+
+  .messages-header__back {
+    top: 18px;
+    right: 16px;
+    font-size: 15px;
+  }
+
+  .messages-main {
+    flex-direction: column;
+  }
+
+  .messages-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 2px solid #e0c271;
+    max-height: 40vh;
+  }
+
+  .messages-chat__messages {
+    padding: 16px;
+  }
+
+  .messages-chat__composer-wrap {
+    padding: 0 16px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .messages-sidebar__filters {
+    gap: 12px;
+  }
+
+  .messages-sidebar__filter-btn {
+    padding: 6px 14px;
+    font-size: 14px;
+  }
+
+  .message-bubble {
+    font-size: 15px;
+  }
 }
