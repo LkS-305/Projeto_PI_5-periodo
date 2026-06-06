@@ -126,7 +126,10 @@ async function testAPI() {
       console.error(error.message);
     }
 
+  } catch (error: any) {
+    console.error("\n❌ Erro geral nos testes da API:");
+    console.error(error.message);
+  }
+}
 
 testAPI();
-
-  }
