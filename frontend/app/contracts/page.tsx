@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { ClientGateway, getCurrentUserId } from "@/lib/gateways/ClientGateway";
+import type { Servico, ServicoStatus } from "@/types/entities/servico";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -66,104 +68,6 @@ const statusBg: Record<ContractStatus, string> = {
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
 
-const VIGENTES: Contract[] = [
-  {
-    id: "v1",
-    provider: { name: "Rafael B.", role: "Pintor", city: "São Paulo, SP" },
-    category: "Pintura",
-    status: "em_andamento",
-    startDate: "01 Jun 2025",
-    endDate: "08 Jun 2025",
-    durationDays: 8,
-    address: "Av. Paulista, 1578 — São Paulo, SP",
-    value: 2800,
-    progressPct: 43,
-  },
-  {
-    id: "v2",
-    provider: { name: "Pedro H.", role: "Encanador", city: "São Paulo, SP" },
-    category: "Encanamento",
-    status: "aguardando",
-    startDate: "10 Jun 2025",
-    endDate: "11 Jun 2025",
-    durationDays: 2,
-    address: "Rua Augusta, 234 — São Paulo, SP",
-    value: 650,
-  },
-  {
-    id: "v3",
-    provider: { name: "Lucas F.", role: "Eletricista", city: "São Paulo, SP" },
-    category: "Elétrica",
-    status: "pagamento_pendente",
-    startDate: "29 Mai 2025",
-    endDate: "29 Mai 2025",
-    durationDays: 1,
-    address: "Rua Haddock Lobo, 595 — São Paulo, SP",
-    value: 420,
-  },
-];
-
-const PASSADOS: Contract[] = [
-  {
-    id: "p1",
-    provider: { name: "Matheus S.", role: "Pintor", city: "São Paulo, SP" },
-    category: "Pintura",
-    status: "concluido",
-    startDate: "10 Mai 2025",
-    endDate: "17 Mai 2025",
-    durationDays: 7,
-    address: "Rua Harmonia, 45 — São Paulo, SP",
-    value: 3200,
-    rating: 4.9,
-  },
-  {
-    id: "p2",
-    provider: { name: "João V.", role: "Marceneiro", city: "Porto Alegre, RS" },
-    category: "Marcenaria",
-    status: "concluido",
-    startDate: "22 Abr 2025",
-    endDate: "25 Abr 2025",
-    durationDays: 4,
-    address: "Al. Joaquim Eugênio de Lima, 10 — São Paulo, SP",
-    value: 5600,
-  },
-  {
-    id: "p3",
-    provider: { name: "Miguel A.", role: "Azulejista", city: "Manaus, AM" },
-    category: "Azulejaria",
-    status: "concluido",
-    startDate: "08 Abr 2025",
-    endDate: "12 Abr 2025",
-    durationDays: 5,
-    address: "Rua Oscar Freire, 890 — São Paulo, SP",
-    value: 1900,
-    rating: 5.0,
-  },
-  {
-    id: "p4",
-    provider: { name: "Márcio B.", role: "Pedreiro", city: "Aracaju, SE" },
-    category: "Pedreiro",
-    status: "cancelado",
-    startDate: "15 Mar 2025",
-    endDate: "20 Mar 2025",
-    durationDays: 6,
-    address: "Rua XV de Novembro, 80 — Campinas, SP",
-    value: 0,
-    cancelReason: "Cancelado pelo cliente antes do início",
-  },
-  {
-    id: "p5",
-    provider: { name: "Ricardo T.", role: "Técnico de A/C", city: "Curitiba, PR" },
-    category: "Ar-condicionado",
-    status: "concluido",
-    startDate: "28 Fev 2025",
-    endDate: "28 Fev 2025",
-    durationDays: 1,
-    address: "Rua Bela Cintra, 332 — São Paulo, SP",
-    value: 380,
-    rating: 4.7,
-  },
-];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -665,6 +569,41 @@ function ContractCard({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
+const STATUS_MAP: Record<ServicoStatus, ContractStatus> = {
+  emAndamento: "em_andamento",
+  aceito: "em_andamento",
+  pendente: "aguardando",
+  finalizado: "concluido",
+  cancelado: "cancelado",
+  recusado: "cancelado",
+};
+
+function formatDate(value: Date | string | undefined): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function mapServicoToContract(s: Servico): Contract {
+  return {
+    id: s.id,
+    provider: {
+      name: s.titulo || "Prestador",
+      role: s.categoria || "",
+      city: "",
+    },
+    category: s.categoria || "",
+    status: STATUS_MAP[s.status] ?? "aguardando",
+    startDate: formatDate(s.data_inicio),
+    endDate: "",
+    durationDays: 0,
+    address: "",
+    value: Number(s.preco_acordado ?? 0),
+    rating: s.nota,
+  };
+}
+
 export default function ContractsPage() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -673,7 +612,41 @@ export default function ContractsPage() {
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [pickerOpen, setPickerOpen] = useState<string | null>(null);
 
-  const displayed = activeTab === "vigentes" ? VIGENTES : PASSADOS;
+  const [vigentes, setVigentes] = useState<Contract[]>([]);
+  const [passados, setPassados] = useState<Contract[]>([]);
+  const [loadingContracts, setLoadingContracts] = useState(true);
+
+  useEffect(() => {
+    const userId = getCurrentUserId();
+    if (!userId) {
+      setLoadingContracts(false);
+      return;
+    }
+    (async () => {
+      try {
+        // serviços onde o usuário é contratante e onde é prestador
+        const [comoUser, comoPrestador] = await Promise.all([
+          ClientGateway.getServicosPorUser(userId).catch(() => []),
+          ClientGateway.getServicosPorPrestador(userId).catch(() => []),
+        ]);
+
+        // deduplica por id
+        const porId = new Map<string, Servico>();
+        [...comoUser, ...comoPrestador].forEach((s) => porId.set(s.id, s));
+        const contratos = Array.from(porId.values()).map(mapServicoToContract);
+
+        const passadosStatus: ContractStatus[] = ["concluido", "cancelado"];
+        setVigentes(contratos.filter((c) => !passadosStatus.includes(c.status)));
+        setPassados(contratos.filter((c) => passadosStatus.includes(c.status)));
+      } catch {
+        /* mantém listas vazias */
+      } finally {
+        setLoadingContracts(false);
+      }
+    })();
+  }, []);
+
+  const displayed = activeTab === "vigentes" ? vigentes : passados;
 
   const menuItems = [
     { icon: "message.svg",  iconW: 42, iconH: 40, label: "Mensagens",    href: "/messages" },
@@ -800,13 +773,13 @@ export default function ContractsPage() {
           Meus Contratos
         </h1>
         <p style={{ ...SF, fontWeight: 500, fontSize: "30px", color: "#535353", margin: 0, marginBottom: "48px" }}>
-          {VIGENTES.length} {VIGENTES.length === 1 ? "contrato vigente" : "contratos vigentes"} · {PASSADOS.length} passados
+          {vigentes.length} {vigentes.length === 1 ? "contrato vigente" : "contratos vigentes"} · {passados.length} passados
         </p>
 
         {/* ── TABS ── */}
         <div style={{ display: "flex", gap: "0px", marginBottom: "48px", borderBottom: "2px solid #EAEAEA" }}>
           {(["vigentes", "passados"] as Tab[]).map((tab) => {
-            const count = tab === "vigentes" ? VIGENTES.length : PASSADOS.length;
+            const count = tab === "vigentes" ? vigentes.length : passados.length;
             const isActive = activeTab === tab;
             return (
               <button
@@ -849,7 +822,11 @@ export default function ContractsPage() {
 
         {/* ── LISTA DE CARDS ── */}
         <div key={activeTab} className="cards-list" style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
-          {displayed.length === 0 ? (
+          {loadingContracts ? (
+            <div style={{ display: "flex", justifyContent: "center", padding: "80px 0" }}>
+              <p style={{ ...SF, fontSize: "32px", color: "#8E8D8C", margin: 0 }}>Carregando contratos...</p>
+            </div>
+          ) : displayed.length === 0 ? (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "80px 0", gap: "18px" }}>
               <p style={{ ...SF, fontSize: "32px", color: "#8E8D8C", margin: 0 }}>
                 {activeTab === "vigentes" ? "Você não tem contratos ativos no momento." : "Nenhum contrato passado ainda."}

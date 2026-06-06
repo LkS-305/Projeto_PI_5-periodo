@@ -1,8 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useSession } from "@/lib/contexts/AuthContext";
+import { ClientGateway, getCurrentUserId } from "@/lib/gateways/ClientGateway";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+// Resolve URLs de foto vindas do backend (ex: /uploads/...) para URL absoluta
+function resolveFoto(url?: string | null): string | null {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${API_BASE}${url}`;
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -567,9 +578,46 @@ function ProfileProfissional() {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { logout } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [view, setView] = useState<ProfileView>("contratante");
+
+  const [nome, setNome] = useState<string>("");
+  const [fotoUrl, setFotoUrl] = useState<string | null>(null);
+  const [bio, setBio] = useState<string>("");
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
+
+  useEffect(() => {
+    const userId = getCurrentUserId();
+    if (!userId) return;
+
+    (async () => {
+      try {
+        const usuario = await ClientGateway.getUsuario(userId);
+        if (usuario?.nome) setNome(usuario.nome);
+        if (usuario?.foto_url) setFotoUrl(resolveFoto(usuario.foto_url));
+      } catch {
+        /* mantém os valores padrão */
+      }
+      // bio só existe no perfil de prestador (opcional)
+      try {
+        const prestador = await ClientGateway.getPrestador(userId);
+        if (prestador?.bio) setBio(prestador.bio);
+        if (!fotoUrl && prestador?.foto_url) setFotoUrl(resolveFoto(prestador.foto_url));
+      } catch {
+        /* usuário pode não ser prestador */
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const firstName = nome ? nome.split(" ")[0] : "Usuário";
+  const avatarSrc = fotoUrl ?? "/images/profile.svg";
 
   const SF: React.CSSProperties = { fontFamily: "'SF Pro Text', system-ui, sans-serif" };
 
@@ -636,7 +684,7 @@ export default function ProfilePage() {
 
       {/* ── GLASS MENU ────────────────────────────────────────────────────────── */}
       <div className={`profile-menu-panel${menuOpen ? " open" : ""}`}>
-        <p style={{ ...SF, fontWeight: 600, fontSize: "50px", color: "#FAF9F5", margin: 0, marginTop: "60px", marginLeft: "40px", lineHeight: 1.1 }}>Olá, Usuário!</p>
+        <p style={{ ...SF, fontWeight: 600, fontSize: "50px", color: "#FAF9F5", margin: 0, marginTop: "60px", marginLeft: "40px", lineHeight: 1.1 }}>Olá, {firstName}!</p>
         {(() => {
           const firstLineTop = 145, rowHeight = 90;
           return (
@@ -647,7 +695,7 @@ export default function ProfilePage() {
               {menuItems.map((item, i) => {
                 const cy = firstLineTop + i * rowHeight + rowHeight / 2;
                 return (
-                  <div key={item.label} onClick={() => { if (item.href) router.push(item.href); }} style={{ position: "absolute", top: `${cy}px`, transform: "translateY(-50%)", left: "40px", display: "flex", alignItems: "center", gap: "15px", cursor: "hasSwitch" in item && item.hasSwitch ? "default" : "pointer" }}>
+                  <div key={item.label} onClick={() => { if (item.label === "Sair da conta") handleLogout(); else if (item.href) router.push(item.href); }} style={{ position: "absolute", top: `${cy}px`, transform: "translateY(-50%)", left: "40px", display: "flex", alignItems: "center", gap: "15px", cursor: "hasSwitch" in item && item.hasSwitch ? "default" : "pointer" }}>
                     <Image src={`/images/${item.icon}`} alt={item.label} width={item.iconW} height={item.iconH} style={{ flexShrink: 0 }} />
                     <span style={{ ...SF, fontWeight: 500, fontSize: "40px", color: "#FAF9F5", userSelect: "none" }} onMouseEnter={(e) => { if (!("hasSwitch" in item && item.hasSwitch)) e.currentTarget.style.textDecoration = "underline"; }} onMouseLeave={(e) => { e.currentTarget.style.textDecoration = "none"; }}>
                       {item.label}
@@ -694,7 +742,7 @@ export default function ProfilePage() {
             }}
           >
             <Image
-              src="/images/profile.svg"
+              src={avatarSrc}
               alt="Foto de perfil"
               width={200}
               height={200}
@@ -702,14 +750,16 @@ export default function ProfilePage() {
             />
           </div>
 
-          {/* Name + location */}
+          {/* Name + bio */}
           <div style={{ textAlign: "center" }}>
             <h1 style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 600, fontSize: "72px", color: "#272727", margin: 0, lineHeight: 1.05, letterSpacing: "-1.5px" }}>
-              Rodrigo E.
+              {nome || "Usuário"}
             </h1>
-            <p style={{ ...SF, fontWeight: 400, fontSize: "28px", color: "#8E8D8C", margin: 0, marginTop: "8px" }}>
-              São Paulo, SP
-            </p>
+            {bio && (
+              <p style={{ ...SF, fontWeight: 400, fontSize: "28px", color: "#8E8D8C", margin: 0, marginTop: "8px", maxWidth: "640px" }}>
+                {bio}
+              </p>
+            )}
           </div>
 
           {/* ── VIEW TOGGLE ── */}

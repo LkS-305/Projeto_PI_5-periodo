@@ -236,7 +236,7 @@ export default function Cadastro() {
         // 2. Cria o perfil do usuário
         await apiClient.post(
           "/usuario/criarUsuario",
-          { user_id: userId, nome: formData.nome },
+          { user_id: userId, nome: formData.nome, telefone: formData.celular },
           { headers: { Authorization: `Bearer ${token}` } },
         );
 

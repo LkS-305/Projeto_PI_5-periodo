@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useNotification } from "@/lib/contexts/NotificationContext";
+import { ClientGateway, getCurrentUserId } from "@/lib/gateways/ClientGateway";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -23,166 +24,6 @@ interface Post {
   pinned: boolean;
 }
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
-
-const INITIAL_POSTS: Post[] = [
-  {
-    id: 1,
-    title: "Pintura de paredes — Apartamento Jardins",
-    category: "Pintura",
-    description:
-      "Reforma completa de pintura em apartamento de 3 quartos, incluindo teto, rodapés e detalhes em gesso. Utilizei tintas de alta cobertura com acabamento fosco premium.",
-    date: "Maio 2025",
-    location: "São Paulo, SP",
-    tags: ["Paredes", "Tetos", "Interior"],
-    media: [
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-    ],
-    pinned: true,
-  },
-  {
-    id: 2,
-    title: "Fachada residencial — Vila Madalena",
-    category: "Fachada",
-    description:
-      "Repintura completa de fachada de sobrado com preparação de superfície, correção de trincas, selagem e aplicação de tinta acrílica com tratamento anti-mofo.",
-    date: "Abril 2025",
-    location: "São Paulo, SP",
-    tags: ["Fachada", "Externo", "Anti-mofo"],
-    media: [
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-    ],
-    pinned: true,
-  },
-  {
-    id: 3,
-    title: "Pintura de madeira — Deck externo",
-    category: "Madeira",
-    description:
-      "Lixamento, selagem e pintura de deck externo de eucalipto com verniz náutico PU de alto brilho. Tratamento completo contra intempéries e raios UV.",
-    date: "Março 2025",
-    location: "Guarujá, SP",
-    tags: ["Madeira", "Verniz", "Externo"],
-    media: [
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-    ],
-    pinned: true,
-  },
-  {
-    id: 4,
-    title: "Restauração de cozinha — Moema",
-    category: "Pintura",
-    description:
-      "Remoção de papel de parede antigo, tratamento das paredes e aplicação de tinta lavável impermeável na cor branco gelo para cozinha integrada.",
-    date: "Fevereiro 2025",
-    location: "São Paulo, SP",
-    tags: ["Cozinha", "Lavável", "Interior"],
-    media: [
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-    ],
-    pinned: false,
-  },
-  {
-    id: 5,
-    title: "Teto em gesso — Sala de jantar",
-    category: "Gesso",
-    description:
-      "Pintura especial de teto rebaixado em gesso com tratamento anti-fungos. Aplicação de sombra nas sancas para valorizar a iluminação indireta.",
-    date: "Janeiro 2025",
-    location: "Santo André, SP",
-    tags: ["Tetos", "Gesso", "Sancas"],
-    media: [
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-    ],
-    pinned: false,
-  },
-  {
-    id: 6,
-    title: "Galpão comercial — Osasco",
-    category: "Comercial",
-    description:
-      "Pintura de galpão industrial de 800m² com tinta epóxi de alta resistência no piso e tinta esmalte nas paredes metálicas. Serviço concluído em 4 dias.",
-    date: "Dezembro 2024",
-    location: "Osasco, SP",
-    tags: ["Comercial", "Epóxi", "Industrial"],
-    media: [
-      { type: "photo" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-    ],
-    pinned: false,
-  },
-  {
-    id: 7,
-    title: "Quarto infantil — Decoração temática",
-    category: "Decorativo",
-    description:
-      "Pintura artística com tema floresta encantada utilizando tinta acrílica e stencil. Murais personalizados com elementos 3D em relevo na parede principal.",
-    date: "Novembro 2024",
-    location: "São Bernardo, SP",
-    tags: ["Decorativo", "Infantil", "Mural"],
-    media: [
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-    ],
-    pinned: false,
-  },
-  {
-    id: 8,
-    title: "Apartamento alto padrão — Itaim Bibi",
-    category: "Pintura",
-    description:
-      "Projeto completo de pintura em apartamento de 180m². Cores selecionadas em conjunto com designer de interiores, com acabamento em cimento queimado nas áreas molhadas.",
-    date: "Outubro 2024",
-    location: "São Paulo, SP",
-    tags: ["Paredes", "Cimento Queimado", "Alto Padrão"],
-    media: [
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-    ],
-    pinned: false,
-  },
-];
 
 // ─── MediaStrip (scroll horizontal de fotos e vídeos) ────────────────────────
 
@@ -803,9 +644,40 @@ function FeedCard({
 export default function PortifolioPage() {
   const router = useRouter();
   const { notify } = useNotification();
-  const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const userId = getCurrentUserId();
+    if (!userId) {
+      setLoadingPosts(false);
+      return;
+    }
+    (async () => {
+      try {
+        // o portfólio é indexado pelo prestador, cujo id é o próprio user_id
+        const itens = await ClientGateway.getPortfolio(userId);
+        const mapeados: Post[] = itens.map((item, i) => ({
+          id: i + 1,
+          title: item.descricao || "Trabalho do portfólio",
+          category: "",
+          description: item.descricao || "",
+          date: "",
+          location: "",
+          tags: [],
+          media: [{ type: item.tipo === "video" ? "video" : "photo" }],
+          pinned: false,
+        }));
+        setPosts(mapeados);
+      } catch {
+        setPosts([]);
+      } finally {
+        setLoadingPosts(false);
+      }
+    })();
+  }, []);
 
   const pinned = posts.filter((p) => p.pinned);
   const pinnedCount = pinned.length;
@@ -1317,7 +1189,13 @@ export default function PortifolioPage() {
           />
 
           {/* Feed */}
-          {posts.length === 0 ? (
+          {loadingPosts ? (
+            <div style={{ display: "flex", justifyContent: "center", padding: "80px 0" }}>
+              <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "30px", color: "#8E8D8C", margin: 0 }}>
+                Carregando portfólio...
+              </p>
+            </div>
+          ) : posts.length === 0 ? (
             <div
               style={{
                 display: "flex",

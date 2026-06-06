@@ -8,14 +8,14 @@ import { validarUUID, validarEmail } from '../../utils/validate';
 export class CriarUsuarioUseCase {
   constructor(private usuarioRepository: IUsuarioRepository, private userRepository: IUserRepository) {}
 
-  async executar(user_id: string, nome: string, foto_url?: string): Promise<Usuario> {
+  async executar(user_id: string, nome: string, telefone?: string): Promise<Usuario> {
     const userExistente = await this.userRepository.findById(user_id);
 
     if (!userExistente) {
       throw new ResourceNotFoundError('User');
     }
 
-    const usuario = new Usuario({user_id: user_id, nome: nome});
+    const usuario = new Usuario({user_id: user_id, nome: nome, telefone: telefone});
     await this.usuarioRepository.create(usuario);
  
     return usuario;
