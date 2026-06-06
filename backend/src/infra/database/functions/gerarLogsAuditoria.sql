@@ -9,10 +9,13 @@ BEGIN
     -- Extrai o ID de forma segura: tenta 'id', se não tiver, tenta 'user_id'
     -- Isso evita o erro de "record has no field"
     v_recurso_id := COALESCE(
-        (to_jsonb(NEW) ->> 'id'), 
+        (to_jsonb(NEW) ->> 'id'),
         (to_jsonb(OLD) ->> 'id'),
         (to_jsonb(NEW) ->> 'user_id'),
-        (to_jsonb(OLD) ->> 'user_id')
+        (to_jsonb(OLD) ->> 'user_id'),
+        (to_jsonb(NEW) ->> 'prestador_id'),
+        (to_jsonb(OLD) ->> 'prestador_id'),
+        'unknown'
     );
 
     INSERT INTO audit_logs (
