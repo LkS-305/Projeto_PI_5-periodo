@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useNotification } from "@/lib/contexts/NotificationContext";
+import { useSession } from "@/lib/contexts/AuthContext";
+import { apiClient } from "@/lib/api/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -12,7 +14,7 @@ interface MediaItem {
 }
 
 interface Post {
-  id: number;
+  id: string;
   title: string;
   category: string;
   description: string;
@@ -23,166 +25,35 @@ interface Post {
   pinned: boolean;
 }
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
+// ─── API helpers ──────────────────────────────────────────────────────────────
 
-const INITIAL_POSTS: Post[] = [
-  {
-    id: 1,
-    title: "Pintura de paredes — Apartamento Jardins",
-    category: "Pintura",
-    description:
-      "Reforma completa de pintura em apartamento de 3 quartos, incluindo teto, rodapés e detalhes em gesso. Utilizei tintas de alta cobertura com acabamento fosco premium.",
-    date: "Maio 2025",
-    location: "São Paulo, SP",
-    tags: ["Paredes", "Tetos", "Interior"],
-    media: [
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-    ],
-    pinned: true,
-  },
-  {
-    id: 2,
-    title: "Fachada residencial — Vila Madalena",
-    category: "Fachada",
-    description:
-      "Repintura completa de fachada de sobrado com preparação de superfície, correção de trincas, selagem e aplicação de tinta acrílica com tratamento anti-mofo.",
-    date: "Abril 2025",
-    location: "São Paulo, SP",
-    tags: ["Fachada", "Externo", "Anti-mofo"],
-    media: [
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-    ],
-    pinned: true,
-  },
-  {
-    id: 3,
-    title: "Pintura de madeira — Deck externo",
-    category: "Madeira",
-    description:
-      "Lixamento, selagem e pintura de deck externo de eucalipto com verniz náutico PU de alto brilho. Tratamento completo contra intempéries e raios UV.",
-    date: "Março 2025",
-    location: "Guarujá, SP",
-    tags: ["Madeira", "Verniz", "Externo"],
-    media: [
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-    ],
-    pinned: true,
-  },
-  {
-    id: 4,
-    title: "Restauração de cozinha — Moema",
-    category: "Pintura",
-    description:
-      "Remoção de papel de parede antigo, tratamento das paredes e aplicação de tinta lavável impermeável na cor branco gelo para cozinha integrada.",
-    date: "Fevereiro 2025",
-    location: "São Paulo, SP",
-    tags: ["Cozinha", "Lavável", "Interior"],
-    media: [
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-    ],
+interface PortfolioItemApi {
+  id: string;
+  prestador_id: string;
+  url: string;
+  tipo: "imagem" | "video";
+  descricao?: string;
+  ordem: number;
+  created_at: string;
+}
+
+function mapApiToPost(item: PortfolioItemApi): Post {
+  const d = new Date(item.created_at);
+  const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  const date = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+  return {
+    id: item.id,
+    title: item.descricao || "Sem título",
+    category: item.tipo === "video" ? "Vídeo" : "Imagem",
+    description: item.descricao || "",
+    date,
+    location: "",
+    tags: [],
+    media: [{ type: item.tipo === "video" ? "video" : "photo" }],
     pinned: false,
-  },
-  {
-    id: 5,
-    title: "Teto em gesso — Sala de jantar",
-    category: "Gesso",
-    description:
-      "Pintura especial de teto rebaixado em gesso com tratamento anti-fungos. Aplicação de sombra nas sancas para valorizar a iluminação indireta.",
-    date: "Janeiro 2025",
-    location: "Santo André, SP",
-    tags: ["Tetos", "Gesso", "Sancas"],
-    media: [
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-    ],
-    pinned: false,
-  },
-  {
-    id: 6,
-    title: "Galpão comercial — Osasco",
-    category: "Comercial",
-    description:
-      "Pintura de galpão industrial de 800m² com tinta epóxi de alta resistência no piso e tinta esmalte nas paredes metálicas. Serviço concluído em 4 dias.",
-    date: "Dezembro 2024",
-    location: "Osasco, SP",
-    tags: ["Comercial", "Epóxi", "Industrial"],
-    media: [
-      { type: "photo" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-    ],
-    pinned: false,
-  },
-  {
-    id: 7,
-    title: "Quarto infantil — Decoração temática",
-    category: "Decorativo",
-    description:
-      "Pintura artística com tema floresta encantada utilizando tinta acrílica e stencil. Murais personalizados com elementos 3D em relevo na parede principal.",
-    date: "Novembro 2024",
-    location: "São Bernardo, SP",
-    tags: ["Decorativo", "Infantil", "Mural"],
-    media: [
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-    ],
-    pinned: false,
-  },
-  {
-    id: 8,
-    title: "Apartamento alto padrão — Itaim Bibi",
-    category: "Pintura",
-    description:
-      "Projeto completo de pintura em apartamento de 180m². Cores selecionadas em conjunto com designer de interiores, com acabamento em cimento queimado nas áreas molhadas.",
-    date: "Outubro 2024",
-    location: "São Paulo, SP",
-    tags: ["Paredes", "Cimento Queimado", "Alto Padrão"],
-    media: [
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-      { type: "photo" },
-      { type: "photo" },
-      { type: "video" },
-    ],
-    pinned: false,
-  },
-];
+  };
+}
+
 
 // ─── MediaStrip (scroll horizontal de fotos e vídeos) ────────────────────────
 
@@ -268,7 +139,7 @@ function PinnedCard({
   onUnpin,
 }: {
   post: Post;
-  onUnpin: (id: number) => void;
+  onUnpin: (id: string) => void;
 }) {
   return (
     <div
@@ -464,8 +335,8 @@ function FeedCard({
 }: {
   post: Post;
   pinnedCount: number;
-  onTogglePin: (id: number) => void;
-  onDelete: (id: number) => void;
+  onTogglePin: (id: string) => void;
+  onDelete: (id: string) => void;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const canPin = post.pinned || pinnedCount < 3;
@@ -803,42 +674,93 @@ function FeedCard({
 export default function PortifolioPage() {
   const router = useRouter();
   const { notify } = useNotification();
-  const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
+  const { user } = useSession();
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+
+  // Upload modal state
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadDesc, setUploadDesc] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  const prestadorId = user?.id ?? null;
+
+  useEffect(() => {
+    if (!prestadorId) { setLoading(false); return; }
+    apiClient
+      .get<PortfolioItemApi[]>(`/portfolio`, { params: { prestador_id: prestadorId } })
+      .then((items) => setPosts(items.map(mapApiToPost)))
+      .catch(() => setPosts([]))
+      .finally(() => setLoading(false));
+  }, [prestadorId]);
 
   const pinned = posts.filter((p) => p.pinned);
   const pinnedCount = pinned.length;
 
-  const handleTogglePin = (id: number) => {
+  const handleTogglePin = (id: string) => {
     const post = posts.find((p) => p.id === id);
     if (!post) return;
 
     if (post.pinned) {
-      setPosts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, pinned: false } : p))
-      );
+      setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, pinned: false } : p)));
       notify("Trabalho removido dos destaques.", "info");
     } else {
       if (pinnedCount >= 3) {
-        notify(
-          "Limite de 3 destaques atingido. Remova um para adicionar outro.",
-          "error"
-        );
+        notify("Limite de 3 destaques atingido. Remova um para adicionar outro.", "error");
         return;
       }
-      setPosts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, pinned: true } : p))
-      );
+      setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, pinned: true } : p)));
       notify("Trabalho adicionado aos destaques!", "success");
     }
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: string) => {
     const post = posts.find((p) => p.id === id);
-    if (!post) return;
-    setPosts((prev) => prev.filter((p) => p.id !== id));
-    notify(`"${post.title.split("—")[0].trim()}" foi excluído.`, "info");
+    if (!post || !prestadorId) return;
+    const token = localStorage.getItem("authToken") ?? "";
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ prestador_id: prestadorId }),
+      });
+      setPosts((prev) => prev.filter((p) => p.id !== id));
+      notify(`"${post.title}" foi excluído.`, "info");
+    } catch {
+      notify("Erro ao excluir o item.", "error");
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!uploadFile || !prestadorId) return;
+    const token = localStorage.getItem("authToken") ?? "";
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("arquivo", uploadFile);
+      formData.append("prestador_id", prestadorId);
+      if (uploadDesc.trim()) formData.append("descricao", uploadDesc.trim());
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/portfolio/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const item: PortfolioItemApi = await res.json();
+      setPosts((prev) => [mapApiToPost(item), ...prev]);
+      setUploadOpen(false);
+      setUploadFile(null);
+      setUploadDesc("");
+      notify("Trabalho adicionado com sucesso!", "success");
+    } catch (err: any) {
+      notify(err?.message || "Erro ao enviar o arquivo.", "error");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const menuItems = [
@@ -1099,6 +1021,7 @@ export default function PortifolioPage() {
 
           {/* Botão novo trabalho */}
           <button
+            onClick={() => setUploadOpen(true)}
             style={{
               display: "flex",
               alignItems: "center",
@@ -1317,7 +1240,11 @@ export default function PortifolioPage() {
           />
 
           {/* Feed */}
-          {posts.length === 0 ? (
+          {loading ? (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "80px 0" }}>
+              <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "30px", color: "#8E8D8C", margin: 0 }}>Carregando portfólio...</p>
+            </div>
+          ) : posts.length === 0 ? (
             <div
               style={{
                 display: "flex",
@@ -1362,6 +1289,57 @@ export default function PortifolioPage() {
           )}
         </div>
       </div>
+
+      {/* ── UPLOAD MODAL ────────────────────────────────────────────────────── */}
+      {uploadOpen && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 200 }}>
+          <div onClick={() => { if (!uploading) setUploadOpen(false); }} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(6px)" }} />
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "#FAF9F5", borderRadius: "40px 40px 0 0", padding: "40px 60px 60px", display: "flex", flexDirection: "column", gap: "28px" }}>
+            <div style={{ width: "60px", height: "6px", background: "#DEDEDE", borderRadius: "3px", margin: "0 auto" }} />
+            <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: "36px", color: "#272727", margin: 0 }}>Adicionar trabalho</p>
+
+            <div>
+              <label style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: "22px", color: "#535353", display: "block", marginBottom: "10px" }}>Arquivo (foto ou vídeo)</label>
+              <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+                style={{ width: "100%", fontSize: "20px", color: "#535353" }}
+              />
+              {uploadFile && <p style={{ margin: "8px 0 0", color: "#535353", fontSize: "16px" }}>Selecionado: {uploadFile.name}</p>}
+            </div>
+
+            <div>
+              <label style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: "22px", color: "#535353", display: "block", marginBottom: "10px" }}>Descrição (opcional)</label>
+              <input
+                type="text"
+                placeholder="Descreva o trabalho..."
+                value={uploadDesc}
+                onChange={(e) => setUploadDesc(e.target.value)}
+                style={{ width: "100%", height: "60px", borderRadius: "30px", border: "2px solid #E0C271", padding: "0 24px", fontSize: "22px", backgroundColor: "#FAF9F5", color: "#272727", outline: "none", boxSizing: "border-box" as const }}
+              />
+            </div>
+
+            <div style={{ display: "flex", gap: "16px" }}>
+              <button
+                onClick={handleUpload}
+                disabled={!uploadFile || uploading}
+                style={{ flex: 1, height: "64px", borderRadius: "30px", backgroundColor: uploadFile && !uploading ? "#E0C271" : "#DEDEDE", border: "none", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: "26px", color: "#272727", cursor: uploadFile && !uploading ? "pointer" : "default", transition: "opacity 0.15s" }}
+                onMouseEnter={(e) => { if (uploadFile && !uploading) (e.currentTarget as HTMLButtonElement).style.opacity = "0.85"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
+              >
+                {uploading ? "Enviando..." : "Publicar"}
+              </button>
+              <button
+                onClick={() => { if (!uploading) { setUploadOpen(false); setUploadFile(null); setUploadDesc(""); } }}
+                style={{ flex: 1, height: "64px", borderRadius: "30px", backgroundColor: "transparent", border: "2px solid #DEDEDE", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 500, fontSize: "26px", color: "#535353", cursor: "pointer" }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

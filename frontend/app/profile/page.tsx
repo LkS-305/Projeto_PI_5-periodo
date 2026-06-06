@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useSession } from "@/lib/contexts/AuthContext";
+import { apiClient } from "@/lib/api/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -567,9 +569,24 @@ function ProfileProfissional() {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { user } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [view, setView] = useState<ProfileView>("contratante");
+  const [nomeUsuario, setNomeUsuario] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const token = localStorage.getItem("authToken") ?? "";
+    apiClient
+      .post<{ nome?: string; user_id?: string }>(
+        "/usuario/buscarPorUserId",
+        { user_id: user.id },
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
+      .then((u) => { if (u?.nome) setNomeUsuario(u.nome); })
+      .catch(() => {});
+  }, [user?.id]);
 
   const SF: React.CSSProperties = { fontFamily: "'SF Pro Text', system-ui, sans-serif" };
 
@@ -636,7 +653,7 @@ export default function ProfilePage() {
 
       {/* ── GLASS MENU ────────────────────────────────────────────────────────── */}
       <div className={`profile-menu-panel${menuOpen ? " open" : ""}`}>
-        <p style={{ ...SF, fontWeight: 600, fontSize: "50px", color: "#FAF9F5", margin: 0, marginTop: "60px", marginLeft: "40px", lineHeight: 1.1 }}>Olá, Usuário!</p>
+        <p style={{ ...SF, fontWeight: 600, fontSize: "50px", color: "#FAF9F5", margin: 0, marginTop: "60px", marginLeft: "40px", lineHeight: 1.1 }}>Olá, {nomeUsuario ?? "Usuário"}!</p>
         {(() => {
           const firstLineTop = 145, rowHeight = 90;
           return (
@@ -705,10 +722,10 @@ export default function ProfilePage() {
           {/* Name + location */}
           <div style={{ textAlign: "center" }}>
             <h1 style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 600, fontSize: "72px", color: "#272727", margin: 0, lineHeight: 1.05, letterSpacing: "-1.5px" }}>
-              Rodrigo E.
+              {nomeUsuario ?? user?.email?.split("@")[0] ?? "Usuário"}
             </h1>
             <p style={{ ...SF, fontWeight: 400, fontSize: "28px", color: "#8E8D8C", margin: 0, marginTop: "8px" }}>
-              São Paulo, SP
+              {user?.email ?? ""}
             </p>
           </div>
 

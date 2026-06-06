@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useSession } from "@/lib/contexts/AuthContext";
+import { apiClient } from "@/lib/api/client";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -13,7 +14,7 @@ type SortKey = "relevancia" | "mais_proximo" | "melhor_avaliado" | "disponivel_p
 interface MediaItem { type: "photo" | "video" }
 
 interface Worker {
-  id: number;
+  id: string;
   name: string;
   role: string;
   city: string;
@@ -76,38 +77,44 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "disponivel_primeiro", label: "Disponível primeiro" },
 ];
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
+// ─── API types ────────────────────────────────────────────────────────────────
 
-const CATEGORIES: Category[] = [
-  {
-    label: "Pintor(a)",
-    workers: [
-      { id: 1, name: "Matheus S.", role: "Pintor", city: "São Paulo, SP", rating: 4.9, media: [{type:"photo"},{type:"photo"},{type:"photo"},{type:"video"},{type:"photo"},{type:"video"},{type:"photo"},{type:"photo"},{type:"video"},{type:"photo"},{type:"video"},{type:"photo"}], tags: ["Paredes", "Tetos"], distance: "1,2km", distanceKm: 1.2, availability: "hoje" },
-      { id: 2, name: "Márcio A.", role: "Pintor", city: "Aracaju, SE", rating: 4.9, media: [{type:"photo"},{type:"video"},{type:"photo"},{type:"photo"},{type:"video"},{type:"photo"},{type:"video"},{type:"photo"},{type:"photo"},{type:"video"},{type:"photo"}], tags: ["Azulejo", "Louça"], distance: "8,2km", distanceKm: 8.2, availability: "semana" },
-      { id: 3, name: "Davi P.", role: "Pintor", city: "Belém, PA", rating: 4.7, media: [{type:"photo"},{type:"photo"},{type:"video"},{type:"photo"},{type:"photo"},{type:"video"},{type:"photo"},{type:"video"},{type:"photo"},{type:"photo"}], tags: ["Portões"], distance: "5,6km", distanceKm: 5.6, availability: "indisponivel" },
-      { id: 4, name: "Fernanda C.", role: "Pintora", city: "Fortaleza, CE", rating: 5.0, media: [{type:"photo"},{type:"video"},{type:"photo"},{type:"video"},{type:"photo"},{type:"photo"},{type:"video"},{type:"photo"},{type:"photo"},{type:"video"},{type:"photo"}], tags: ["Fachada", "Tetos", "Gesso"], distance: "3,4km", distanceKm: 3.4, availability: "hoje" },
-    ],
-  },
-  {
-    label: "Pedreiro(a)",
-    workers: [
-      { id: 5, name: "Matheus A.", role: "Pedreiro", city: "São Paulo, SP", rating: 4.9, media: [{type:"photo"},{type:"photo"},{type:"video"},{type:"video"},{type:"photo"},{type:"photo"},{type:"video"},{type:"photo"},{type:"video"},{type:"photo"},{type:"photo"}], tags: ["Alvenaria", "Reboco"], distance: "2,1km", distanceKm: 2.1, availability: "hoje" },
-      { id: 6, name: "Márcio B.", role: "Pedreiro", city: "Aracaju, SE", rating: 4.9, media: [{type:"photo"},{type:"photo"},{type:"photo"},{type:"video"},{type:"photo"},{type:"video"},{type:"photo"},{type:"photo"},{type:"video"},{type:"photo"}], tags: ["Azulejo", "Piso", "Contrapiso"], distance: "6,7km", distanceKm: 6.7, availability: "quinze" },
-      { id: 7, name: "Davi R.", role: "Pedreiro", city: "Belém, PA", rating: 4.6, media: [{type:"photo"},{type:"video"},{type:"photo"}], tags: ["Demolição", "Estrutura"], distance: "9,3km", distanceKm: 9.3, availability: "mes" },
-    ],
-  },
-  {
-    label: "Eletricista",
-    workers: [
-      { id: 8, name: "Lucas F.", role: "Eletricista", city: "São Paulo, SP", rating: 4.8, media: [{type:"photo"},{type:"video"},{type:"photo"},{type:"photo"}], tags: ["Quadro elétrico", "Tomadas"], distance: "0,8km", distanceKm: 0.8, availability: "hoje" },
-      { id: 9, name: "Ana S.", role: "Eletricista", city: "Curitiba, PR", rating: 4.7, media: [{type:"photo"},{type:"photo"},{type:"video"}], tags: ["Iluminação", "Projeto", "AR"], distance: "7,1km", distanceKm: 7.1, availability: "amanha" },
-    ],
-  },
-];
+interface ExploreCard {
+  user_id: string;
+  nome: string;
+  score: number;
+  foto_url: string | null;
+  cidade: string | null;
+  estado: string | null;
+  portfolio: { url: string; tipo: string; ordem: number }[];
+  tags: string[];
+}
 
-const ALL_SPECIALTIES = Array.from(
-  new Set(CATEGORIES.flatMap((c) => c.workers.flatMap((w) => w.tags)))
-).sort();
+interface ExploreCategoria {
+  categoria_id: string;
+  categoria: string;
+  prestadores: ExploreCard[];
+}
+
+function mapApiToCategories(data: ExploreCategoria[]): Category[] {
+  return data.map((cat) => ({
+    label: cat.categoria,
+    workers: cat.prestadores.map((card) => ({
+      id: card.user_id,
+      name: card.nome,
+      role: cat.categoria,
+      city: [card.cidade, card.estado].filter(Boolean).join(", ") || "Brasil",
+      rating: Math.min(5, Math.max(0, card.score ?? 0)),
+      media: card.portfolio.length > 0
+        ? card.portfolio.map((p) => ({ type: (p.tipo === "video" ? "video" : "photo") as "photo" | "video" }))
+        : [{ type: "photo" as const }],
+      tags: card.tags,
+      distance: "—",
+      distanceKm: 0,
+      availability: "hoje" as Availability,
+    })),
+  }));
+}
 
 // ─── Filter & Sort ────────────────────────────────────────────────────────────
 
@@ -288,11 +295,13 @@ function FilterModal({
   filters,
   onChange,
   onClose,
+  allSpecialties,
 }: {
   open: boolean;
   filters: FilterState;
   onChange: (f: FilterState) => void;
   onClose: () => void;
+  allSpecialties: string[];
 }) {
   const [local, setLocal] = useState<FilterState>(filters);
 
@@ -338,7 +347,7 @@ function FilterModal({
         <div>
           <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: "20px", color: "#888", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "14px" }}>Especialidade</p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-            {ALL_SPECIALTIES.map((s) => (
+            {allSpecialties.map((s) => (
               <FilterChip key={s} label={s} selected={local.specialties.includes(s)} onToggle={() => toggleSpecialty(s)} />
             ))}
           </div>
@@ -464,6 +473,21 @@ export default function Dashboard() {
     minRating: null,
   });
 
+  const [apiCategories, setApiCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  useEffect(() => {
+    apiClient.get<ExploreCategoria[]>("/explore")
+      .then((data) => setApiCategories(mapApiToCategories(data)))
+      .catch(() => setApiCategories([]))
+      .finally(() => setLoadingCategories(false));
+  }, []);
+
+  const allSpecialties = useMemo(
+    () => Array.from(new Set(apiCategories.flatMap((c) => c.workers.flatMap((w) => w.tags)))).sort(),
+    [apiCategories]
+  );
+
   const activeFilterCount = [
     filters.specialties.length > 0,
     filters.maxKm !== null,
@@ -474,8 +498,8 @@ export default function Dashboard() {
   const currentSortLabel = SORT_OPTIONS.find((o) => o.key === sort)?.label ?? "Ordenar";
 
   const visibleCategories = useMemo(
-    () => applyFiltersAndSort(CATEGORIES, filters, sort),
-    [filters, sort]
+    () => applyFiltersAndSort(apiCategories, filters, sort),
+    [apiCategories, filters, sort]
   );
 
   return (
@@ -591,10 +615,18 @@ export default function Dashboard() {
         </div>
 
         {/* Categorias */}
-        {visibleCategories.length === 0 ? (
+        {loadingCategories ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "80px" }}>
+            <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "32px", color: "#8E8D8C", margin: 0 }}>Carregando profissionais...</p>
+          </div>
+        ) : visibleCategories.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: "60px", gap: "16px" }}>
-            <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "32px", color: "#8E8D8C", margin: 0 }}>Nenhum profissional encontrado com os filtros aplicados.</p>
-            <button onClick={() => setFilters({ specialties: [], maxKm: null, availability: "", minRating: null })} style={{ padding: "14px 36px", borderRadius: "30px", backgroundColor: "#E0C271", border: "none", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: "26px", color: "#272727", cursor: "pointer" }}>Limpar filtros</button>
+            <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "32px", color: "#8E8D8C", margin: 0 }}>
+              {apiCategories.length === 0 ? "Nenhum profissional cadastrado ainda." : "Nenhum profissional encontrado com os filtros aplicados."}
+            </p>
+            {apiCategories.length > 0 && (
+              <button onClick={() => setFilters({ specialties: [], maxKm: null, availability: "", minRating: null })} style={{ padding: "14px 36px", borderRadius: "30px", backgroundColor: "#E0C271", border: "none", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: "26px", color: "#272727", cursor: "pointer" }}>Limpar filtros</button>
+            )}
           </div>
         ) : (
           visibleCategories.map((category) => (
@@ -610,7 +642,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      <FilterModal open={filterOpen} filters={filters} onChange={setFilters} onClose={() => setFilterOpen(false)} />
+      <FilterModal open={filterOpen} filters={filters} onChange={setFilters} onClose={() => setFilterOpen(false)} allSpecialties={allSpecialties} />
       <SortModal open={sortOpen} sort={sort} onChange={setSort} onClose={() => setSortOpen(false)} />
     </div>
   );
