@@ -78,7 +78,6 @@ export class PesquisarServicoUserId {
 ) {}
 
   async executar(id: string) {
-    validarUUID(id, 'ID do usuário');
     const servico2 = await this.servicoRepository.findByUserId(id);
 
     if (!servico2){
@@ -96,7 +95,6 @@ export class PesquisarServicoPrestadorId {
 ) {}
 
   async executar(id: string) {
-    validarUUID(id, 'ID do prestador');
     const servico2 = await this.servicoRepository.findByPrestadorId(id);
 
     if (!servico2){
