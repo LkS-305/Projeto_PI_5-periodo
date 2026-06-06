@@ -13,8 +13,8 @@ export class PgServicoRepository implements IServicoRepository {
     const consulta = `
       INSERT INTO servicos (
         id, user_id, prestador_id, categoria_id, titulo, descricao,
-        preco_acordado, data_inicio, duracao, categoria, status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        preco_acordado, data_inicio, duracao, status
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *;
     `;
 
@@ -28,7 +28,6 @@ export class PgServicoRepository implements IServicoRepository {
       servico.preco_acordado ?? 0,
       servico.data_inicio ?? null,
       servico.duracao ?? null,
-      servico.categoria ?? null,
       servico.status ?? 'criado',
     ];
 
@@ -98,10 +97,6 @@ export class PgServicoRepository implements IServicoRepository {
     if (dados.descricao !== undefined) {
       campos.push(`descricao = $${idx++}`);
       valores.push(dados.descricao);
-    }
-    if (dados.categoria !== undefined) {
-      campos.push(`categoria = $${idx++}`);
-      valores.push(dados.categoria);
     }
     if (dados.preco_acordado !== undefined) {
       campos.push(`preco_acordado = $${idx++}`);

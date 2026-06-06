@@ -10,9 +10,10 @@ DOMI é uma plataforma web que conecta **clientes** a **prestadores de serviços
 - [Tecnologias](#tecnologias)
 - [Pré-requisitos](#pré-requisitos)
 - [Configuração e Execução](#configuração-e-execução)
-  - [Banco de Dados](#1-banco-de-dados)
-  - [Backend](#2-backend)
-  - [Frontend](#3-frontend)
+  - [Clone o repositório](#clone-o-repositório)
+  - [1. Banco de Dados](#1-banco-de-dados)
+  - [2. Backend](#2-backend)
+  - [3. Frontend](#3-frontend)
 - [Variáveis de Ambiente](#variáveis-de-ambiente)
 - [Navegação das Páginas](#navegação-das-páginas)
 - [Scripts Disponíveis](#scripts-disponíveis)
@@ -63,7 +64,7 @@ Cliente / Prestador
 
 ## Configuração e Execução
 
-### 1. Clone o repositório
+### Clone o repositório
 
 ```bash
 git clone https://github.com/LkS-305/Projeto_PI_5-periodo.git
@@ -72,7 +73,7 @@ cd Projeto_PI_5-periodo
 
 ---
 
-### 2. Banco de Dados
+### 1. Banco de Dados
 
 O banco sobe via Docker Compose. **Execute dentro da pasta `backend/`:**
 
@@ -99,7 +100,7 @@ docker compose down
 
 ---
 
-### 3. Backend
+### 2. Backend
 
 ```bash
 # dentro de backend/
@@ -117,7 +118,7 @@ curl http://localhost:3002/health
 
 ---
 
-### 4. Frontend
+### 3. Frontend
 
 ```bash
 cd frontend
@@ -133,11 +134,7 @@ Acesse em **`http://localhost:3001`**
 
 ### Backend — `backend/.env`
 
-```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_DATABASE=dataset
-```
+
 
 ### Frontend — `frontend/.env`
 
@@ -150,21 +147,24 @@ NEXT_PUBLIC_API_URL=http://localhost:3002
 ## Navegação das Páginas
 
 ```
-/                  → Página inicial (landing)
+/                      → Página inicial (landing)
 │
-├── /register      → Cadastro (4 etapas: dados, endereço, verificação, documentos)
-├── /login         → Login
+├── /register          → Cadastro (4 etapas: dados, endereço, verificação, documentos)
+├── /login             → Login
 │
 └── (autenticado)
-    ├── /dashboard → Painel principal com resumo de atividades
-    ├── /explore   → Busca e filtro de prestadores de serviços
-    ├── /services  → Gerenciamento dos seus serviços
-    ├── /bookings  → Agendamentos (histórico e próximos)
-    ├── /messages  → Chat com clientes / prestadores
-    ├── /ratings   → Avaliações recebidas e enviadas
-    ├── /wallet    → Carteira e histórico financeiro
-    ├── /profile   → Perfil do usuário (editar nome, foto)
-    └── /settings  → Configurações da conta
+    ├── /home          → Página principal pós-login
+    ├── /dashboard     → Painel financeiro (saldos, transações)
+    ├── /explore       → Busca e filtro de prestadores de serviços
+    ├── /services      → Gerenciamento dos seus serviços
+    ├── /bookings      → Agendamentos (histórico e próximos)
+    ├── /contracts     → Contratos e status dos serviços contratados
+    ├── /demand        → Solicitar um serviço (criar demanda)
+    ├── /messages      → Chat com clientes / prestadores
+    ├── /portifolio    → Portfólio do prestador
+    ├── /profile       → Perfil do usuário (editar nome, foto)
+    ├── /settings      → Configurações da conta
+    └── /become-prestador → Cadastro como prestador de serviços
 ```
 
 ### Fluxo de cadastro
