@@ -4,15 +4,17 @@ DECLARE
     v_recurso_id TEXT;
 BEGIN
 
-    RAISE NOTICE 'Auditoria: % realizado na tabela %', TG_OP, TG_TABLE_NAME; 
-    
-    -- Extrai o ID de forma segura: tenta 'id', se não tiver, tenta 'user_id'
-    -- Isso evita o erro de "record has no field"
+    RAISE NOTICE 'Auditoria: % realizado na tabela %', TG_OP, TG_TABLE_NAME;
+
+    -- Tenta extrair o ID na ordem: id → user_id → prestador_id → fallback
     v_recurso_id := COALESCE(
-        (to_jsonb(NEW) ->> 'id'), 
+        (to_jsonb(NEW) ->> 'id'),
         (to_jsonb(OLD) ->> 'id'),
         (to_jsonb(NEW) ->> 'user_id'),
-        (to_jsonb(OLD) ->> 'user_id')
+        (to_jsonb(OLD) ->> 'user_id'),
+        (to_jsonb(NEW) ->> 'prestador_id'),
+        (to_jsonb(OLD) ->> 'prestador_id'),
+        'unknown'
     );
 
     INSERT INTO audit_logs (
@@ -33,7 +35,7 @@ BEGIN
         to_jsonb(OLD),
         to_jsonb(NEW)
     );
-    
+
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;

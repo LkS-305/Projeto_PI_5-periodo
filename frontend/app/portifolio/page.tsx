@@ -10,9 +10,11 @@ import { ClientGateway, getCurrentUserId } from "@/lib/gateways/ClientGateway";
 
 interface MediaItem {
   type: "photo" | "video";
+  url?: string;
 }
 
 interface Post {
+  backendId: string;
   id: number;
   title: string;
   category: string;
@@ -87,15 +89,34 @@ function MediaStrip({
             alignItems: "center",
             justifyContent: "center",
             transition: "background-color 0.2s",
+            overflow: "hidden",
+            position: "relative",
           }}
         >
-          <Image
-            src={m.type === "video" ? "/images/play.svg" : "/images/picture.svg"}
-            alt={m.type}
-            width={m.type === "video" ? 40 : 48}
-            height={40}
-            style={{ display: "block" }}
-          />
+          {m.url ? (
+            m.type === "video" ? (
+              <video
+                src={`${process.env.NEXT_PUBLIC_API_URL}${m.url}`}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                muted
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`${process.env.NEXT_PUBLIC_API_URL}${m.url}`}
+                alt="portfolio"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            )
+          ) : (
+            <Image
+              src={m.type === "video" ? "/images/play.svg" : "/images/picture.svg"}
+              alt={m.type}
+              width={m.type === "video" ? 40 : 48}
+              height={40}
+              style={{ display: "block" }}
+            />
+          )}
         </div>
       ))}
     </div>
@@ -649,35 +670,41 @@ export default function PortifolioPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
-  useEffect(() => {
-    const userId = getCurrentUserId();
-    if (!userId) {
+  // ── Upload modal state ──
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadDescription, setUploadDescription] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const userId = getCurrentUserId();
+
+  const loadPortfolio = async () => {
+    if (!userId) { setLoadingPosts(false); return; }
+    try {
+      const itens = await ClientGateway.getPortfolio(userId);
+      const mapeados: Post[] = itens.map((item, i) => ({
+        backendId: item.id,
+        id: i + 1,
+        title: item.descricao || "Trabalho do portfólio",
+        category: "",
+        description: item.descricao || "",
+        date: "",
+        location: "",
+        tags: [],
+        media: [{ type: item.tipo === "video" ? "video" : "photo", url: item.url }],
+        pinned: false,
+      }));
+      setPosts(mapeados);
+    } catch {
+      setPosts([]);
+    } finally {
       setLoadingPosts(false);
-      return;
     }
-    (async () => {
-      try {
-        // o portfólio é indexado pelo prestador, cujo id é o próprio user_id
-        const itens = await ClientGateway.getPortfolio(userId);
-        const mapeados: Post[] = itens.map((item, i) => ({
-          id: i + 1,
-          title: item.descricao || "Trabalho do portfólio",
-          category: "",
-          description: item.descricao || "",
-          date: "",
-          location: "",
-          tags: [],
-          media: [{ type: item.tipo === "video" ? "video" : "photo" }],
-          pinned: false,
-        }));
-        setPosts(mapeados);
-      } catch {
-        setPosts([]);
-      } finally {
-        setLoadingPosts(false);
-      }
-    })();
-  }, []);
+  };
+
+  useEffect(() => { loadPortfolio(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pinned = posts.filter((p) => p.pinned);
   const pinnedCount = pinned.length;
@@ -706,11 +733,35 @@ export default function PortifolioPage() {
     }
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     const post = posts.find((p) => p.id === id);
-    if (!post) return;
-    setPosts((prev) => prev.filter((p) => p.id !== id));
-    notify(`"${post.title.split("—")[0].trim()}" foi excluído.`, "info");
+    if (!post || !userId) return;
+    try {
+      await ClientGateway.deletePortfolioItem(post.backendId, userId);
+      setPosts((prev) => prev.filter((p) => p.id !== id));
+      notify(`Trabalho excluído com sucesso.`, "info");
+    } catch (err: any) {
+      notify(err?.message || "Erro ao excluir trabalho.", "error");
+    }
+  };
+
+  const handleUploadSubmit = async () => {
+    if (!uploadFile || !userId) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      await ClientGateway.uploadPortfolioItem(userId, uploadFile, uploadDescription);
+      setShowUploadModal(false);
+      setUploadFile(null);
+      setUploadDescription("");
+      notify("Trabalho adicionado ao portfólio!", "success");
+      setLoadingPosts(true);
+      await loadPortfolio();
+    } catch (err: any) {
+      setUploadError(err?.message || "Erro ao enviar. Tente novamente.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const menuItems = [
@@ -737,6 +788,131 @@ export default function PortifolioPage() {
         .media-scroll::-webkit-scrollbar { display: none; }
         .media-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .media-item { transition: background-color 0.2s; }
+
+        .upload-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(39,39,39,0.6);
+          backdrop-filter: blur(6px);
+          -webkit-backdrop-filter: blur(6px);
+          z-index: 200;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+        .upload-modal {
+          background: #FAF9F5;
+          border-radius: 32px;
+          padding: 48px;
+          width: min(640px, 92vw);
+          box-shadow: 0 20px 60px rgba(0,0,0,0.22);
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+          animation: fadeSlideIn 0.25s ease forwards;
+        }
+        .upload-modal__title {
+          font-family: 'Clash Display', sans-serif;
+          font-size: clamp(1.5rem, 2.5vw, 2.5rem);
+          font-weight: 700;
+          color: #272727;
+          margin: 0;
+        }
+        .upload-modal__label {
+          font-family: 'SF Pro Text', system-ui, sans-serif;
+          font-size: clamp(0.875rem, 1.3vw, 1.25rem);
+          font-weight: 500;
+          color: #272727;
+          display: block;
+          margin-bottom: 8px;
+        }
+        .upload-modal__drop-zone {
+          width: 100%;
+          min-height: 120px;
+          border: 2px dashed #E0C271;
+          border-radius: 16px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          cursor: pointer;
+          background: #fdf8ee;
+          transition: border-color 0.2s, background 0.2s;
+          box-sizing: border-box;
+          padding: 16px;
+        }
+        .upload-modal__drop-zone:hover {
+          border-color: #C3A85E;
+          background: #f7f0db;
+        }
+        .upload-modal__drop-zone--has-file {
+          border-style: solid;
+          border-color: #C3A85E;
+        }
+        .upload-modal__drop-text {
+          font-family: 'SF Pro Text', system-ui, sans-serif;
+          font-size: clamp(0.875rem, 1.2vw, 1.125rem);
+          color: #535353;
+          text-align: center;
+          margin: 0;
+        }
+        .upload-modal__textarea {
+          width: 100%;
+          border: 1.5px solid #E0C271;
+          border-radius: 12px;
+          padding: 14px 16px;
+          font-family: 'SF Pro Text', system-ui, sans-serif;
+          font-size: clamp(0.875rem, 1.2vw, 1.125rem);
+          color: #272727;
+          background: #fdf8ee;
+          resize: vertical;
+          min-height: 80px;
+          outline: none;
+          box-sizing: border-box;
+        }
+        .upload-modal__textarea:focus {
+          border-color: #C3A85E;
+        }
+        .upload-modal__actions {
+          display: flex;
+          gap: 14px;
+          justify-content: flex-end;
+        }
+        .upload-modal__btn-cancel {
+          padding: 12px 28px;
+          border-radius: 50px;
+          border: 2px solid #DEDEDE;
+          background: transparent;
+          font-family: 'SF Pro Text', system-ui, sans-serif;
+          font-size: clamp(0.875rem, 1.2vw, 1.125rem);
+          font-weight: 500;
+          color: #535353;
+          cursor: pointer;
+          transition: border-color 0.2s;
+        }
+        .upload-modal__btn-cancel:hover { border-color: #272727; color: #272727; }
+        .upload-modal__btn-submit {
+          padding: 12px 32px;
+          border-radius: 50px;
+          border: none;
+          background: #E0C271;
+          font-family: 'SF Pro Text', system-ui, sans-serif;
+          font-size: clamp(0.875rem, 1.2vw, 1.125rem);
+          font-weight: 600;
+          color: #272727;
+          cursor: pointer;
+          transition: opacity 0.2s, transform 0.2s;
+        }
+        .upload-modal__btn-submit:hover:not(:disabled) { opacity: 0.88; transform: scale(1.02); }
+        .upload-modal__btn-submit:disabled { opacity: 0.55; cursor: default; }
+        .upload-modal__error {
+          font-family: 'SF Pro Text', system-ui, sans-serif;
+          font-size: clamp(0.75rem, 1vw, 0.9375rem);
+          color: #D92B2E;
+          margin: 0;
+        }
 
         .portifolio-menu-panel {
           position: fixed;
@@ -971,6 +1147,7 @@ export default function PortifolioPage() {
 
           {/* Botão novo trabalho */}
           <button
+            onClick={() => { setUploadError(""); setShowUploadModal(true); }}
             style={{
               display: "flex",
               alignItems: "center",
@@ -1240,6 +1417,84 @@ export default function PortifolioPage() {
           )}
         </div>
       </div>
+
+      {/* ── MODAL DE UPLOAD ─────────────────────────────────────────────────── */}
+      {showUploadModal && (
+        <div
+          className="upload-modal-overlay"
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowUploadModal(false); setUploadFile(null); setUploadDescription(""); setUploadError(""); } }}
+        >
+          <div className="upload-modal">
+            <h2 className="upload-modal__title">Adicionar trabalho</h2>
+
+            <div>
+              <label className="upload-modal__label">Arquivo (imagem ou vídeo) *</label>
+              <div
+                className={`upload-modal__drop-zone${uploadFile ? " upload-modal__drop-zone--has-file" : ""}`}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {uploadFile ? (
+                  <>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C3A85E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <p className="upload-modal__drop-text" style={{ color: "#272727", fontWeight: 500 }}>{uploadFile.name}</p>
+                    <p className="upload-modal__drop-text" style={{ fontSize: "0.8em" }}>
+                      {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB · Clique para trocar
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C3A85E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    <p className="upload-modal__drop-text">Clique para selecionar uma imagem ou vídeo</p>
+                    <p className="upload-modal__drop-text" style={{ fontSize: "0.85em", color: "#8E8D8C" }}>Máximo 20 MB</p>
+                  </>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  style={{ display: "none" }}
+                  onChange={(e) => { setUploadFile(e.target.files?.[0] ?? null); setUploadError(""); }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="upload-modal__label">Descrição (opcional)</label>
+              <textarea
+                className="upload-modal__textarea"
+                placeholder="Descreva o trabalho realizado..."
+                value={uploadDescription}
+                onChange={(e) => setUploadDescription(e.target.value)}
+                maxLength={500}
+              />
+            </div>
+
+            {uploadError && <p className="upload-modal__error">{uploadError}</p>}
+
+            <div className="upload-modal__actions">
+              <button
+                className="upload-modal__btn-cancel"
+                onClick={() => { setShowUploadModal(false); setUploadFile(null); setUploadDescription(""); setUploadError(""); }}
+              >
+                Cancelar
+              </button>
+              <button
+                className="upload-modal__btn-submit"
+                onClick={handleUploadSubmit}
+                disabled={!uploadFile || uploading}
+              >
+                {uploading ? "Enviando..." : "Publicar trabalho"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

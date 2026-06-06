@@ -85,6 +85,13 @@ export interface PortfolioItem {
   ordem: number;
 }
 
+export interface Categoria {
+  id: string;
+  nome: string;
+  slug: string;
+  icon_url?: string | null;
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Gateway client-side
 // ──────────────────────────────────────────────────────────────────────────────
@@ -123,6 +130,47 @@ export const ClientGateway = {
     );
   },
 
+  async createPrestador(nome: string, bio: string): Promise<Prestador> {
+    return apiClient.post<Prestador>(
+      "/prestador/criarPrestador",
+      { nome, bio },
+      { headers: authHeader() },
+    );
+  },
+
+  async getCategorias(): Promise<Categoria[]> {
+    const data = await apiClient.get<Categoria[] | null>("/categoria/buscarCategorias", {
+      headers: authHeader(),
+    });
+    return data ?? [];
+  },
+
+  async createServico(dados: {
+    user_id: string;
+    prestador_id: string;
+    categoria_id: string;
+    categoria: string;
+    titulo: string;
+    descricao: string;
+    preco_acordado: number;
+    data_inicio: string;
+    duracao: string;
+  }) {
+    return apiClient.post(
+      "/servico/criarServico",
+      { ...dados, status: "criado" },
+      { headers: authHeader() },
+    );
+  },
+
+  async addCategoriaPrestador(prestador_id: string, categoria_id: string): Promise<void> {
+    await apiClient.post(
+      "/prestador/categoria",
+      { prestador_id, categoria_id },
+      { headers: authHeader() },
+    );
+  },
+
   // Explore (público)
   async getExplore(): Promise<ExploreCategoria[]> {
     const data = await apiClient.get<ExploreCategoria[] | null>("/explore/");
@@ -135,6 +183,48 @@ export const ClientGateway = {
       params: { prestador_id: prestadorId },
     });
     return data ?? [];
+  },
+
+  async uploadPortfolioItem(
+    prestadorId: string,
+    file: File,
+    descricao?: string,
+  ): Promise<PortfolioItem> {
+    const token = getAuthToken();
+    const formData = new FormData();
+    formData.append("arquivo", file);
+    formData.append("prestador_id", prestadorId);
+    if (descricao?.trim()) formData.append("descricao", descricao.trim());
+
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/portfolio/upload`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.erro || err.message || "Erro ao enviar arquivo.");
+    }
+    return res.json();
+  },
+
+  async deletePortfolioItem(itemId: string, prestadorId: string): Promise<void> {
+    const token = getAuthToken();
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/portfolio/${itemId}`;
+    const res = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ prestador_id: prestadorId }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.erro || err.message || "Erro ao excluir item.");
+    }
   },
 
   // Serviços

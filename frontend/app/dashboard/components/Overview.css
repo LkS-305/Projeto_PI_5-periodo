@@ -16,7 +16,7 @@
 .overview-heading {
   margin: 0;
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 40px;
+  font-size: clamp(1.125rem, 2.1vw, 2.5rem);
   font-weight: 600;
   color: #272727;
 }
@@ -36,7 +36,7 @@
 
 .overview-metric-value {
   margin: 2px 0;
-  font-size: 34px;
+  font-size: clamp(1rem, 1.77vw, 2.125rem);
   font-weight: 500;
   color: #272727;
 }
@@ -136,7 +136,7 @@
 
 .overview-summary-value {
   margin: 2px 0 0;
-  font-size: 38px;
+  font-size: clamp(1rem, 2vw, 2.375rem);
   font-weight: 500;
   color: #272727;
 }
@@ -145,7 +145,7 @@
   border: 0;
   background: transparent;
   color: #e0c271;
-  font-size: 30px;
+  font-size: clamp(0.875rem, 1.56vw, 1.875rem);
   font-weight: 500;
   cursor: pointer;
   font-family: "SF Pro Text", system-ui, sans-serif;
@@ -259,7 +259,7 @@
 .overview-widget-value {
   margin: 8px 0 0;
   color: #272727;
-  font-size: 40px;
+  font-size: clamp(1.125rem, 2.1vw, 2.5rem);
   font-weight: 600;
 }
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useSession } from "@/lib/contexts/AuthContext";
+import { ClientGateway, getCurrentUserId } from "@/lib/gateways/ClientGateway";
 import "./home.css";
 
 export default function Dashboard() {
@@ -17,11 +18,23 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("contratante");
   const [tabVisible, setTabVisible] = useState(true);
 
-  const handleTabChange = (tab: string) => {
+  const handleTabChange = async (tab: string) => {
     if (tab === activeTab) return;
-    // 1. Fade out
+
+    if (tab === "profissional") {
+      const userId = getCurrentUserId();
+      if (userId) {
+        try {
+          await ClientGateway.getPrestador(userId);
+        } catch {
+          // No prestador profile → send to creation page
+          router.push("/become-prestador");
+          return;
+        }
+      }
+    }
+
     setTabVisible(false);
-    // 2. Após a transição, troca o conteúdo e faz fade in
     setTimeout(() => {
       setActiveTab(tab);
       setTabVisible(true);

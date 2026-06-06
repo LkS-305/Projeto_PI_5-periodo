@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ClientGateway } from "@/lib/gateways/ClientGateway";
+import { ClientGateway, type Categoria } from "@/lib/gateways/ClientGateway";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,6 +16,8 @@ interface MediaItem {
 
 interface Worker {
   id: number;
+  prestadorId: string;
+  categoriaId: string;
   name: string;
   role: string;
   city: string;
@@ -36,76 +38,19 @@ interface FormState {
   minRating: number | null;
 }
 
-// ─── Profissões & Especialidades ─────────────────────────────────────────────
+// ─── Especialidades por slug de categoria ────────────────────────────────────
+// Mapeamento de slug → sub-especialidades para enriquecer a busca.
+// Se uma categoria do banco não tiver mapeamento, a seção de especialidade
+// simplesmente não aparece (sem quebrar o fluxo).
 
-interface Profession {
-  label: string;
-  value: string;
-  specialties: string[];
-}
-
-const PROFESSIONS: Profession[] = [
-  {
-    label: "Pintor(a)",
-    value: "pintor",
-    specialties: ["Paredes", "Tetos", "Fachada", "Madeira", "Gesso", "Verniz"],
-  },
-  {
-    label: "Pedreiro(a)",
-    value: "pedreiro",
-    specialties: [
-      "Alvenaria",
-      "Reboco",
-      "Azulejo",
-      "Piso",
-      "Contrapiso",
-      "Demolição",
-      "Estrutura",
-    ],
-  },
-  {
-    label: "Eletricista",
-    value: "eletricista",
-    specialties: [
-      "Quadro Elétrico",
-      "Tomadas",
-      "Iluminação",
-      "Projeto Elétrico",
-      "Ar-condicionado",
-    ],
-  },
-  {
-    label: "Encanador(a)",
-    value: "encanador",
-    specialties: [
-      "Tubulação",
-      "Hidráulica",
-      "Box",
-      "Aquecedor",
-      "Desentupimento",
-    ],
-  },
-  {
-    label: "Marceneiro(a)",
-    value: "marceneiro",
-    specialties: ["Móveis Planejados", "Portas", "Janelas", "Deck", "Cozinha"],
-  },
-  {
-    label: "Azulejista",
-    value: "azulejista",
-    specialties: ["Piso", "Revestimento", "Banheiro", "Área Externa", "Piscina"],
-  },
-  {
-    label: "Técnico de A/C",
-    value: "tecnico_ac",
-    specialties: ["Instalação", "Manutenção", "Higienização", "Recarga de Gás"],
-  },
-  {
-    label: "Gesseiro(a)",
-    value: "gesseiro",
-    specialties: ["Teto", "Parede", "Moldura", "Sancas", "Rebaixamento"],
-  },
-];
+const SPECIALTIES_BY_SLUG: Record<string, string[]> = {
+  limpeza:      ["Residencial", "Comercial", "Pós-obra", "Vidros", "Piscina", "Carpete"],
+  eletrica:     ["Quadro Elétrico", "Tomadas", "Iluminação", "Projeto Elétrico", "Ar-condicionado"],
+  encanador:    ["Tubulação", "Hidráulica", "Box", "Aquecedor", "Desentupimento"],
+  aulas:        ["Matemática", "Português", "Inglês", "Física", "Química", "Programação"],
+  beleza:       ["Corte", "Coloração", "Manicure", "Pedicure", "Maquiagem", "Sobrancelha"],
+  "ti-suporte": ["Formatação", "Redes", "Suporte Remoto", "Desenvolvimento", "Infraestrutura"],
+};
 
 // ─── Mock de profissionais ────────────────────────────────────────────────────
 
@@ -347,7 +292,7 @@ function RatingSlider({
 
 // ─── WorkerCard ───────────────────────────────────────────────────────────────
 
-function WorkerCard({ worker }: { worker: Worker }) {
+function WorkerCard({ worker, onSelect }: { worker: Worker; onSelect: (w: Worker) => void }) {
   const dotColor = availabilityColor[worker.availability];
   const availLabel = availabilityLabel[worker.availability];
   const mediaScrollRef = React.useRef<HTMLDivElement>(null);
@@ -372,6 +317,7 @@ function WorkerCard({ worker }: { worker: Worker }) {
 
   return (
     <div
+      onClick={() => onSelect(worker)}
       style={{
         flexShrink: 0,
         width: "700px",
@@ -584,6 +530,19 @@ export default function DemandPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [profError, setProfError] = useState(false);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [loadingCategorias, setLoadingCategorias] = useState(true);
+  const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
+  const [serviceForm, setServiceForm] = useState({
+    titulo: "",
+    descricao: "",
+    data_inicio: "",
+    duracao: "",
+    preco_acordado: "",
+  });
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
+  const [createSuccess, setCreateSuccess] = useState(false);
 
   const [form, setForm] = useState<FormState>({
     profession: "",
@@ -593,7 +552,19 @@ export default function DemandPage() {
     minRating: null,
   });
 
-  const selectedProfession = PROFESSIONS.find((p) => p.value === form.profession);
+  // Carrega categorias do banco
+  useEffect(() => {
+    ClientGateway.getCategorias()
+      .then(setCategorias)
+      .catch(() => setCategorias([]))
+      .finally(() => setLoadingCategorias(false));
+  }, []);
+
+  // Categoria selecionada e suas especialidades
+  const selectedCategoria = categorias.find((c) => c.id === form.profession);
+  const selectedSpecialties = selectedCategoria
+    ? (SPECIALTIES_BY_SLUG[selectedCategoria.slug] ?? [])
+    : [];
 
   // Handlers
   const setProfession = (value: string) => {
@@ -634,19 +605,22 @@ export default function DemandPage() {
     setView("searching");
 
     try {
-      // Busca prestadores reais do backend (mesma fonte do /explore)
       const data = await ClientGateway.getExplore();
+      const catNome = categorias.find((c) => c.id === form.profession)?.nome ?? "";
+
+      // Filtra o explore pela categoria selecionada (por id ou nome)
+      const catData = data.filter(
+        (cat) => cat.categoria_id === form.profession || cat.categoria === catNome,
+      );
 
       let counter = 0;
-      const profLabel =
-        PROFESSIONS.find((p) => p.value === form.profession)?.label ?? "";
-      const profTerm = profLabel.split("(")[0].trim().toLowerCase();
-
-      const workers: Worker[] = data.flatMap((cat) =>
+      const workers: Worker[] = catData.flatMap((cat) =>
         cat.prestadores.map((p) => {
           const city = [p.cidade, p.estado].filter(Boolean).join(", ");
           return {
             id: ++counter,
+            prestadorId: p.user_id,
+            categoriaId: cat.categoria_id,
             name: p.nome,
             role: cat.categoria,
             city: city || "Localização não informada",
@@ -663,15 +637,8 @@ export default function DemandPage() {
         }),
       );
 
-      // Filtra pela profissão (comparação solta com a categoria), especialidades e nota
+      // Filtra por especialidades selecionadas e nota mínima
       const filtered = workers.filter((w) => {
-        const role = w.role.toLowerCase();
-        const matchProfissao =
-          !profTerm ||
-          role.includes(profTerm) ||
-          profTerm.includes(role) ||
-          (profTerm.length >= 4 && role.startsWith(profTerm.slice(0, 4)));
-        if (!matchProfissao) return false;
         if (
           form.specialties.length > 0 &&
           !form.specialties.some((s) => w.tags.includes(s))
@@ -689,8 +656,54 @@ export default function DemandPage() {
     }
   };
 
-  const profLabel =
-    PROFESSIONS.find((p) => p.value === form.profession)?.label ?? "";
+  const openWorker = (worker: Worker) => {
+    setSelectedWorker(worker);
+    setServiceForm({ titulo: "", descricao: "", data_inicio: "", duracao: "", preco_acordado: "" });
+    setCreateError("");
+    setCreateSuccess(false);
+  };
+
+  const closeWorkerModal = () => {
+    setSelectedWorker(null);
+    setCreateError("");
+    setCreateSuccess(false);
+  };
+
+  const handleCreateServico = async () => {
+    if (!selectedWorker) return;
+    if (!serviceForm.titulo.trim()) { setCreateError("Informe o título do serviço."); return; }
+    if (!serviceForm.data_inicio) { setCreateError("Informe a data de início."); return; }
+    if (!serviceForm.duracao) { setCreateError("Informe a duração estimada."); return; }
+
+    const userId = typeof window !== "undefined" ? (() => {
+      try { return JSON.parse(localStorage.getItem("authUser") ?? "null")?.id ?? null; } catch { return null; }
+    })() : null;
+
+    if (!userId) { setCreateError("Sessão expirada. Faça login novamente."); return; }
+
+    setCreating(true);
+    setCreateError("");
+    try {
+      await ClientGateway.createServico({
+        user_id: userId,
+        prestador_id: selectedWorker.prestadorId,
+        categoria_id: selectedWorker.categoriaId,
+        categoria: selectedWorker.role,
+        titulo: serviceForm.titulo.trim(),
+        descricao: serviceForm.descricao.trim(),
+        preco_acordado: serviceForm.preco_acordado ? parseFloat(serviceForm.preco_acordado) : 0,
+        data_inicio: new Date(serviceForm.data_inicio).toISOString(),
+        duracao: serviceForm.duracao,
+      });
+      setCreateSuccess(true);
+    } catch (err: any) {
+      setCreateError(err?.message || "Erro ao criar serviço. Tente novamente.");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const profLabel = categorias.find((c) => c.id === form.profession)?.nome ?? "";
 
   // ── Menu lateral (igual ao explore) ────────────────────────────────────────
   const menuItems = [
@@ -829,6 +842,66 @@ export default function DemandPage() {
           to   { opacity: 1; transform: translateY(0); }
         }
         .fade-in { animation: fadeSlideIn 0.5s ease forwards; }
+
+        /* Modal de criação de serviço */
+        .service-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(39,39,39,0.7);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          z-index: 200;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+        .service-modal {
+          background: rgba(30,30,30,0.96);
+          border: 3px solid #C3A85E;
+          border-radius: 36px;
+          width: min(700px, 94vw);
+          max-height: 90vh;
+          overflow-y: auto;
+          overflow-x: hidden;
+          scrollbar-width: none;
+          padding: clamp(28px, 3vw, 48px);
+          box-sizing: border-box;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+          animation: fadeSlideIn 0.25s ease forwards;
+        }
+        .service-modal::-webkit-scrollbar { display: none; }
+        .sm-label {
+          display: block;
+          font-family: 'SF Pro Text', system-ui, sans-serif;
+          font-size: clamp(0.8125rem, 1.1vw, 1.0625rem);
+          font-weight: 600;
+          color: #C8C7C5;
+          margin-bottom: 8px;
+          letter-spacing: 0.02em;
+          text-transform: uppercase;
+        }
+        .sm-input, .sm-textarea, .sm-select {
+          width: 100%;
+          background: rgba(255,255,255,0.06);
+          border: 1.5px solid rgba(195,168,94,0.4);
+          border-radius: 14px;
+          padding: 14px 18px;
+          font-family: 'SF Pro Text', system-ui, sans-serif;
+          font-size: clamp(0.875rem, 1.1vw, 1.125rem);
+          color: #FAF9F5;
+          outline: none;
+          box-sizing: border-box;
+          transition: border-color 0.2s;
+        }
+        .sm-input:focus, .sm-textarea:focus, .sm-select:focus {
+          border-color: #E0C271;
+        }
+        .sm-input::placeholder, .sm-textarea::placeholder { color: #666; }
+        .sm-textarea { resize: vertical; min-height: 90px; }
+        .sm-select option { background: #1e1e1e; color: #FAF9F5; }
+        .sm-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 480px) { .sm-row { grid-template-columns: 1fr; } }
       `}</style>
 
       {/* ── CABEÇALHO ──────────────────────────────────────────────────────── */}
@@ -1071,20 +1144,26 @@ export default function DemandPage() {
                   </span>
                 </p>
               </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "14px" }}>
-                {PROFESSIONS.map((p) => (
-                  <Chip
-                    key={p.value}
-                    label={p.label}
-                    selected={form.profession === p.value}
-                    onToggle={() => setProfession(p.value)}
-                  />
-                ))}
-              </div>
+              {loadingCategorias ? (
+                <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontSize: "26px", color: "#888", margin: 0 }}>
+                  Carregando categorias...
+                </p>
+              ) : (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "14px" }}>
+                  {categorias.map((cat) => (
+                    <Chip
+                      key={cat.id}
+                      label={cat.nome}
+                      selected={form.profession === cat.id}
+                      onToggle={() => setProfession(cat.id)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* ── SEÇÃO 2: Especialidade ── */}
-            {selectedProfession && (
+            {selectedCategoria && selectedSpecialties.length > 0 && (
               <>
                 <SectionDivider />
                 <div>
@@ -1096,7 +1175,7 @@ export default function DemandPage() {
                     </p>
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "14px" }}>
-                    {selectedProfession.specialties.map((s) => (
+                    {selectedSpecialties.map((s) => (
                       <Chip
                         key={s}
                         label={s}
@@ -1413,10 +1492,176 @@ export default function DemandPage() {
               }}
             >
               {results.map((worker) => (
-                <WorkerCard key={worker.id} worker={worker} />
+                <WorkerCard key={worker.id} worker={worker} onSelect={openWorker} />
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── MODAL: CRIAR SERVIÇO ─────────────────────────────────────────────── */}
+      {selectedWorker && (
+        <div
+          className="service-modal-overlay"
+          onClick={(e) => { if (e.target === e.currentTarget) closeWorkerModal(); }}
+        >
+          <div className="service-modal">
+
+            {createSuccess ? (
+              /* ── Tela de sucesso ── */
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "24px", padding: "20px 0", textAlign: "center" }}>
+                <div style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "rgba(61,189,125,0.15)", border: "3px solid #3DBD7D", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#3DBD7D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <p style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 700, fontSize: "clamp(1.25rem, 2vw, 1.75rem)", color: "#E0C271", margin: 0 }}>
+                  Serviço criado com sucesso!
+                </p>
+                <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontSize: "clamp(0.875rem, 1.2vw, 1.125rem)", color: "#C8C7C5", margin: 0, lineHeight: 1.6 }}>
+                  Seu serviço com <strong style={{ color: "#FAF9F5" }}>{selectedWorker.name}</strong> foi solicitado.<br />
+                  Acompanhe pelo painel de contratos.
+                </p>
+                <div style={{ display: "flex", gap: "14px", marginTop: "8px" }}>
+                  <button
+                    onClick={closeWorkerModal}
+                    style={{ padding: "12px 28px", borderRadius: "50px", border: "2px solid rgba(195,168,94,0.4)", background: "transparent", color: "#C8C7C5", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontSize: "1rem", fontWeight: 500, cursor: "pointer" }}
+                  >
+                    Fechar
+                  </button>
+                  <button
+                    onClick={() => router.push("/contracts")}
+                    style={{ padding: "12px 28px", borderRadius: "50px", border: "none", background: "#E0C271", color: "#272727", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontSize: "1rem", fontWeight: 600, cursor: "pointer" }}
+                  >
+                    Ver contratos →
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* ── Cabeçalho: info do prestador ── */}
+                <div style={{ display: "flex", alignItems: "center", gap: "18px", marginBottom: "28px", paddingBottom: "24px", borderBottom: "1.5px solid rgba(195,168,94,0.25)" }}>
+                  <Image src="/images/profile_explore.svg" alt={selectedWorker.name} width={60} height={60} style={{ flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 700, fontSize: "clamp(1rem, 1.6vw, 1.375rem)", color: "#FAF9F5", margin: "0 0 4px", lineHeight: 1 }}>
+                      {selectedWorker.name}
+                    </p>
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 400, fontSize: "clamp(0.8125rem, 1vw, 1rem)", color: "#C3A85E", margin: 0 }}>
+                      {selectedWorker.role} · {selectedWorker.city}
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                    <span style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontWeight: 600, fontSize: "clamp(1rem, 1.4vw, 1.25rem)", color: "#FAF9F5" }}>
+                      {selectedWorker.rating.toFixed(1)}
+                    </span>
+                    <Image src="/images/review.svg" alt="★" width={18} height={18} />
+                  </div>
+                </div>
+
+                <p style={{ fontFamily: "'Clash Display', sans-serif", fontWeight: 700, fontSize: "clamp(1.125rem, 1.8vw, 1.5rem)", color: "#E0C271", margin: "0 0 24px", letterSpacing: "-0.5px" }}>
+                  Solicitar serviço
+                </p>
+
+                {/* ── Formulário ── */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+
+                  <div>
+                    <label className="sm-label">Título do serviço *</label>
+                    <input
+                      className="sm-input"
+                      type="text"
+                      placeholder="Ex: Instalação de tomadas na sala"
+                      value={serviceForm.titulo}
+                      onChange={(e) => setServiceForm((f) => ({ ...f, titulo: e.target.value }))}
+                      maxLength={100}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="sm-label">Descrição</label>
+                    <textarea
+                      className="sm-textarea"
+                      placeholder="Descreva o que precisa ser feito..."
+                      value={serviceForm.descricao}
+                      onChange={(e) => setServiceForm((f) => ({ ...f, descricao: e.target.value }))}
+                      maxLength={500}
+                    />
+                  </div>
+
+                  <div className="sm-row">
+                    <div>
+                      <label className="sm-label">Data de início *</label>
+                      <input
+                        className="sm-input"
+                        type="datetime-local"
+                        value={serviceForm.data_inicio}
+                        min={new Date().toISOString().slice(0, 16)}
+                        onChange={(e) => setServiceForm((f) => ({ ...f, data_inicio: e.target.value }))}
+                        style={{ colorScheme: "dark" }}
+                      />
+                    </div>
+                    <div>
+                      <label className="sm-label">Duração estimada *</label>
+                      <select
+                        className="sm-select"
+                        value={serviceForm.duracao}
+                        onChange={(e) => setServiceForm((f) => ({ ...f, duracao: e.target.value }))}
+                      >
+                        <option value="">Selecionar...</option>
+                        <option value="30 min">30 min</option>
+                        <option value="1h">1 hora</option>
+                        <option value="2h">2 horas</option>
+                        <option value="3h">3 horas</option>
+                        <option value="4h">4 horas</option>
+                        <option value="6h">6 horas</option>
+                        <option value="8h">8 horas</option>
+                        <option value="1 dia">1 dia inteiro</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="sm-label">Valor combinado (R$) <span style={{ fontWeight: 400, textTransform: "none", color: "#555" }}>— opcional</span></label>
+                    <input
+                      className="sm-input"
+                      type="number"
+                      placeholder="0,00"
+                      min="0"
+                      step="0.01"
+                      value={serviceForm.preco_acordado}
+                      onChange={(e) => setServiceForm((f) => ({ ...f, preco_acordado: e.target.value }))}
+                    />
+                  </div>
+
+                  {createError && (
+                    <p style={{ fontFamily: "'SF Pro Text', system-ui, sans-serif", fontSize: "0.9375rem", color: "#D92B2E", margin: 0, padding: "10px 16px", background: "rgba(217,43,46,0.1)", borderRadius: "10px" }}>
+                      {createError}
+                    </p>
+                  )}
+
+                  <div style={{ display: "flex", gap: "14px", justifyContent: "flex-end", marginTop: "8px" }}>
+                    <button
+                      onClick={closeWorkerModal}
+                      style={{ padding: "14px 28px", borderRadius: "50px", border: "2px solid rgba(195,168,94,0.35)", background: "transparent", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontSize: "clamp(0.875rem, 1.1vw, 1.0625rem)", fontWeight: 500, color: "#C8C7C5", cursor: "pointer", transition: "border-color 0.2s" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#C3A85E")}
+                      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(195,168,94,0.35)")}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleCreateServico}
+                      disabled={creating}
+                      style={{ padding: "14px 32px", borderRadius: "50px", border: "none", background: creating ? "#9c834a" : "#E0C271", fontFamily: "'SF Pro Text', system-ui, sans-serif", fontSize: "clamp(0.875rem, 1.1vw, 1.0625rem)", fontWeight: 600, color: "#272727", cursor: creating ? "default" : "pointer", transition: "transform 0.2s, opacity 0.2s", opacity: creating ? 0.7 : 1 }}
+                      onMouseEnter={(e) => { if (!creating) e.currentTarget.style.transform = "scale(1.03)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
+                    >
+                      {creating ? "Solicitando..." : "Confirmar solicitação"}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>

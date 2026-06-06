@@ -41,7 +41,7 @@
 
 .settings-sidebar__title {
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 44px;
+  font-size: clamp(1.125rem, 2.3vw, 2.75rem);
   font-weight: 700;
   color: #272727;
   margin-bottom: 40px;
@@ -63,7 +63,7 @@
   border-radius: 12px;
   border: none;
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 30px;
+  font-size: clamp(0.875rem, 1.56vw, 1.875rem);
   font-weight: 500;
   text-align: left;
   cursor: pointer;
@@ -95,7 +95,7 @@
   background: transparent;
   border: none;
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 30px;
+  font-size: clamp(0.875rem, 1.56vw, 1.875rem);
   font-weight: 500;
   color: #272727;
   cursor: pointer;
@@ -125,7 +125,7 @@
 
 .settings-content__title {
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 44px;
+  font-size: clamp(1.125rem, 2.3vw, 2.75rem);
   font-weight: 700;
   color: #272727;
 }
@@ -136,7 +136,7 @@
   border-radius: 999px;
   padding: 12px 24px;
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 30px;
+  font-size: clamp(0.875rem, 1.56vw, 1.875rem);
   font-weight: 500;
   color: #272727;
   cursor: pointer;
@@ -164,7 +164,7 @@
 
 .settings-info-item__label {
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 36px;
+  font-size: clamp(1rem, 1.875vw, 2.25rem);
   font-weight: 500;
   color: #272727;
   margin: 0 0 4px;
@@ -172,7 +172,7 @@
 
 .settings-info-item__value {
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 32px;
+  font-size: clamp(0.875rem, 1.67vw, 2rem);
   font-weight: 500;
   color: #878787;
   margin: 0;
@@ -182,7 +182,7 @@
   background: transparent;
   border: none;
   font-family: "SF Pro Text", system-ui, sans-serif;
-  font-size: 36px;
+  font-size: clamp(1rem, 1.875vw, 2.25rem);
   font-weight: 500;
   color: #272727;
   text-decoration: underline;

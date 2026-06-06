@@ -40,8 +40,6 @@ export class CriarServicoUseCase {
  //  }
 // }
   async executar(dados: CriarServicoDto) {
-    validarUUID(dados.user_id, 'ID do usuário');
-    validarUUID(dados.prestador_id, 'ID do prestador');
     validarTexto(dados.titulo, 'Título', 3, 100);
     dados.titulo = sanitizarTexto(dados.titulo);
 
