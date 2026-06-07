@@ -4,6 +4,7 @@
     "build": "tsc",
     "start": "node dist/main.js",
     "db:setup": "ts-node src/infra/database/migrate.ts",
+    "db:seed": "ts-node src/infra/database/seed.ts",
     "test:api": "tsx tests/test.ts",
     "test": "jest",
     "test-user": "jest tests/User.test.ts",

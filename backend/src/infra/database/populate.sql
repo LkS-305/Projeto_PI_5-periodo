@@ -8,17 +8,18 @@ INSERT INTO categorias (id, nome, slug, icon_url) VALUES
 ('cat6', 'TI e Suporte',         'ti-suporte', 'https://placehold.co/100x100?text=TI');
 
 -- 2. Users (autenticação)
+-- senha de todos os seeds: senha123
 INSERT INTO users (id, email, senha, cpf) VALUES
-('u1',  'joao@email.com',           'hash_senha_1',  '11111111111'),
-('u2',  'maria@email.com',          'hash_senha_2',  '22222222222'),
-('u3',  'pedro.encanador@email.com','hash_senha_3',  '33333333333'),
-('u4',  'ana.limpeza@email.com',    'hash_senha_4',  '44444444444'),
-('u5',  'carlos.eletrica@email.com','hash_senha_5',  '55555555555'),
-('u6',  'fernanda@email.com',       'hash_senha_6',  '66666666666'),
-('u7',  'roberto@email.com',        'hash_senha_7',  '77777777777'),
-('u8',  'lucas.tech@email.com',     'hash_senha_8',  '88888888888'),
-('u9',  'juliana@email.com',        'hash_senha_9',  '99999999999'),
-('u10', 'admin@sistema.com',        'hash_senha_10', '00000000000');
+('u1',  'joao@email.com',           '$2b$10$S0UQcAzXnGHZaaAgtHRmqunq1X6azVUIPFTXkXc.chiLeJ0BaTfmS',  '11111111111'),
+('u2',  'maria@email.com',          '$2b$10$3WfI.7NAWaaTfbiRAcDpDeI4odyP/44wIKeVHHwVZ0jPXtau.juhe',  '22222222222'),
+('u3',  'pedro.encanador@email.com','$2b$10$jwDggQy8L4KnKMnhwqtcg.UEGofv3gJLiw8xJD/Vyl9c.w1S3qlXS',  '33333333333'),
+('u4',  'ana.limpeza@email.com',    '$2b$10$Uqj5xRhkMimToFExmW7Lj.JE0GHlDaDfrKIgVmDj3PQgcgJhu5.n.',  '44444444444'),
+('u5',  'carlos.eletrica@email.com','$2b$10$jdLnTi12KBTwpMdHDlRpruqHI2mRl4TpWtv1EtQUEuVGACvYMcdVK',  '55555555555'),
+('u6',  'fernanda@email.com',       '$2b$10$1XjuwOKPdAeLMkyjTa.G4Of8q8Niok/7f.cluhdXsfhzy3UApwvVW',  '66666666666'),
+('u7',  'roberto@email.com',        '$2b$10$unJwRekY.ILFFIF/2ncine9Sq1H5WavzdkPVQr7nPHbRXpGnrrp0C',  '77777777777'),
+('u8',  'lucas.tech@email.com',     '$2b$10$7A.ckMGrCYBepMB9eH2dIe0sZG2hPOIDTa6dTSpsEyJJNu/15qQJK',  '88888888888'),
+('u9',  'juliana@email.com',        '$2b$10$QgS3/gutSH1olvxEOwQ.LOB8JLYcgk.xzhZhMijbPu6tisD9kQrha',  '99999999999'),
+('u10', 'admin@sistema.com',        '$2b$10$S4Ltm3B59oXLOVWNNoBJDOldd1CUgiu806Ura./Qvc.7WUVXnWOf.',  '00000000000');
 
 -- 3. Usuarios (perfis — clientes + prestadores precisam estar aqui para ter endereço)
 INSERT INTO usuarios (user_id, nome, telefone, score, foto_url) VALUES
@@ -111,3 +112,43 @@ INSERT INTO portfolio_items (id, prestador_id, url, tipo, descricao, ordem) VALU
 (gen_random_uuid()::text, 'u4', 'https://picsum.photos/seed/ana2/600/400',   'imagem', 'Cozinha higienizada', 1),
 (gen_random_uuid()::text, 'u5', 'https://picsum.photos/seed/carlos1/600/400','imagem', 'Quadro elétrico novo', 0),
 (gen_random_uuid()::text, 'u8', 'https://picsum.photos/seed/lucas1/600/400', 'imagem', 'Setup montado',        0);
+
+-- ============================================================
+-- 13. Serviços concluídos do Lucas Tech (u8) — base para as transações
+-- ============================================================
+INSERT INTO servicos (id, user_id, prestador_id, categoria_id, titulo, descricao, preco_acordado, data_inicio, duracao, status) VALUES
+('s7',  'u1', 'u8', 'cat6', 'Suporte em Notebook',        'Diagnóstico e reparo de notebook com superaquecimento.',     120.00, NOW() - INTERVAL '30 days', '2h', 'concluido'),
+('s8',  'u2', 'u8', 'cat6', 'Configuração de Rede Wi-Fi', 'Configuração de roteador e extensores para cobertura total.', 200.00, NOW() - INTERVAL '22 days', '3h', 'concluido'),
+('s9',  'u6', 'u8', 'cat6', 'Limpeza e Manutenção de PC', 'Limpeza interna, troca de pasta térmica e otimização.',       150.00, NOW() - INTERVAL '15 days', '2h', 'concluido'),
+('s10', 'u9', 'u8', 'cat6', 'Recuperação de Dados',       'Recuperação de arquivos de HD com falha mecânica.',           350.00, NOW() - INTERVAL '8 days',  '4h', 'concluido'),
+('s11', 'u7', 'u8', 'cat6', 'Formatação de PC',           'Formatação completa com instalação de Windows e drivers.',     90.00, NOW() - INTERVAL '3 days',  '2h', 'concluido');
+
+-- ============================================================
+-- 14. Transações recebidas pelo Lucas Tech (5 créditos)
+-- ============================================================
+INSERT INTO transacoes (id, servico_id, tipo, status, valor, descricao, metodo_pagamento, asaas_payment_id, created_at) VALUES
+('tx1', 's7',  'credito', 'concluido', '120.00', 'Pagamento por suporte em notebook — João Silva',        'pix',            'pay_asaas_001', NOW() - INTERVAL '29 days'),
+('tx2', 's8',  'credito', 'concluido', '200.00', 'Pagamento por configuração de rede — Maria Oliveira',   'cartao_credito', 'pay_asaas_002', NOW() - INTERVAL '21 days'),
+('tx3', 's9',  'credito', 'concluido', '150.00', 'Pagamento por manutenção de PC — Fernanda Souza',       'pix',            'pay_asaas_003', NOW() - INTERVAL '14 days'),
+('tx4', 's10', 'credito', 'concluido', '350.00', 'Pagamento por recuperação de dados — Juliana Lima',     'boleto',         'pay_asaas_004', NOW() - INTERVAL '7 days'),
+('tx5', 's11', 'credito', 'concluido', '90.00',  'Pagamento por formatação de PC — Roberto Carlos',       'pix',            'pay_asaas_005', NOW() - INTERVAL '2 days');
+
+-- ============================================================
+-- 15. Recibos gerados para cada transação do Lucas Tech
+-- ============================================================
+INSERT INTO recibos (id, transacao_id, servico_id, codigo_verificacao, dados_fiscais_cliente, hash_integridade) VALUES
+('r1', 'tx1', 's7',  'VER-2024-001', '{"nome":"João Silva","cpf":"11111111111","email":"joao@email.com"}',      'sha256_hash_rec_001'),
+('r2', 'tx2', 's8',  'VER-2024-002', '{"nome":"Maria Oliveira","cpf":"22222222222","email":"maria@email.com"}', 'sha256_hash_rec_002'),
+('r3', 'tx3', 's9',  'VER-2024-003', '{"nome":"Fernanda Souza","cpf":"66666666666","email":"fernanda@email.com"}','sha256_hash_rec_003'),
+('r4', 'tx4', 's10', 'VER-2024-004', '{"nome":"Juliana Lima","cpf":"99999999999","email":"juliana@email.com"}', 'sha256_hash_rec_004'),
+('r5', 'tx5', 's11', 'VER-2024-005', '{"nome":"Roberto Carlos","cpf":"77777777777","email":"roberto@email.com"}','sha256_hash_rec_005');
+
+-- ============================================================
+-- 16. Atualiza saldo da carteira do Lucas Tech
+--     920.00 (original) + 120 + 200 + 150 + 350 + 90 = 1830.00
+-- ============================================================
+UPDATE carteiras SET
+  saldo             = '1830.00',
+  ultima_transacao_id = 'tx5',
+  updated_at        = NOW()
+WHERE prestador_id = 'u8';
