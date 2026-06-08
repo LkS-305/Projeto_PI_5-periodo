@@ -194,7 +194,9 @@ INSERT INTO prestadores (user_id, nome, bio, score, foto_url, status_verificacao
 ('11111111-1111-4111-8111-000000000053', 'Sabrina Dados', 'TI e suporte; diagnóstico remoto e visitas técnicas.', 5, 'https://ui-avatars.com/api/?name=Sabrina%2BDados', 'aprovado'),
 ('11111111-1111-4111-8111-000000000054', 'Tatiana Suporte Apple', 'TI e suporte; diagnóstico remoto e visitas técnicas.', 3, 'https://ui-avatars.com/api/?name=Tatiana%2BSuporte%2BApple', 'aprovado');
 
--- 5. Endereços (CEPs reais de cidades brasileiras para testar distância)
+-- ============================================================
+-- 5. Endereços
+-- ============================================================
 INSERT INTO enderecos (id, user_id, rotulo, logradouro, numero, bairro, cidade, estado, cep, is_principal) VALUES
 (gen_random_uuid()::text, '11111111-1111-4111-8111-000000000001', 'Casa',      'Rua das Flores',  '123', 'Jardim América',  'São Paulo',       'SP', '01310100', TRUE),
 (gen_random_uuid()::text, '11111111-1111-4111-8111-000000000002', 'Casa',      'Rua XV de Nov.',  '50',  'Centro',           'Curitiba',        'PR', '80020310', TRUE),
@@ -394,7 +396,9 @@ INSERT INTO prestador_categorias (prestador_id, categoria_id) VALUES
 ('11111111-1111-4111-8111-000000000053', '22222222-2222-4222-8222-000000000006'),
 ('11111111-1111-4111-8111-000000000054', '22222222-2222-4222-8222-000000000006');
 
--- 12. Itens de portfólio (aparecem nos cards do /explore e em /portifolio)
+-- ============================================================
+-- 7. Portfólio
+-- ============================================================
 INSERT INTO portfolio_items (id, prestador_id, url, tipo, descricao, ordem) VALUES
 (gen_random_uuid()::text, '11111111-1111-4111-8111-000000000003', 'https://picsum.photos/seed/pedro1/600/400', 'imagem', 'Troca de tubulação', 0),
 (gen_random_uuid()::text, '11111111-1111-4111-8111-000000000003', 'https://picsum.photos/seed/pedro2/600/400', 'imagem', 'Reparo de vazamento', 1),
