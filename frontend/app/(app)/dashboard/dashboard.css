@@ -1,0 +1,369 @@
+.dashboard-page {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  overflow: hidden;
+  background: #faf9f5;
+  color: #272727;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+}
+
+.dashboard-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  height: 90px;
+  width: 100%;
+  align-items: center;
+  border-bottom: 1px solid #ebd38a;
+  background: #e0c271;
+}
+
+.dashboard-header__logo-wrap {
+  position: absolute;
+  top: 15px;
+  left: 40px;
+}
+
+.dashboard-header__brand {
+  margin-left: clamp(70px, 7.5vw, 130px);
+  user-select: none;
+  font-family: "Clash Display", sans-serif;
+  font-size: clamp(1.75rem, 3.65vw, 4.375rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+  color: #272727;
+}
+
+.dashboard-header__back {
+  margin-left: auto;
+  margin-right: clamp(16px, 2.6vw, 50px);
+  border: 0;
+  background: transparent;
+  color: #272727;
+  font-size: clamp(0.875rem, 1.56vw, 1.875rem);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.dashboard-header__back:hover {
+  text-decoration: underline;
+}
+
+.dashboard-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dashboard-sidebar {
+  width: 380px;
+  min-height: 0;
+  border-right: 2px solid #ebd38a;
+  padding: 28px 18px;
+  background: #faf9f5;
+  overflow-y: auto;
+}
+
+.dashboard-sidebar__hub-link {
+  display: block;
+  width: fit-content;
+  margin-bottom: 14px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: clamp(0.875rem, 1.4vw, 1.125rem);
+  font-weight: 500;
+  color: #535353;
+  text-align: left;
+  transition: color 0.15s ease;
+}
+
+.dashboard-sidebar__hub-link:hover {
+  color: #272727;
+  text-decoration: underline;
+}
+
+.dashboard-page--loading {
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-loading-msg {
+  margin: 0;
+  padding: 2rem;
+  font-size: 1.125rem;
+  color: #5c5a56;
+}
+
+.dashboard-sidebar__brand {
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(195, 168, 94, 0.35);
+}
+
+.dashboard-sidebar__title {
+  margin: 0 0 8px;
+  font-family: "Clash Display", "SF Pro Text", system-ui, sans-serif;
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #1f1e1c;
+}
+
+.dashboard-sidebar__subtitle {
+  margin: 0;
+  font-size: clamp(0.8125rem, 1.25vw, 0.9375rem);
+  line-height: 1.45;
+  color: #5c5a56;
+}
+
+.dashboard-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dashboard-sidebar__button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 12px;
+  background: #9c834a;
+  color: #272727;
+  font-size: clamp(0.875rem, 1.56vw, 1.875rem);
+  font-weight: 500;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.dashboard-sidebar__button:hover {
+  opacity: 0.92;
+}
+
+.dashboard-sidebar__button--active {
+  background: #e1c471;
+  font-weight: 600;
+}
+
+.dashboard-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: clamp(18px, 2.5vw, 32px);
+  background: linear-gradient(180deg, #fbfaf7 0%, #f4f1ea 100%);
+}
+
+.dashboard-content__main {
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-main {
+    flex-direction: column;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .dashboard-sidebar {
+    width: 100%;
+    border-right: 0;
+    border-bottom: 2px solid #ebd38a;
+    overflow-y: visible;
+  }
+
+  .dashboard-sidebar__brand {
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+  }
+
+  .dashboard-sidebar__title {
+    font-size: 28px;
+  }
+
+  .dashboard-sidebar__button {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 800px) {
+  .dashboard-header__brand {
+    font-size: 44px;
+    margin-left: 110px;
+  }
+
+  .dashboard-header__logo-wrap {
+    left: 18px;
+  }
+
+  .dashboard-header__back {
+    margin-right: 16px;
+    font-size: 20px;
+  }
+
+  .dashboard-content {
+    padding: 14px;
+  }
+}
+
+/* ─── Carteira: layout sem sidebar (alinhado ao hub) ─────────────────────── */
+
+.dashboard-main--single {
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dashboard-toolbar {
+  flex-shrink: 0;
+  padding: 20px clamp(16px, 3vw, 40px) 16px;
+  border-bottom: 1px solid rgba(195, 168, 94, 0.35);
+  background: #faf9f5;
+}
+
+.dashboard-toolbar__back {
+  display: block;
+  width: fit-content;
+  margin-bottom: 12px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #535353;
+}
+
+.dashboard-toolbar__back:hover {
+  color: #272727;
+  text-decoration: underline;
+}
+
+.dashboard-toolbar__titles {
+  margin-bottom: 16px;
+}
+
+.dashboard-toolbar__title {
+  margin: 0 0 6px;
+  font-family: "Clash Display", "SF Pro Text", system-ui, sans-serif;
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  font-weight: 600;
+  color: #1f1e1c;
+}
+
+.dashboard-toolbar__subtitle {
+  margin: 0;
+  max-width: 640px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: #5c5a56;
+}
+
+.dashboard-toolbar__switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dashboard-pill {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 2px solid #c3a85e;
+  background: #fff;
+  color: #454340;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.dashboard-pill--on {
+  background: #e0c271;
+  border-color: #e0c271;
+  color: #272727;
+}
+
+.dashboard-content--full {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: clamp(18px, 2.5vw, 36px);
+  background: linear-gradient(180deg, #fbfaf7 0%, #f4f1ea 100%);
+}
+
+.dashboard-loading-msg--inline {
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.dashboard-loading-msg--erro {
+  color: #b42318;
+}
+
+.dashboard-contract-banner {
+  flex-shrink: 0;
+  margin: 0 0 20px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 2px solid #3dbd7d;
+  background: rgba(61, 189, 125, 0.12);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-contract-banner__titulo {
+  font-size: 1.05rem;
+}
+
+.dashboard-contract-banner__txt {
+  margin: 6px 0 0;
+  color: #535353;
+  font-size: 0.95rem;
+}
+
+.dashboard-contract-banner__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dashboard-contract-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.dashboard-contract-btn--fill {
+  background: #272727;
+  color: #faf9f5;
+}
+
+.dashboard-contract-btn--line {
+  border-color: #272727;
+  color: #272727;
+  background: transparent;
+}
+
+.dashboard-contract-btn--ghost {
+  border: none;
+  background: transparent;
+  color: #8e8d8c;
+}

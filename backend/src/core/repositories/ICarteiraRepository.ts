@@ -7,6 +7,8 @@ export interface ICarteiraRepository {
   updateBalance(id: string, balance: string): Promise<void>;
   updateBlockedBalance(id: string, saldo_bloqueado: string): Promise<void>;
   updatePaymentMethods(id: string, methods: string): Promise<void>;
+  /** Atualiza `metodos_de_pagamento` pela linha em que `user_id` ou `prestador_id` coincide com `ownerKey`. */
+  updatePaymentMethodsByOwnerKey(ownerKey: string, methods: string): Promise<number>;
   updateStatus(id: string, status: CarteiraStatus): Promise<void>;
   findByUserId(id: string): Promise<Carteira | null>;
   findByPrestadorId(id: string): Promise<Carteira | null>;

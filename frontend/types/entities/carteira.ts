@@ -16,11 +16,13 @@ export type PagamentosAceitados = {
 export interface Carteira {
   id?: string;
   usuario_id?: string;
-  prestador_id?: string;
+  user_id?: string | null;
+  prestador_id?: string | null;
   saldo: string;
   saldo_bloqueado?: string;
   ultima_transacao_id?: string;
-  metodos_de_pagamento?: PagamentosAceitados;
+  /** Texto JSON ou objeto conforme vem da API. */
+  metodos_de_pagamento?: PagamentosAceitados | string | Record<string, unknown> | null;
   status: CarteiraStatus;
   readonly created_at?: Date;
   readonly updated_at?: Date;

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/contexts/AuthContext";
+import { ROUTES } from "@/lib/routes";
 
 export function Navbar() {
   const router = useRouter();
@@ -13,19 +14,19 @@ export function Navbar() {
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4">
         <div className="flex items-center gap-4">
           <Link
-            href="/"
+            href={ROUTES.landing}
             className="text-xl font-semibold tracking-tight text-slate-900"
           >
             ServiçoHub
           </Link>
           <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
-            <Link href="/services" className="transition hover:text-slate-900">
+            <Link href={ROUTES.services} className="transition hover:text-slate-900">
               Serviços
             </Link>
-            <Link href="/dashboard" className="transition hover:text-slate-900">
+            <Link href={ROUTES.dashboard} className="transition hover:text-slate-900">
               Painel
             </Link>
-            <Link href="/profile" className="transition hover:text-slate-900">
+            <Link href={ROUTES.profile} className="transition hover:text-slate-900">
               Perfil
             </Link>
           </nav>
@@ -35,13 +36,13 @@ export function Navbar() {
           {!initialized ? null : isAuthenticated ? (
             <>
               <span className="rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-700">
-                {user?.nome || "Usuário"}
+                {user?.email ? user.email.split("@")[0] : "Usuário"}
               </span>
               <button
                 type="button"
                 onClick={() => {
                   logout();
-                  router.push("/login");
+                  router.push(ROUTES.login);
                 }}
                 className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
               >
@@ -51,13 +52,13 @@ export function Navbar() {
           ) : (
             <>
               <Link
-                href="/login"
+                href={ROUTES.login}
                 className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
               >
                 Entrar
               </Link>
               <Link
-                href="/register"
+                href={ROUTES.register}
                 className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
               >
                 Cadastro

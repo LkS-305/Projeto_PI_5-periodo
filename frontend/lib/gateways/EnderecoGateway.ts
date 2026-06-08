@@ -1,42 +1,65 @@
-import { apiServer } from '../api/server';
-import { Endereco } from '../../types/entities/endereco';
-import { AtualizarEnderecoDto, CriarEnderecoDto, RetornoApi } from '../../types/dtos/endereco';
+import { apiClient } from "../api/client";
+import { bearerFromStorage } from "../api/client-auth";
+import { Endereco } from "../../types/entities/endereco";
+import { AtualizarEnderecoDto, CriarEnderecoDto, RetornoApi } from "../../types/dtos/endereco";
+
+const auth = () => ({ headers: bearerFromStorage() });
 
 export const EnderecoGateway = {
-
   async criarEndereco(dados: CriarEnderecoDto): Promise<Endereco> {
-    return apiServer.post<Endereco>('/endereco/criarEndereco', dados);
+    return apiClient.post<Endereco>("/endereco/criarEndereco", dados, auth());
   },
-  
+
   async deletarEndereco(id: string): Promise<boolean> {
-    return apiServer.delete<boolean>('/endereco/deletarEndereco', id);
+    return apiClient.delete<boolean>("/endereco/deletarEndereco", {
+      body: { id },
+      ...auth(),
+    });
   },
-  
+
   async atualizarEndereco(id: string, dados: AtualizarEnderecoDto): Promise<Endereco> {
-    return apiServer.patch<Endereco>('/endereco/editarEndereco', {id, dados});
+    return apiClient.patch<Endereco>("/endereco/editarEndereco", { id, dados }, auth());
   },
-  
+
   async getByUserId(user_id: string): Promise<Endereco[] | null> {
-    return apiServer.post<Endereco[] | null>('/endereco/buscarPorUserId', user_id);
+    return apiClient.get<Endereco[] | null>("/endereco/acharPorUserId", {
+      params: { id: user_id },
+      ...auth(),
+    });
   },
 
   async getByPrestadorId(prestador_id: string): Promise<Endereco[] | null> {
-    return apiServer.post<Endereco[] | null>('/endereco/buscarPorPrestadorId', prestador_id);
+    return apiClient.get<Endereco[] | null>("/endereco/acharPorPrestadorId", {
+      params: { id: prestador_id },
+      ...auth(),
+    });
   },
-  
+
   async getByCity(cidade: string): Promise<Endereco[] | null> {
-    return apiServer.post<Endereco[] | null>('/endereco/acharPorCidade', cidade);
+    return apiClient.get<Endereco[] | null>("/endereco/acharPorCidade", {
+      params: { cidade },
+      ...auth(),
+    });
   },
 
   async setPrincipal(id: string): Promise<boolean> {
-    return apiServer.post<boolean>('/endereco/setPrincipal', id);
+    return apiClient.get<boolean>("/endereco/setPrincipal", {
+      params: { id },
+      ...auth(),
+    });
   },
 
   async unsetPrincipal(id: string): Promise<boolean> {
-    return apiServer.post<boolean>('/endereco/unsetPrincpal', id);
+    return apiClient.get<boolean>("/endereco/unsetPrincipal", {
+      params: { id },
+      ...auth(),
+    });
   },
 
-  async getCep(cep: string): Promise<RetornoApi | null>{
-    return apiServer.post<RetornoApi | null>('/endereco/buscarCep', cep);
-  }
-}
+  async getCep(cep: string): Promise<RetornoApi | null> {
+    return apiClient.get<RetornoApi | null>("/endereco/buscarCep", {
+      params: { cep },
+      ...auth(),
+    });
+  },
+};

@@ -2,4 +2,5 @@ npm install
 npm test
 docker-compose up --build
 npm run db:setup
+npm run db:seed
 npm run dev

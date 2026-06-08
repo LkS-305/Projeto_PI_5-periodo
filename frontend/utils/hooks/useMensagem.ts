@@ -5,7 +5,8 @@ import { Mensagem } from "@/types/entities/mensagem";
 import { EnviarMensagemDto } from "@/types/dtos/mensagem";
 import { MensagemGateway } from "@/lib/gateways/MensagemGateway";
 
-const POLLING_INTERVAL_MS = 3000;
+/** Evita esgotar rate limit do backend (várias abas + marcar lidas). */
+const POLLING_INTERVAL_MS = 12000;
 
 export function useMensagem(servico_id: string | null) {
   const [mensagens, setMensagens] = useState<Mensagem[]>([]);

@@ -1,5 +1,8 @@
 export type destinatario = 'usuario' | 'prestador' | 'servico' | 'avaliacao';
 
+/** Alias usado em listagens de avaliação */
+export type AvaliarBy = destinatario;
+
 export interface CriarAvaliacaoDto {
   servico_id: string | undefined,
   usuario_id: string | undefined,

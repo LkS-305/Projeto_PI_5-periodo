@@ -3,7 +3,11 @@ import { Prestador } from "../../entities/Prestador";
 import { AtualizarPrestadorDto, CriarPrestadorDto } from "../../dtos/prestador";
 import { IUserRepository } from "../../repositories/IUserRepository";
 import { ResourceNotFoundError, ValidationError } from "../../errors/AppError";
-import { validarUUID, validarTexto, sanitizarTexto } from "../../utils/validate";
+import {
+  validarUUID,
+  validarTexto,
+  sanitizarTexto,
+} from "../../utils/validate";
 
 export class CriarPrestadorUseCase {
   constructor(
@@ -12,15 +16,16 @@ export class CriarPrestadorUseCase {
   ) {}
 
   async executar(dados: CriarPrestadorDto) {
-    validarTexto(dados.nome, 'Nome', 2, 100);
-    validarTexto(dados.bio, 'Bio', 10, 500);
+    validarUUID(dados.user_id, "ID do usuário");
+    validarTexto(dados.nome, "Nome", 2, 100);
+    validarTexto(dados.bio, "Bio", 10, 500);
     dados.nome = sanitizarTexto(dados.nome);
-    dados.bio  = sanitizarTexto(dados.bio);
+    dados.bio = sanitizarTexto(dados.bio);
 
     const usuarioExistente = await this.userRepository.findById(dados.user_id);
 
     if (!usuarioExistente) {
-      throw new ResourceNotFoundError('Usuário');
+      throw new ResourceNotFoundError("Usuário");
     }
 
     const prestador = new Prestador({
@@ -29,7 +34,6 @@ export class CriarPrestadorUseCase {
       bio: dados.bio,
       foto_url: dados.foto_url,
     });
-
 
     await this.prestadorRepository.create(prestador);
 
@@ -41,10 +45,11 @@ export class DeletarPrestadorUseCase {
   constructor(private prestadorRepository: IPrestadorRepository) {}
 
   async executar(user_id: string): Promise<boolean> {
+    validarUUID(user_id, "ID do usuário");
     const prestador = await this.prestadorRepository.findByUserId(user_id);
 
     if (!prestador) {
-      throw new ResourceNotFoundError('Prestador');
+      throw new ResourceNotFoundError("Prestador");
     }
 
     await this.prestadorRepository.delete(user_id);
@@ -56,13 +61,22 @@ export class AtualizarPrestadorUseCase {
   constructor(private prestadorRepository: IPrestadorRepository) {}
 
   async executar(prestador: AtualizarPrestadorDto) {
-    if (prestador.nome !== undefined) { validarTexto(prestador.nome, 'Nome', 2, 100); prestador.nome = sanitizarTexto(prestador.nome); }
-    if (prestador.bio  !== undefined) { validarTexto(prestador.bio,  'Bio',  10, 500); prestador.bio  = sanitizarTexto(prestador.bio); }
+    validarUUID(prestador.user_id, "ID do usuário");
+    if (prestador.nome !== undefined) {
+      validarTexto(prestador.nome, "Nome", 2, 100);
+      prestador.nome = sanitizarTexto(prestador.nome);
+    }
+    if (prestador.bio !== undefined) {
+      validarTexto(prestador.bio, "Bio", 10, 500);
+      prestador.bio = sanitizarTexto(prestador.bio);
+    }
 
-    const prestadorExistente = await this.prestadorRepository.findByUserId(prestador.user_id);
+    const prestadorExistente = await this.prestadorRepository.findByUserId(
+      prestador.user_id,
+    );
 
     if (!prestadorExistente) {
-      throw new ResourceNotFoundError('Prestador');
+      throw new ResourceNotFoundError("Prestador");
     }
     const prestadorInstanciado = new Prestador(prestadorExistente);
     prestadorInstanciado.atualizarPerfil(prestador);
@@ -76,10 +90,11 @@ export class AcharPorUserId {
   constructor(private prestadorRepository: IPrestadorRepository) {}
 
   async executar(user_id: string) {
+    validarUUID(user_id, "ID do usuário");
     const prestador = await this.prestadorRepository.findByUserId(user_id);
 
     if (!prestador) {
-      throw new ResourceNotFoundError('Prestador');
+      throw new ResourceNotFoundError("Prestador");
     }
 
     return prestador;

@@ -3,6 +3,7 @@
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/contexts/SessionContext";
+import { ROUTES } from "@/lib/routes";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useSession();
@@ -10,7 +11,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/home");
+      router.push(ROUTES.hub);
     }
   }, [isAuthenticated, router]);
 

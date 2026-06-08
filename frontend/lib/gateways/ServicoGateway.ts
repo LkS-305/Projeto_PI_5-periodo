@@ -1,4 +1,5 @@
 import { apiClient } from "../api/client";
+import { bearerFromStorage } from "../api/client-auth";
 import { Servico } from "../../types/entities/servico";
 import { AtualizarServicoDto, CriarServicoDto } from "../../types/dtos/servico";
 
@@ -13,11 +14,22 @@ export const ServicoGateway = {
     });
   },
 
-  async atualizarServico(
-    id: string,
-    dados: AtualizarServicoDto,
-  ): Promise<Servico> {
-    return apiClient.patch<Servico>("/servico/editarServico", dados);
+  async atualizarServico(dados: AtualizarServicoDto): Promise<void> {
+    const body: Record<string, unknown> = { id: dados.id };
+    if (dados.titulo !== undefined) body.titulo = dados.titulo;
+    if (dados.descricao !== undefined) body.descricao = dados.descricao;
+    if (dados.preco_acordado !== undefined) body.preco_acordado = dados.preco_acordado;
+    if (dados.data_inicio !== undefined) {
+      body.data_inicio =
+        dados.data_inicio instanceof Date
+          ? dados.data_inicio.toISOString()
+          : dados.data_inicio;
+    }
+    if (dados.duracao !== undefined) body.duracao = dados.duracao;
+    if (dados.categoria !== undefined) body.categoria = dados.categoria;
+    await apiClient.patch<unknown>("/servico/atualizarServico", body, {
+      headers: bearerFromStorage(),
+    });
   },
 
   async getById(id: string): Promise<Servico | null> {

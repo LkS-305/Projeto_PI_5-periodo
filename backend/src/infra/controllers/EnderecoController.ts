@@ -74,7 +74,7 @@ export class EnderecoController {
 
   async findByPrestadorId(req: Request, res: Response) {
     try {
-      const id = req.body.id;
+      const id = (req.query.id as string) ?? req.body?.id;
       const resultado = await this.acharPorPrestadorId.executar(id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
@@ -84,7 +84,7 @@ export class EnderecoController {
 
   async findByCity(req: Request, res: Response) {
     try {
-      const cidade = req.body.cidade;
+      const cidade = (req.query.cidade as string) ?? req.body?.cidade;
       const resultado = await this.acharPorCidade.executar(cidade);
       return res.status(200).json(resultado);
     } catch (erro: any) {
@@ -94,7 +94,8 @@ export class EnderecoController {
 
   async setIsPrincipal(req: Request, res: Response) {
     try {
-      const resultado = await this.setPrincipal.executar(req.body.id);
+      const id = (req.query.id as string) ?? req.body?.id;
+      const resultado = await this.setPrincipal.executar(id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({ erro: erro.message });
@@ -103,7 +104,8 @@ export class EnderecoController {
 
   async unsetIsPrincipal(req: Request, res: Response) {
     try {
-      const resultado = await this.unsetPrincipal.executar(req.body.id);
+      const id = (req.query.id as string) ?? req.body?.id;
+      const resultado = await this.unsetPrincipal.executar(id);
       return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({ erro: erro.message });

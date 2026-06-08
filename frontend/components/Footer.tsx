@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ROUTES } from "@/lib/routes";
 
 export function Footer() {
   return (
@@ -12,16 +13,16 @@ export function Footer() {
           </p>
         </div>
         <div className="flex flex-wrap gap-4 text-sm">
-          <Link href="/services" className="transition hover:text-slate-900">
+          <Link href={ROUTES.services} className="transition hover:text-slate-900">
             Serviços
           </Link>
-          <Link href="/dashboard" className="transition hover:text-slate-900">
+          <Link href={ROUTES.dashboard} className="transition hover:text-slate-900">
             Painel
           </Link>
-          <Link href="/profile" className="transition hover:text-slate-900">
+          <Link href={ROUTES.profile} className="transition hover:text-slate-900">
             Perfil
           </Link>
-          <Link href="/login" className="transition hover:text-slate-900">
+          <Link href={ROUTES.login} className="transition hover:text-slate-900">
             Entrar
           </Link>
         </div>

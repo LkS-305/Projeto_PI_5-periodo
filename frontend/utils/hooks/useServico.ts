@@ -28,13 +28,14 @@ export function useServico() {
   );
 
   const updateServico = useCallback(
-    async (id: string, dados: AtualizarServicoDto): Promise<boolean> => {
+    async (id: string, dados: Omit<AtualizarServicoDto, "id">): Promise<boolean> => {
       setLoading(true);
       setError(null);
       try {
-        return await ServicoGateway.atualizarServico(id, dados) ? true : false;
+        await ServicoGateway.atualizarServico({ id, ...dados });
+        return true;
       } catch (err: any) {
-        setError(err?.message || "Erro ao atualizar status do serviço");
+        setError(err?.message || "Erro ao atualizar o serviço");
         return false;
       } finally {
         setLoading(false);

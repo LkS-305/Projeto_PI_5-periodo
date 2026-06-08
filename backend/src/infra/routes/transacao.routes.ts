@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PgTransacaoRepository } from '../repositories/PgTransacaoRepository';
 import { PgCarteiraRepository } from '../repositories/PgCarteiraRepository';
+import { PgServicoRepository } from '../repositories/PgServicoRepository';
 import { AsaasProvider } from '../providers/AsaasProvider';
 import {
   AcharPorUserId,
@@ -18,6 +19,7 @@ const transacaoRouter = Router();
 
 const transacaoRepo = new PgTransacaoRepository();
 const carteiraRepo  = new PgCarteiraRepository();
+const servicoRepo   = new PgServicoRepository();
 const asaas         = new AsaasProvider();
 
 const transacaoController = new TransacaoController(
@@ -27,7 +29,7 @@ const transacaoController = new TransacaoController(
   new IniciarPagamentoUseCase(transacaoRepo, asaas),
   new LiberarPagamentoUseCase(transacaoRepo, carteiraRepo),
   new ReembolsarPagamentoUseCase(transacaoRepo, asaas),
-  new ProcessarWebhookAsaasUseCase(transacaoRepo, carteiraRepo),
+  new ProcessarWebhookAsaasUseCase(transacaoRepo, carteiraRepo, servicoRepo),
 );
 
 // Read

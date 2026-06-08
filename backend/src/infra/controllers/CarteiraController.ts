@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
-import { CriarCarteiraUseCase, DeletarCarteiraUseCase, AtualizarMetodosDePagamentoUseCase, AtualizarStatus, AtualizarSaldoUseCase, AcharPorUserId, AcharPorPrestadorId } from '../../core/use-cases/financeiro/CarteiraUseCase';
+import { CriarCarteiraUseCase, DeletarCarteiraUseCase, AtualizarMetodosDePagamentoUseCase, AtualizarMetodosPorContaUseCase, AtualizarStatus, AtualizarSaldoUseCase, AcharPorUserId, AcharPorPrestadorId } from '../../core/use-cases/financeiro/CarteiraUseCase';
 
 export class CarteiraController {
   constructor(
     private criarCarteira: CriarCarteiraUseCase,
     private deletarCarteira: DeletarCarteiraUseCase,
     private atualizarMetodosDePagamento: AtualizarMetodosDePagamentoUseCase,
+    private atualizarMetodosPorConta: AtualizarMetodosPorContaUseCase,
     private atualizarStatus: AtualizarStatus,
     private atualizarSaldo: AtualizarSaldoUseCase,
     private acharPorUserId: AcharPorUserId,
@@ -37,6 +38,19 @@ export class CarteiraController {
       return res.status(200).json(resultado);
     } catch (erro: any) {
       return res.status(400).json({erro: erro.message})
+    }
+  }
+
+  /** PATCH body: `{ owner_id, dados }` — `dados` é string (ex.: JSON) guardada em `metodos_de_pagamento`. */
+  async updatePaymentMethodsByAccount(req: Request, res: Response) {
+    try {
+      await this.atualizarMetodosPorConta.executar(
+        req.body.owner_id as string,
+        req.body.dados as string,
+      );
+      return res.status(200).json({ ok: true });
+    } catch (erro: any) {
+      return res.status(400).json({ erro: erro.message });
     }
   }
 

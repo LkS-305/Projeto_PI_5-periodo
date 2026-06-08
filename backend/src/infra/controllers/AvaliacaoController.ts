@@ -47,7 +47,9 @@ export class AvaliacaoController {
 
   async listByServico(req: Request, res: Response){
     try {
-      const resultado = await this.listarPorId.executar(req.body.id, req.body.listBy);
+      const id = (req.query.id as string) ?? req.body?.id;
+      const listBy = (req.query.listBy as string) ?? req.body?.listBy;
+      const resultado = await this.listarPorId.executar(id, listBy);
       return res.status(200).json(resultado);
     }
     catch (erro: any) {
@@ -57,7 +59,9 @@ export class AvaliacaoController {
 
   async listByUser(req: Request, res: Response){
     try {
-      const resultado = await this.listarPorId.executar(req.body.id, req.body.listBy);
+      const id = (req.query.id as string) ?? req.body?.id;
+      const listBy = (req.query.listBy as string) ?? req.body?.listBy;
+      const resultado = await this.listarPorId.executar(id, listBy);
       return res.status(200).json(resultado);
     }
     catch (erro: any) {
@@ -67,7 +71,9 @@ export class AvaliacaoController {
 
   async listByPrestador(req: Request, res: Response){
     try {
-      const resultado = await this.listarPorId.executar(req.body.id, req.body.listBy);
+      const id = (req.query.id as string) ?? req.body?.id;
+      const listBy = (req.query.listBy as string) ?? req.body?.listBy;
+      const resultado = await this.listarPorId.executar(id, listBy);
       return res.status(200).json(resultado);
     }
     catch (erro: any) {

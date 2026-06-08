@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "./messages/messages.css";
+@import "./(app)/messages/messages.css";
 @import "./not-found.css";
 @import "./shared/home-header.css";
 
@@ -163,11 +163,15 @@ body {
   font-family: var(--font-sf-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100%;
 }
 
 html {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100%;
 }
 
 /* Scrollbar invisível em toda a aplicação (mantém o scroll funcional) */
@@ -199,4 +203,19 @@ h6 {
 
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
+}
+
+/* App shell: fill viewport so /home and /dashboard can scroll inside main */
+.app-shell-root {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.app-shell-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
 }

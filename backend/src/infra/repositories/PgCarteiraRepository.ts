@@ -37,17 +37,28 @@ export class PgCarteiraRepository implements ICarteiraRepository {
   }
 
   async updateBalance(id: string, balance: string): Promise<void> {
-    await pool.query("UPDATE carteiras SET saldo = $1 WHERE user_id = $2", [
-      balance,
-      id,
-    ]);
+    await pool.query(
+      "UPDATE carteiras SET saldo = $1 WHERE user_id = $2 OR prestador_id = $2",
+      [balance, id],
+    );
   }
 
   async updateBlockedBalance(id: string, saldo_bloqueado: string): Promise<void> {
-    await pool.query("UPDATE carteiras SET saldo_bloqueado = $1 WHERE user_id = $2", [
-      saldo_bloqueado,
-      id,
-    ]);
+    await pool.query(
+      "UPDATE carteiras SET saldo_bloqueado = $1 WHERE user_id = $2 OR prestador_id = $2",
+      [saldo_bloqueado, id],
+    );
+  }
+
+  async updatePaymentMethodsByOwnerKey(
+    ownerKey: string,
+    methods: string,
+  ): Promise<number> {
+    const { rowCount } = await pool.query(
+      "UPDATE carteiras SET metodos_de_pagamento = $1 WHERE user_id = $2 OR prestador_id = $2",
+      [methods, ownerKey],
+    );
+    return rowCount ?? 0;
   }
 
   async findByUserId(usuario_id: string): Promise<Carteira | null> {
