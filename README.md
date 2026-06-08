@@ -105,8 +105,11 @@ docker compose down
 ```bash
 # dentro de backend/
 npm install
+npm run db:setup   # cria/atualiza tabelas no PostgreSQL (precisa do .env e do Postgres a correr)
 npm run dev
 ```
+
+O comando **`npm run db:setup`** corre o script `src/infra/database/migrate.ts` (schema `init.sql`, patches idempotentes, triggers, etc.). Volta a executá-lo sempre que atualizares o repositório e o schema mudar.
 
 API disponível em **`http://localhost:3002`**
 
@@ -185,11 +188,13 @@ NEXT_PUBLIC_API_URL=http://localhost:3002
 ### Backend
 
 ```bash
-npm run dev          # inicia em modo desenvolvimento (hot reload)
-npm run build        # compila TypeScript
-npm run start        # inicia versão compilada
-npm run test         # roda todos os testes (Jest)
-npm run test:api     # testa endpoints reais (servidor deve estar rodando)
+npm run dev           # inicia em modo desenvolvimento (hot reload)
+npm run db:setup      # migrações SQL: cria BD se faltar + tabelas (usa backend/.env)
+npm run db:seed       # dados de exemplo (populate), se configurado no seed.ts
+npm run build         # compila TypeScript
+npm run start         # inicia versão compilada
+npm run test          # roda todos os testes (Jest)
+npm run test:api      # testa endpoints reais (servidor deve estar rodando)
 npm run test:servicos # testa endpoints de serviços, prestador e carteira
 ```
 

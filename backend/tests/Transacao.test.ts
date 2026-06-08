@@ -9,6 +9,7 @@ import {
 } from '../src/core/use-cases/financeiro/TransacaoUseCase';
 import { ITransacaoRepository } from '../src/core/repositories/ITransacaoRepository';
 import { ICarteiraRepository } from '../src/core/repositories/ICarteiraRepository';
+import { IServicoRepository } from '../src/core/repositories/IServicoRepository';
 import { AsaasProvider } from '../src/infra/providers/AsaasProvider';
 import { Transacao } from '../src/core/entities/Transacao';
 import { Carteira } from '../src/core/entities/Carteira';
@@ -45,6 +46,17 @@ const ASAAS_COBRANCA = {
   invoiceUrl:       'https://sandbox.asaas.com/i/abc123',
   pixQrCodeImage:   'base64encodedimage==',
   pixCopyPaste:     '00020126580014br.gov.bcb.pix...',
+  bankSlipUrl:      null as string | null,
+  identificationField: null as string | null,
+};
+
+const ASAAS_BOLETO = {
+  asaas_payment_id: 'pay_boleto1',
+  invoiceUrl:       'https://sandbox.asaas.com/i/boleto1',
+  pixQrCodeImage:   null,
+  pixCopyPaste:     null,
+  bankSlipUrl:      'https://sandbox.asaas.com/boleto.pdf',
+  identificationField: '34191790010104351004791020150008891070000015000',
 };
 
 // ─── Mock factories ───────────────────────────────────────────────────────────
@@ -76,6 +88,7 @@ function makeCarteiraRepo(
     updateBalance:        jest.fn().mockResolvedValue(undefined),
     updateBlockedBalance: jest.fn().mockResolvedValue(undefined),
     updatePaymentMethods: jest.fn().mockResolvedValue(undefined),
+    updatePaymentMethodsByOwnerKey: jest.fn().mockResolvedValue(1),
     updateStatus:         jest.fn().mockResolvedValue(undefined),
     findByUserId:         jest.fn().mockResolvedValue(null),
     findByPrestadorId:    jest.fn().mockResolvedValue(CARTEIRA_PRESTADOR),
@@ -83,12 +96,31 @@ function makeCarteiraRepo(
   } as unknown as ICarteiraRepository;
 }
 
+function makeServicoRepo(
+  overrides: Partial<Record<keyof IServicoRepository, jest.Mock>> = {},
+): IServicoRepository {
+  return {
+    create: jest.fn(),
+    findAll: jest.fn(),
+    getStats: jest.fn(),
+    findById: jest.fn().mockResolvedValue({
+      id: UUID_SERVICO,
+      status: 'aceito',
+    }),
+    findByUserId: jest.fn(),
+    findByPrestadorId: jest.fn(),
+    updateStatus: jest.fn().mockResolvedValue(undefined),
+    updateServico: jest.fn(),
+    ...overrides,
+  } as unknown as IServicoRepository;
+}
+
 function makeAsaasProvider(
   overrides: Partial<Record<keyof AsaasProvider, jest.Mock>> = {},
 ): AsaasProvider {
   return {
     criarOuBuscarCliente: jest.fn().mockResolvedValue('cus_xyz789'),
-    criarCobrancaPix:     jest.fn().mockResolvedValue(ASAAS_COBRANCA),
+    criarCobranca:        jest.fn().mockResolvedValue(ASAAS_COBRANCA),
     reembolsarCobranca:   jest.fn().mockResolvedValue(undefined),
     buscarStatus:         jest.fn().mockResolvedValue('PENDING'),
     ...overrides,
@@ -114,9 +146,9 @@ describe('IniciarPagamentoUseCase', () => {
     const resultado = await sut.executar(dadosValidos);
 
     expect(resultado.transacao).toBeDefined();
-    expect(resultado.pix.qrCodeImage).toBe(ASAAS_COBRANCA.pixQrCodeImage);
-    expect(resultado.pix.copyPaste).toBe(ASAAS_COBRANCA.pixCopyPaste);
-    expect(resultado.pix.invoiceUrl).toBe(ASAAS_COBRANCA.invoiceUrl);
+    expect(resultado.pix?.qrCodeImage).toBe(ASAAS_COBRANCA.pixQrCodeImage);
+    expect(resultado.pix?.copyPaste).toBe(ASAAS_COBRANCA.pixCopyPaste);
+    expect(resultado.pix?.invoiceUrl).toBe(ASAAS_COBRANCA.invoiceUrl);
   });
 
   it('deve criar ou buscar o cliente Asaas com o CPF correto', async () => {
@@ -128,13 +160,43 @@ describe('IniciarPagamentoUseCase', () => {
     expect(asaas.criarOuBuscarCliente).toHaveBeenCalledWith('12345678900', 'João Silva', 'joao@email.com');
   });
 
-  it('deve chamar criarCobrancaPix com o valor numérico correto', async () => {
+  it('deve chamar criarCobranca com PIX e o valor numérico correto', async () => {
     const asaas = makeAsaasProvider();
     const sut = new IniciarPagamentoUseCase(makeTransacaoRepo(), asaas);
 
     await sut.executar(dadosValidos);
 
-    expect(asaas.criarCobrancaPix).toHaveBeenCalledWith('cus_xyz789', 150, expect.any(String));
+    expect(asaas.criarCobranca).toHaveBeenCalledWith('cus_xyz789', 150, expect.any(String), 'PIX');
+  });
+
+  it('deve chamar criarCobranca com BOLETO quando método for Boleto', async () => {
+    const asaas = makeAsaasProvider({ criarCobranca: jest.fn().mockResolvedValue(ASAAS_BOLETO) });
+    const sut = new IniciarPagamentoUseCase(makeTransacaoRepo(), asaas);
+
+    const resultado = await sut.executar({ ...dadosValidos, metodo_pagamento: 'Boleto' });
+
+    expect(asaas.criarCobranca).toHaveBeenCalledWith('cus_xyz789', 150, expect.any(String), 'BOLETO');
+    expect(resultado.pix).toBeNull();
+    expect(resultado.boleto?.bankSlipUrl).toBe(ASAAS_BOLETO.bankSlipUrl);
+    expect(resultado.boleto?.identificationField).toBe(ASAAS_BOLETO.identificationField);
+  });
+
+  it('deve chamar criarCobranca com UNDEFINED quando método for Credito', async () => {
+    const asaas = makeAsaasProvider({
+      criarCobranca: jest.fn().mockResolvedValue({
+        ...ASAAS_COBRANCA,
+        pixQrCodeImage: null,
+        pixCopyPaste: null,
+      }),
+    });
+    const sut = new IniciarPagamentoUseCase(makeTransacaoRepo(), asaas);
+
+    const resultado = await sut.executar({ ...dadosValidos, metodo_pagamento: 'Credito' });
+
+    expect(asaas.criarCobranca).toHaveBeenCalledWith('cus_xyz789', 150, expect.any(String), 'UNDEFINED');
+    expect(resultado.pix).toBeNull();
+    expect(resultado.boleto).toBeNull();
+    expect(resultado.faturaAsaas?.invoiceUrl).toBe(ASAAS_COBRANCA.invoiceUrl);
   });
 
   it('deve salvar o asaas_payment_id na transação criada', async () => {
@@ -313,7 +375,8 @@ describe('ProcessarWebhookAsaasUseCase', () => {
       findByAsaasPaymentId: jest.fn().mockResolvedValue(TRANSACAO_PENDENTE),
     });
     const carteiraRepo = makeCarteiraRepo();
-    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, carteiraRepo);
+    const servicoRepo = makeServicoRepo();
+    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, carteiraRepo, servicoRepo);
 
     await sut.executar('PAYMENT_RECEIVED', 'pay_abc123');
 
@@ -322,13 +385,17 @@ describe('ProcessarWebhookAsaasUseCase', () => {
       TRANSACAO_PENDENTE.id,
       { status: 'aprovada' },
     );
+    expect(servicoRepo.updateStatus).toHaveBeenCalledWith({
+      id: UUID_SERVICO,
+      status: 'emAndamento',
+    });
   });
 
   it('PAYMENT_RECEIVED: deve buscar o prestador via servico_id', async () => {
     const transacaoRepo = makeTransacaoRepo({
       findByAsaasPaymentId: jest.fn().mockResolvedValue(TRANSACAO_PENDENTE),
     });
-    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, makeCarteiraRepo());
+    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, makeCarteiraRepo(), makeServicoRepo());
 
     await sut.executar('PAYMENT_RECEIVED', 'pay_abc123');
 
@@ -339,7 +406,7 @@ describe('ProcessarWebhookAsaasUseCase', () => {
     const transacaoRepo = makeTransacaoRepo({
       findByAsaasPaymentId: jest.fn().mockResolvedValue(TRANSACAO_PENDENTE),
     });
-    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, makeCarteiraRepo());
+    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, makeCarteiraRepo(), makeServicoRepo());
 
     await sut.executar('PAYMENT_REFUNDED', 'pay_abc123');
 
@@ -352,7 +419,7 @@ describe('ProcessarWebhookAsaasUseCase', () => {
   it('deve ignorar silenciosamente um payment id desconhecido', async () => {
     const transacaoRepo = makeTransacaoRepo();
     const carteiraRepo = makeCarteiraRepo();
-    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, carteiraRepo);
+    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, carteiraRepo, makeServicoRepo());
 
     await expect(sut.executar('PAYMENT_RECEIVED', 'pay_inexistente')).resolves.not.toThrow();
     expect(transacaoRepo.update).not.toHaveBeenCalled();
@@ -365,7 +432,7 @@ describe('ProcessarWebhookAsaasUseCase', () => {
       findByAsaasPaymentId: jest.fn().mockResolvedValue(transacaoAprovada),
     });
     const carteiraRepo = makeCarteiraRepo();
-    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, carteiraRepo);
+    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, carteiraRepo, makeServicoRepo());
 
     await sut.executar('PAYMENT_RECEIVED', 'pay_abc123');
 
@@ -378,7 +445,7 @@ describe('ProcessarWebhookAsaasUseCase', () => {
     const transacaoRepo = makeTransacaoRepo({
       findByAsaasPaymentId: jest.fn().mockResolvedValue(transacaoReembolsada),
     });
-    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, makeCarteiraRepo());
+    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, makeCarteiraRepo(), makeServicoRepo());
 
     await sut.executar('PAYMENT_REFUNDED', 'pay_abc123');
 
@@ -389,7 +456,7 @@ describe('ProcessarWebhookAsaasUseCase', () => {
     const transacaoRepo = makeTransacaoRepo({
       findByAsaasPaymentId: jest.fn().mockResolvedValue(TRANSACAO_PENDENTE),
     });
-    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, makeCarteiraRepo());
+    const sut = new ProcessarWebhookAsaasUseCase(transacaoRepo, makeCarteiraRepo(), makeServicoRepo());
 
     await expect(sut.executar('PAYMENT_OVERDUE', 'pay_abc123')).resolves.not.toThrow();
     expect(transacaoRepo.update).not.toHaveBeenCalled();

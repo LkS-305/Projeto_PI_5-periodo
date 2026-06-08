@@ -9,7 +9,7 @@ async function seed() {
     await client.query(`
       TRUNCATE TABLE
         avaliacoes, mensagens, notificacoes, agendamentos,
-        transacoes, carteiras, portfolio_items, documentos,
+        recibos, transacoes, carteiras, portfolio_items, documentos,
         servicos, prestador_categorias, enderecos,
         prestadores, usuarios, users, categorias
       RESTART IDENTITY CASCADE;

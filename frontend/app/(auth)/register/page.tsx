@@ -7,6 +7,7 @@ import { useSession } from "@/lib/contexts/AuthContext";
 import { AuthGateway } from "@/lib/gateways/AuthGateway";
 import { DocumentoGateway } from "@/lib/gateways/DocumentoGateway";
 import { apiClient } from "@/lib/api/client";
+import { ROUTES } from "@/lib/routes";
 
 export default function Cadastro() {
   const router = useRouter();
@@ -23,6 +24,8 @@ export default function Cadastro() {
   const [showError3, setShowError3] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [isSendingCadastroCode, setIsSendingCadastroCode] = useState(false);
+  const [isConfirmingCadastroCode, setIsConfirmingCadastroCode] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(0);
 
   // Guarda a conta já criada para que, em caso de falha no envio do documento,
@@ -50,7 +53,7 @@ export default function Cadastro() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/dashboard");
+      router.push(ROUTES.dashboard);
     }
   }, [isAuthenticated, router]);
 
@@ -175,10 +178,8 @@ export default function Cadastro() {
   };
 
   const goToNextSection = async () => {
-    if (!validateSection(section)) return;
-
-    // Verifica se o e-mail já está cadastrado antes de sair da seção 1
     if (section === 1) {
+      if (!validateSection(1)) return;
       setIsCheckingEmail(true);
       try {
         const { existe } = await AuthGateway.verificarEmail(formData.email);
@@ -192,10 +193,48 @@ export default function Cadastro() {
       } finally {
         setIsCheckingEmail(false);
       }
+      setCompletedSections((prev) => (prev.includes(1) ? prev : [...prev, 1]));
+      setSection(2);
+      return;
     }
 
-    setCompletedSections((prev) => prev.includes(section) ? prev : [...prev, section]);
-    setSection(section + 1);
+    if (section === 2) {
+      if (!validateSection(2)) return;
+      setIsSendingCadastroCode(true);
+      try {
+        await AuthGateway.enviarCodigoCadastro(formData.email);
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : "Não foi possível enviar o código.";
+        triggerError(msg);
+        return;
+      } finally {
+        setIsSendingCadastroCode(false);
+      }
+      setCompletedSections((prev) => (prev.includes(2) ? prev : [...prev, 2]));
+      setSection(3);
+      return;
+    }
+
+    if (section === 3) {
+      const code = verificationCode.join("");
+      if (code.length !== 4) {
+        triggerError3("Digite o código de 4 dígitos enviado ao seu e-mail.");
+        return;
+      }
+      setIsConfirmingCadastroCode(true);
+      try {
+        await AuthGateway.confirmarCodigoCadastro(formData.email, code);
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : "Código inválido ou expirado.";
+        triggerError3(msg);
+        return;
+      } finally {
+        setIsConfirmingCadastroCode(false);
+      }
+      setCompletedSections((prev) => (prev.includes(3) ? prev : [...prev, 3]));
+      setSection(4);
+      return;
+    }
   };
 
   const goToPreviousSection = () => {
@@ -255,7 +294,7 @@ export default function Cadastro() {
         accountRef.current.token,
       );
 
-      router.push("/login");
+      router.push(ROUTES.login);
     } catch (erro: any) {
       triggerError3(erro?.message || "Erro ao concluir o cadastro. Tente novamente.");
       // Se a conta já existe, a falha foi no envio do documento:
@@ -451,12 +490,12 @@ export default function Cadastro() {
 
             <p style={{ marginTop: "30px", textAlign: "center", color: "#535353", fontWeight: 500, fontSize: "25px" }}>
               Já tem uma conta?{" "}
-              <a href="/login" style={{ color: "#535353", fontWeight: 500, textDecoration: "underline" }}>Entrar</a>
+              <a href={ROUTES.login} style={{ color: "#535353", fontWeight: 500, textDecoration: "underline" }}>Entrar</a>
             </p>
 
             <ProgressDots />
 
-            <div onClick={() => router.push("/")}
+            <div onClick={() => router.push(ROUTES.landing)}
               style={{ position: "fixed", top: "46px", left: "51px", fontSize: "30px", fontWeight: 500, color: "#272727", cursor: "pointer", userSelect: "none" }}
               onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
               onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}>
@@ -538,16 +577,17 @@ export default function Cadastro() {
 
             <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
               <button onClick={goToNextSection}
-                style={{ backgroundColor: "#FAF9F5", color: "#272727", border: "4px solid #272727", borderRadius: "60px", width: "400px", height: "80px", fontSize: "60px", fontWeight: 450, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", transition: "transform 0.2s ease" }}
-                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+                disabled={isSendingCadastroCode}
+                style={{ backgroundColor: "#FAF9F5", color: "#272727", border: "4px solid #272727", borderRadius: "60px", width: "400px", height: "80px", fontSize: isSendingCadastroCode ? "40px" : "60px", fontWeight: 450, cursor: isSendingCadastroCode ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px", transition: "transform 0.2s ease", opacity: isSendingCadastroCode ? 0.7 : 1 }}
+                onMouseEnter={(e) => { if (!isSendingCadastroCode) e.currentTarget.style.transform = "scale(1.03)"; }}
                 onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}>
-                Seguir
+                {isSendingCadastroCode ? "Enviando código..." : "Seguir"}
               </button>
             </div>
 
             <p style={{ marginTop: "30px", textAlign: "center", color: "#535353", fontWeight: 500, fontSize: "25px" }}>
               Já tem uma conta?{" "}
-              <a href="/login" style={{ color: "#535353", fontWeight: 500, textDecoration: "underline" }}>Entrar</a>
+              <a href={ROUTES.login} style={{ color: "#535353", fontWeight: 500, textDecoration: "underline" }}>Entrar</a>
             </p>
 
             <ProgressDots />
@@ -567,22 +607,12 @@ export default function Cadastro() {
           <>
             <div style={{ position: "relative", height: 0 }}>
               <p style={{ position: "absolute", top: "425px", left: 0, right: 0, fontWeight: 400, fontSize: "20px", color: "#D92B2E", textAlign: "center", opacity: showError3 ? 1 : 0, transition: "opacity 0.3s ease", pointerEvents: "none", margin: 0, whiteSpace: "nowrap" }}>
-                Verifique sua conta e tente novamente.
+                {localError || "Verifique o código e tente novamente."}
               </p>
             </div>
 
-            <p style={{ fontSize: "35px", fontWeight: 510, color: "#272727", textAlign: "center", marginTop: "5px", marginBottom: "15px" }}>
-              verifique sua conta pelo código enviado pelo celular
-            </p>
-
-            <div style={{ display: "flex", alignItems: "center", width: "800px", margin: "0 auto 15px auto" }}>
-              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
-              <span style={{ margin: "0 15px", color: "#535353", fontSize: "25px" }}>ou</span>
-              <div style={{ width: "475px", height: "3px", backgroundColor: "#C3A85E" }} />
-            </div>
-
-            <p style={{ fontSize: "35px", fontWeight: 510, color: "#272727", textAlign: "center", margin: "0 auto 30px auto" }}>
-              verifique sua conta pelo código enviado pelo e-mail
+            <p style={{ fontSize: "35px", fontWeight: 510, color: "#272727", textAlign: "center", marginTop: "5px", marginBottom: "30px" }}>
+              verifique sua conta pelo código enviado ao e-mail
             </p>
 
             <div style={{ display: "flex", justifyContent: "center", gap: "24px", marginBottom: "60px" }}>
@@ -607,11 +637,12 @@ export default function Cadastro() {
             </div>
 
             <button
-              style={{ display: "flex", backgroundColor: "#E0C271", color: "#FAF9F5", border: "none", borderRadius: "60px", width: "440px", justifyContent: "center", alignItems: "center", height: "80px", fontSize: "52px", fontWeight: 600, cursor: "pointer", transition: "transform 0.2s ease", margin: "0 auto 65px auto" }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+              style={{ display: "flex", backgroundColor: "#E0C271", color: "#FAF9F5", border: "none", borderRadius: "60px", width: "440px", justifyContent: "center", alignItems: "center", height: "80px", fontSize: "52px", fontWeight: 600, cursor: isConfirmingCadastroCode ? "default" : "pointer", transition: "transform 0.2s ease", margin: "0 auto 65px auto", opacity: isConfirmingCadastroCode ? 0.85 : 1 }}
+              onMouseEnter={(e) => { if (!isConfirmingCadastroCode) e.currentTarget.style.transform = "scale(1.03)"; }}
               onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              disabled={isConfirmingCadastroCode}
               onClick={goToNextSection}>
-              Seguir
+              {isConfirmingCadastroCode ? "Verificando..." : "Seguir"}
             </button>
 
             <ProgressDots />
@@ -715,7 +746,7 @@ export default function Cadastro() {
 
             <div style={{ textAlign: "center", color: "#535353", fontWeight: 500, fontSize: "25px" }}>
               Já tem uma conta?{" "}
-              <a href="/login" style={{ color: "#535353", fontWeight: 500, textDecoration: "underline" }}>Entrar</a>
+              <a href={ROUTES.login} style={{ color: "#535353", fontWeight: 500, textDecoration: "underline" }}>Entrar</a>
             </div>
 
             <ProgressDots />

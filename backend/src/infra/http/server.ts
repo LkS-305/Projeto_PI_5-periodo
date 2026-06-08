@@ -25,22 +25,8 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.resolve('uploads')));
 app.use(logFullCycle);
-app.use(globalRateLimit);
 
-app.use("/user", userRouter);
-app.use("/usuario", usuarioRouter);
-app.use("/prestador", prestadorRouter);
-app.use("/avaliacao", avaliacaoRouter);
-app.use("/categoria", categoriaRouter);
-app.use("/servico", servicoRouter);
-app.use("/endereco", enderecoRouter); // SCRUM-25/27: gestão de endereços
-app.use("/documento", documentoRouter); // SCRUM-23/43: documentos e verificação
-app.use("/carteira", carteiraRouter); // SCRUM-42: carteira do usuário
-app.use("/mensagem", mensagemRouter);
-app.use("/transacao", transacaoRouter);
-app.use("/portfolio", portfolioRouter);
-app.use("/explore", exploreRouter);
-
+// Health fora do rate limit (probes / CI não devem esgotar quota)
 app.get("/health", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
@@ -57,6 +43,22 @@ app.get("/health", async (req, res) => {
     });
   }
 });
+
+app.use(globalRateLimit);
+
+app.use("/user", userRouter);
+app.use("/usuario", usuarioRouter);
+app.use("/prestador", prestadorRouter);
+app.use("/avaliacao", avaliacaoRouter);
+app.use("/categoria", categoriaRouter);
+app.use("/servico", servicoRouter);
+app.use("/endereco", enderecoRouter); // SCRUM-25/27: gestão de endereços
+app.use("/documento", documentoRouter); // SCRUM-23/43: documentos e verificação
+app.use("/carteira", carteiraRouter); // SCRUM-42: carteira do usuário
+app.use("/mensagem", mensagemRouter);
+app.use("/transacao", transacaoRouter);
+app.use("/portfolio", portfolioRouter);
+app.use("/explore", exploreRouter);
 
 app.use(errorHandler);
 

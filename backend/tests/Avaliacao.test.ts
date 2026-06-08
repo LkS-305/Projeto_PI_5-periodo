@@ -1,21 +1,21 @@
-import { InMemoryAvaliacaoRepository } from './repositories/InMemoryAvaliacaoRepository';
+import { InMemoryAvaliacaoRepository } from "./repositories/InMemoryAvaliacaoRepository";
 import {
   CriarAvaliacaoUseCase,
   AtualizarAvaliacaoUseCase,
   DeletarAvaliacaoUseCase,
   ListarPorId,
-} from '../src/core/use-cases/avaliacao/AvaliacaoUseCase';
+} from "../src/core/use-cases/avaliacao/AvaliacaoUseCase";
 import {
   ResourceNotFoundError,
   ValidationError,
-} from '../src/core/errors/AppError';
+} from "../src/core/errors/AppError";
 
-const UUID_VALIDO = '123e4567-e89b-12d3-a456-426614174000';
-const SERVICO_ID  = '223e4567-e89b-12d3-a456-426614174001';
-const USUARIO_ID  = '323e4567-e89b-12d3-a456-426614174002';
-const PRESTADOR_ID = '423e4567-e89b-12d3-a456-426614174003';
+const UUID_VALIDO = "123e4567-e89b-12d3-a456-426614174000";
+const SERVICO_ID = "223e4567-e89b-12d3-a456-426614174001";
+const USUARIO_ID = "323e4567-e89b-12d3-a456-426614174002";
+const PRESTADOR_ID = "423e4567-e89b-12d3-a456-426614174003";
 
-describe('Suíte de Testes: Avaliação', () => {
+describe("Suíte de Testes: Avaliação", () => {
   let repo: InMemoryAvaliacaoRepository;
 
   beforeEach(() => {
@@ -24,8 +24,8 @@ describe('Suíte de Testes: Avaliação', () => {
 
   // ─── CriarAvaliacaoUseCase ───────────────────────────────────────────────────
 
-  describe('Cenário: Criar Avaliação', () => {
-    it('deve criar uma avaliação de serviço com sucesso', async () => {
+  describe("Cenário: Criar Avaliação", () => {
+    it("deve criar uma avaliação de serviço com sucesso", async () => {
       const sut = new CriarAvaliacaoUseCase(repo);
 
       const resultado = await sut.executar({
@@ -33,9 +33,9 @@ describe('Suíte de Testes: Avaliação', () => {
         usuario_id: USUARIO_ID,
         prestador_id: undefined,
         nota: 5,
-        comentario: 'Ótimo serviço!',
+        comentario: "Ótimo serviço!",
         media: undefined,
-        destinatario: 'servico',
+        destinatario: "servico",
       });
 
       expect(resultado).toBeTruthy();
@@ -43,7 +43,7 @@ describe('Suíte de Testes: Avaliação', () => {
       expect(resultado?.servico_id).toBe(SERVICO_ID);
     });
 
-    it('deve criar uma avaliação de prestador com sucesso', async () => {
+    it("deve criar uma avaliação de prestador com sucesso", async () => {
       const sut = new CriarAvaliacaoUseCase(repo);
 
       const resultado = await sut.executar({
@@ -53,14 +53,14 @@ describe('Suíte de Testes: Avaliação', () => {
         nota: 4,
         comentario: undefined,
         media: undefined,
-        destinatario: 'prestador',
+        destinatario: "prestador",
       });
 
       expect(resultado?.prestador_id).toBe(PRESTADOR_ID);
       expect(resultado?.nota).toBe(4);
     });
 
-    it('deve lançar ValidationError para nota menor que 1', async () => {
+    it("deve lançar ValidationError para nota menor que 1", async () => {
       const sut = new CriarAvaliacaoUseCase(repo);
 
       await expect(
@@ -71,12 +71,12 @@ describe('Suíte de Testes: Avaliação', () => {
           nota: 0,
           comentario: undefined,
           media: undefined,
-          destinatario: 'servico',
-        })
+          destinatario: "servico",
+        }),
       ).rejects.toBeInstanceOf(ValidationError);
     });
 
-    it('deve lançar ValidationError para nota maior que 5', async () => {
+    it("deve lançar ValidationError para nota maior que 5", async () => {
       const sut = new CriarAvaliacaoUseCase(repo);
 
       await expect(
@@ -87,16 +87,16 @@ describe('Suíte de Testes: Avaliação', () => {
           nota: 6,
           comentario: undefined,
           media: undefined,
-          destinatario: 'servico',
-        })
+          destinatario: "servico",
+        }),
       ).rejects.toBeInstanceOf(ValidationError);
     });
   });
 
   // ─── AtualizarAvaliacaoUseCase ───────────────────────────────────────────────
 
-  describe('Cenário: Atualizar Avaliação', () => {
-    it('deve atualizar o comentário de uma avaliação existente', async () => {
+  describe("Cenário: Atualizar Avaliação", () => {
+    it("deve atualizar o comentário de uma avaliação existente", async () => {
       const criar = new CriarAvaliacaoUseCase(repo);
       const sut = new AtualizarAvaliacaoUseCase(repo);
       const criada = await criar.executar({
@@ -104,17 +104,19 @@ describe('Suíte de Testes: Avaliação', () => {
         usuario_id: USUARIO_ID,
         prestador_id: undefined,
         nota: 3,
-        comentario: 'Comentário original',
+        comentario: "Comentário original",
         media: undefined,
-        destinatario: 'servico',
+        destinatario: "servico",
       });
 
-      const resultado = await sut.executar(criada!.id, { comentario: 'Comentário atualizado' });
+      const resultado = await sut.executar(criada!.id, {
+        comentario: "Comentário atualizado",
+      });
 
-      expect(resultado?.comentario).toBe('Comentário atualizado');
+      expect(resultado?.comentario).toBe("Comentário atualizado");
     });
 
-    it('deve atualizar a nota de uma avaliação existente', async () => {
+    it("deve atualizar a nota de uma avaliação existente", async () => {
       const criar = new CriarAvaliacaoUseCase(repo);
       const sut = new AtualizarAvaliacaoUseCase(repo);
       const criada = await criar.executar({
@@ -124,7 +126,7 @@ describe('Suíte de Testes: Avaliação', () => {
         nota: 3,
         comentario: undefined,
         media: undefined,
-        destinatario: 'servico',
+        destinatario: "servico",
       });
 
       const resultado = await sut.executar(criada!.id, { nota: 5 });
@@ -132,15 +134,15 @@ describe('Suíte de Testes: Avaliação', () => {
       expect(resultado?.nota).toBe(5);
     });
 
-    it('deve lançar ResourceNotFoundError ao atualizar avaliação inexistente', async () => {
+    it("deve lançar ResourceNotFoundError ao atualizar avaliação inexistente", async () => {
       const sut = new AtualizarAvaliacaoUseCase(repo);
 
       await expect(
-        sut.executar(UUID_VALIDO, { comentario: 'Novo comentário' })
+        sut.executar(UUID_VALIDO, { comentario: "Novo comentário" }),
       ).rejects.toBeInstanceOf(ResourceNotFoundError);
     });
 
-    it('deve lançar ValidationError para nota inválida na atualização', async () => {
+    it("deve lançar ValidationError para nota inválida na atualização", async () => {
       const criar = new CriarAvaliacaoUseCase(repo);
       const sut = new AtualizarAvaliacaoUseCase(repo);
       const criada = await criar.executar({
@@ -150,27 +152,27 @@ describe('Suíte de Testes: Avaliação', () => {
         nota: 3,
         comentario: undefined,
         media: undefined,
-        destinatario: 'servico',
+        destinatario: "servico",
       });
 
       await expect(
-        sut.executar(criada!.id, { nota: 10 })
+        sut.executar(criada!.id, { nota: 10 }),
       ).rejects.toBeInstanceOf(ValidationError);
     });
 
-    it('deve lançar ValidationError para UUID com formato inválido', async () => {
+    it("deve lançar ValidationError para UUID com formato inválido", async () => {
       const sut = new AtualizarAvaliacaoUseCase(repo);
 
       await expect(
-        sut.executar('id-invalido', { comentario: 'Comentário' })
+        sut.executar("id-invalido", { comentario: "Comentário" }),
       ).rejects.toBeInstanceOf(ValidationError);
     });
   });
 
   // ─── DeletarAvaliacaoUseCase ─────────────────────────────────────────────────
 
-  describe('Cenário: Deletar Avaliação', () => {
-    it('deve deletar uma avaliação existente', async () => {
+  describe("Cenário: Deletar Avaliação", () => {
+    it("deve deletar uma avaliação existente", async () => {
       const criar = new CriarAvaliacaoUseCase(repo);
       const sut = new DeletarAvaliacaoUseCase(repo);
       const criada = await criar.executar({
@@ -180,26 +182,28 @@ describe('Suíte de Testes: Avaliação', () => {
         nota: 4,
         comentario: undefined,
         media: undefined,
-        destinatario: 'servico',
+        destinatario: "servico",
       });
 
       await sut.executar(criada!.id);
 
-      const busca = await repo.listBy(criada!.id, 'avaliacao');
+      const busca = await repo.listBy(criada!.id, "avaliacao");
       expect(busca).toBeNull();
     });
 
-    it('deve lançar ValidationError para UUID com formato inválido', async () => {
+    it("deve lançar ValidationError para UUID com formato inválido", async () => {
       const sut = new DeletarAvaliacaoUseCase(repo);
 
-      await expect(sut.executar('id-invalido')).rejects.toBeInstanceOf(ValidationError);
+      await expect(sut.executar("id-invalido")).rejects.toBeInstanceOf(
+        ValidationError,
+      );
     });
   });
 
   // ─── ListarPorId ─────────────────────────────────────────────────────────────
 
-  describe('Cenário: Listar Avaliações', () => {
-    it('deve listar avaliações por serviço', async () => {
+  describe("Cenário: Listar Avaliações", () => {
+    it("deve listar avaliações por serviço", async () => {
       const criar = new CriarAvaliacaoUseCase(repo);
       const sut = new ListarPorId(repo);
       await criar.executar({
@@ -209,16 +213,16 @@ describe('Suíte de Testes: Avaliação', () => {
         nota: 5,
         comentario: undefined,
         media: undefined,
-        destinatario: 'servico',
+        destinatario: "servico",
       });
 
-      const resultado = await sut.executar(SERVICO_ID, 'servico');
+      const resultado = await sut.executar(SERVICO_ID, "servico");
 
       expect(resultado).not.toBeNull();
       expect(resultado[0].servico_id).toBe(SERVICO_ID);
     });
 
-    it('deve listar avaliações por prestador', async () => {
+    it("deve listar avaliações por prestador", async () => {
       const criar = new CriarAvaliacaoUseCase(repo);
       const sut = new ListarPorId(repo);
       await criar.executar({
@@ -228,16 +232,16 @@ describe('Suíte de Testes: Avaliação', () => {
         nota: 4,
         comentario: undefined,
         media: undefined,
-        destinatario: 'prestador',
+        destinatario: "prestador",
       });
 
-      const resultado = await sut.executar(PRESTADOR_ID, 'prestador');
+      const resultado = await sut.executar(PRESTADOR_ID, "prestador");
 
       expect(resultado).not.toBeNull();
       expect(resultado[0].prestador_id).toBe(PRESTADOR_ID);
     });
 
-    it('deve listar avaliações por usuário', async () => {
+    it("deve listar avaliações por usuário", async () => {
       const criar = new CriarAvaliacaoUseCase(repo);
       const sut = new ListarPorId(repo);
       await criar.executar({
@@ -247,28 +251,29 @@ describe('Suíte de Testes: Avaliação', () => {
         nota: 3,
         comentario: undefined,
         media: undefined,
-        destinatario: 'usuario',
+        destinatario: "usuario",
       });
 
-      const resultado = await sut.executar(USUARIO_ID, 'usuario');
+      const resultado = await sut.executar(USUARIO_ID, "usuario");
 
       expect(resultado).not.toBeNull();
       expect(resultado[0].usuario_id).toBe(USUARIO_ID);
     });
 
-    it('deve lançar ResourceNotFoundError quando não há avaliações para o ID', async () => {
+    it("deve retornar lista vazia quando não há avaliações para o ID", async () => {
       const sut = new ListarPorId(repo);
 
-      await expect(
-        sut.executar(UUID_VALIDO, 'servico')
-      ).rejects.toBeInstanceOf(ResourceNotFoundError);
+      const resultado = await sut.executar(UUID_VALIDO, "servico");
+
+      expect(Array.isArray(resultado)).toBe(true);
+      expect(resultado).toHaveLength(0);
     });
 
-    it('deve lançar ValidationError para UUID com formato inválido', async () => {
+    it("deve lançar ValidationError para UUID com formato inválido", async () => {
       const sut = new ListarPorId(repo);
 
       await expect(
-        sut.executar('id-invalido', 'servico')
+        sut.executar("id-invalido", "servico"),
       ).rejects.toBeInstanceOf(ValidationError);
     });
   });

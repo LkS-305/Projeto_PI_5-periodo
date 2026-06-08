@@ -1,30 +1,35 @@
-import { apiServer } from '../api/server';
-import { Categoria } from '../../types/entities/categoria';
-import { AtualizarCategoriaDto, CriarCategoriaDto } from '../../types/dtos/categoria';
+import { apiClient } from "../api/client";
+import { bearerFromStorage } from "../api/client-auth";
+import { Categoria } from "../../types/entities/categoria";
+import { AtualizarCategoriaDto, CriarCategoriaDto } from "../../types/dtos/categoria";
+
+const auth = () => ({ headers: bearerFromStorage() });
 
 export const CategoriaGateway = {
-
   async criarCategoria(dados: CriarCategoriaDto): Promise<Categoria> {
-    return apiServer.post<Categoria>('/categoria/criarCategoria', dados);
+    return apiClient.post<Categoria>("/categoria/criarCategoria", dados, auth());
   },
-  
-  async deletarCategoria(user_id: string): Promise<boolean> {
-    return apiServer.delete<boolean>('/categoria/deletarCategoria', user_id);
+
+  async deletarCategoria(id: string): Promise<boolean> {
+    return apiClient.delete<boolean>("/categoria/deletarCategoria", {
+      body: { id },
+      ...auth(),
+    });
   },
-  
+
   async atualizarCategoria(id: string, dados: AtualizarCategoriaDto): Promise<Categoria> {
-    return apiServer.patch<Categoria>('/categoria/editarCategoria', {id, dados});
+    return apiClient.patch<Categoria>("/categoria/editarCategoria", { id, dados }, auth());
   },
-  
+
   async getById(id: string): Promise<Categoria | null> {
-    return apiServer.post<Categoria | null>('/categoria/buscarPorId', id);
+    return apiClient.post<Categoria | null>("/categoria/buscarPorId", { id }, auth());
   },
 
   async getAll(): Promise<Categoria[] | null> {
-    return apiServer.get<Categoria[] | null>('/categoria/buscarCategorias');
+    return apiClient.get<Categoria[] | null>("/categoria/buscarCategorias", auth());
   },
 
   async getByName(nome: string): Promise<Categoria | null> {
-    return apiServer.post<Categoria | null>('/categoria/buscarPorNome', nome);
+    return apiClient.post<Categoria | null>("/categoria/buscarPorNome", { name: nome }, auth());
   },
-}
+};

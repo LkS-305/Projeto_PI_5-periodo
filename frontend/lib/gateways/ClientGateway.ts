@@ -231,7 +231,7 @@ export const ClientGateway = {
   async getServicosPorUser(userId: string): Promise<Servico[]> {
     const data = await apiClient.get<Servico[] | null>(
       "/servico/buscarPorUserId",
-      { params: { id: userId } },
+      { params: { id: userId }, headers: authHeader() },
     );
     return data ?? [];
   },
@@ -239,8 +239,43 @@ export const ClientGateway = {
   async getServicosPorPrestador(prestadorId: string): Promise<Servico[]> {
     const data = await apiClient.get<Servico[] | null>(
       "/servico/buscarPorPrestadorId",
-      { params: { id: prestadorId } },
+      { params: { id: prestadorId }, headers: authHeader() },
     );
+    return data ?? [];
+  },
+
+  async getServicoById(servicoId: string): Promise<Servico | null> {
+    return apiClient.get<Servico | null>("/servico/buscarPorId", {
+      params: { id: servicoId },
+      headers: authHeader(),
+    });
+  },
+
+  async updateServicoStatus(
+    servicoId: string,
+    status: Servico["status"],
+  ): Promise<void> {
+    await apiClient.patch(
+      "/servico/atualizarStatus",
+      { id: servicoId, status },
+      { headers: authHeader() },
+    );
+  },
+
+  /** Estatísticas agregadas (serviços + transações na BD). */
+  async getServicoStats(): Promise<{
+    ativos: number;
+    agendamentos_semana: number;
+    receita_mensal: string | number;
+    avaliacao_media: string | number | null;
+  }> {
+    return apiClient.get("/servico/stats", { headers: authHeader() });
+  },
+
+  async listarTodosServicos(): Promise<Servico[]> {
+    const data = await apiClient.get<Servico[] | null>("/servico/listarTodos", {
+      headers: authHeader(),
+    });
     return data ?? [];
   },
 

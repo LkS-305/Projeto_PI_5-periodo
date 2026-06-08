@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useSession } from "@/lib/contexts/AuthContext";
+import { ROUTES } from "@/lib/routes";
+import { AuthGateway } from "@/lib/gateways/AuthGateway";
 
 export default function Login() {
   const router = useRouter();
@@ -17,14 +19,31 @@ export default function Login() {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState("");
+  const [forgotCodigo, setForgotCodigo] = useState("");
+  const [forgotNovaSenha, setForgotNovaSenha] = useState("");
+  const [forgotConfirmSenha, setForgotConfirmSenha] = useState("");
+  const [redefineLoading, setRedefineLoading] = useState(false);
+  const [redefineError, setRedefineError] = useState("");
+  const [loginBanner, setLoginBanner] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setShowError(false);
+    setLoginBanner("");
 
     const user = await login({ email, senha: password });
     if (user) {
-      router.push("/home");
+      const next =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("redirect")
+          : null;
+      if (next && next.startsWith("/")) {
+        router.push(next);
+      } else {
+        router.push(ROUTES.hub);
+      }
       return;
     }
 
@@ -33,29 +52,100 @@ export default function Login() {
     setTimeout(() => setShowError(false), 2000);
   }
 
-  function handleForgotSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleForgotSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setForgotSent(true);
+    setForgotError("");
+    setForgotLoading(true);
+    try {
+      await AuthGateway.solicitarRecuperacaoSenha(forgotEmail.trim());
+      setForgotSent(true);
+      setResendCooldown(80);
+      const interval = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Não foi possível enviar o e-mail.";
+      setForgotError(msg);
+    } finally {
+      setForgotLoading(false);
+    }
   }
 
   function closeForgot() {
     setShowForgot(false);
     setForgotSent(false);
     setForgotEmail("");
+    setForgotError("");
+    setForgotLoading(false);
+    setForgotCodigo("");
+    setForgotNovaSenha("");
+    setForgotConfirmSenha("");
+    setRedefineLoading(false);
+    setRedefineError("");
+    setResendCooldown(0);
   }
 
-  function handleResend() {
-    if (resendCooldown > 0) return;
-    setResendCooldown(80);
-    const interval = setInterval(() => {
-      setResendCooldown((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
+  async function handleRedefinePassword(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setRedefineError("");
+    if (forgotCodigo.trim().length !== 6) {
+      setRedefineError("Informe o código de 6 dígitos.");
+      return;
+    }
+    if (forgotNovaSenha.length < 6) {
+      setRedefineError("A nova senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
+    if (forgotNovaSenha !== forgotConfirmSenha) {
+      setRedefineError("As senhas não coincidem.");
+      return;
+    }
+    setRedefineLoading(true);
+    try {
+      await AuthGateway.redefinirSenhaComCodigo({
+        email: forgotEmail.trim(),
+        codigo: forgotCodigo.trim(),
+        nova_senha: forgotNovaSenha,
       });
-    }, 1000);
+      closeForgot();
+      setPassword("");
+      setLoginBanner("Senha alterada com sucesso. Faça login com a nova senha.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Não foi possível alterar a senha.";
+      setRedefineError(msg);
+    } finally {
+      setRedefineLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    if (resendCooldown > 0 || forgotLoading) return;
+    setForgotError("");
+    setForgotLoading(true);
+    try {
+      await AuthGateway.solicitarRecuperacaoSenha(forgotEmail.trim());
+      setResendCooldown(80);
+      const interval = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Não foi possível reenviar.";
+      setForgotError(msg);
+    } finally {
+      setForgotLoading(false);
+    }
   }
 
   return (
@@ -184,8 +274,8 @@ export default function Login() {
                     maxWidth: "640px",
                   }}
                 >
-                  Insira seu e-mail e receba as instruções para definir a nova
-                  senha.
+                  Insira seu e-mail para receber um código de 6 dígitos e
+                  concluir a redefinição na etapa seguinte.
                 </p>
                 <form
                   onSubmit={handleForgotSubmit}
@@ -196,6 +286,21 @@ export default function Login() {
                     alignItems: "center",
                   }}
                 >
+                  {forgotError ? (
+                    <p
+                      style={{
+                        fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                        fontWeight: 500,
+                        fontSize: "clamp(0.8rem, 1.4vw, 1.1rem)",
+                        color: "#D92B2E",
+                        textAlign: "center",
+                        margin: "0 0 16px 0",
+                        maxWidth: "640px",
+                      }}
+                    >
+                      {forgotError}
+                    </p>
+                  ) : null}
                   <label
                     style={{
                       fontFamily: "'SF Pro Text', system-ui, sans-serif",
@@ -232,7 +337,10 @@ export default function Login() {
                       type="email"
                       placeholder="insira seu e-mail"
                       value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
+                      onChange={(e) => {
+                      setForgotEmail(e.target.value);
+                      setForgotError("");
+                    }}
                       style={{
                         flex: 1,
                         border: "none",
@@ -248,9 +356,10 @@ export default function Login() {
                   </div>
                   <button
                     type="submit"
+                    disabled={forgotLoading}
                     style={{
                       display: "flex",
-                      backgroundColor: "#E0C271",
+                      backgroundColor: forgotLoading ? "#C3A85E" : "#E0C271",
                       color: "#FAF9F5",
                       border: "none",
                       borderRadius: "65px",
@@ -260,17 +369,18 @@ export default function Login() {
                       height: "clamp(44px, 3.39vw, 65px)",
                       fontSize: "clamp(1.125rem, 2.34vw, 2.8125rem)",
                       fontWeight: 600,
-                      cursor: "pointer",
+                      cursor: forgotLoading ? "default" : "pointer",
                       transition: "transform 0.2s ease",
                     }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.transform = "scale(1.04)")
-                    }
+                    onMouseEnter={(e) => {
+                      if (!forgotLoading)
+                        (e.currentTarget.style.transform = "scale(1.04)");
+                    }}
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.transform = "scale(1)")
                     }
                   >
-                    Enviar
+                    {forgotLoading ? "Enviando..." : "Enviar"}
                   </button>
                 </form>
               </>
@@ -303,24 +413,115 @@ export default function Login() {
                     color: "#535353",
                     textAlign: "center",
                     lineHeight: 1.4,
-                    margin: "0 0 50px 0",
+                    margin: "0 0 24px 0",
                     maxWidth: "640px",
                   }}
                 >
-                  Verifique sua caixa de entrada em{" "}
-                  <span style={{ color: "#272727", fontWeight: 600 }}>
-                    {forgotEmail}
-                  </span>{" "}
-                  e siga as instruções para redefinir sua senha.
+                  Enviamos um código de <strong>6 dígitos</strong> para{" "}
+                  <span style={{ color: "#272727", fontWeight: 600 }}>{forgotEmail}</span>.
+                  Digite-o abaixo com a sua nova senha.
                 </p>
+                {redefineError ? (
+                  <p
+                    style={{
+                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                      fontWeight: 500,
+                      fontSize: "clamp(0.8rem, 1.4vw, 1.1rem)",
+                      color: "#D92B2E",
+                      textAlign: "center",
+                      margin: "0 0 16px 0",
+                      maxWidth: "640px",
+                    }}
+                  >
+                    {redefineError}
+                  </p>
+                ) : null}
+                <form
+                  onSubmit={handleRedefinePassword}
+                  style={{
+                    width: "100%",
+                    maxWidth: "480px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "14px",
+                    marginBottom: "24px",
+                  }}
+                >
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={6}
+                    placeholder="Código (6 dígitos)"
+                    value={forgotCodigo}
+                    onChange={(e) =>
+                      setForgotCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))
+                    }
+                    style={{
+                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                      borderRadius: "20px",
+                      border: "2px solid #EAEAEA",
+                      padding: "14px 18px",
+                      fontSize: "clamp(1rem, 2vw, 1.25rem)",
+                    }}
+                  />
+                  <input
+                    type="password"
+                    placeholder="Nova senha"
+                    value={forgotNovaSenha}
+                    onChange={(e) => setForgotNovaSenha(e.target.value)}
+                    style={{
+                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                      borderRadius: "20px",
+                      border: "2px solid #EAEAEA",
+                      padding: "14px 18px",
+                      fontSize: "clamp(1rem, 2vw, 1.25rem)",
+                    }}
+                  />
+                  <input
+                    type="password"
+                    placeholder="Confirmar nova senha"
+                    value={forgotConfirmSenha}
+                    onChange={(e) => setForgotConfirmSenha(e.target.value)}
+                    style={{
+                      fontFamily: "'SF Pro Text', system-ui, sans-serif",
+                      borderRadius: "20px",
+                      border: "2px solid #EAEAEA",
+                      padding: "14px 18px",
+                      fontSize: "clamp(1rem, 2vw, 1.25rem)",
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={redefineLoading}
+                    style={{
+                      display: "flex",
+                      backgroundColor: redefineLoading ? "#C3A85E" : "#272727",
+                      color: "#FAF9F5",
+                      border: "none",
+                      borderRadius: "65px",
+                      width: "100%",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "clamp(44px, 3.65vw, 56px)",
+                      fontSize: "clamp(1rem, 2vw, 1.25rem)",
+                      fontWeight: 600,
+                      cursor: redefineLoading ? "default" : "pointer",
+                    }}
+                  >
+                    {redefineLoading ? "Salvando..." : "Redefinir senha"}
+                  </button>
+                </form>
                 <button
                   type="button"
                   onClick={handleResend}
-                  disabled={resendCooldown > 0}
+                  disabled={resendCooldown > 0 || forgotLoading}
                   style={{
                     display: "flex",
-                    backgroundColor: resendCooldown > 0 ? "#EAEAEA" : "#E0C271",
-                    color: resendCooldown > 0 ? "#535353" : "#FAF9F5",
+                    backgroundColor:
+                      resendCooldown > 0 || forgotLoading ? "#EAEAEA" : "#E0C271",
+                    color:
+                      resendCooldown > 0 || forgotLoading ? "#535353" : "#FAF9F5",
                     border: "none",
                     borderRadius: "65px",
                     width: "clamp(200px, 21.875vw, 420px)",
@@ -329,21 +530,24 @@ export default function Login() {
                     height: "clamp(44px, 3.65vw, 70px)",
                     fontSize: "clamp(1rem, 2.1vw, 2.5rem)",
                     fontWeight: 600,
-                    cursor: resendCooldown > 0 ? "default" : "pointer",
+                    cursor:
+                      resendCooldown > 0 || forgotLoading ? "default" : "pointer",
                     transition:
                       "background-color 0.3s ease, transform 0.2s ease, width 0.3s ease",
                   }}
                   onMouseEnter={(e) => {
-                    if (resendCooldown === 0)
+                    if (resendCooldown === 0 && !forgotLoading)
                       e.currentTarget.style.transform = "scale(1.04)";
                   }}
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.transform = "scale(1)")
                   }
                 >
-                  {resendCooldown > 0
-                    ? `Reenviar em ${resendCooldown}s`
-                    : "Enviar novamente"}
+                  {forgotLoading
+                    ? "Enviando..."
+                    : resendCooldown > 0
+                      ? `Reenviar em ${resendCooldown}s`
+                      : "Enviar código novamente"}
                 </button>
               </>
             )}
@@ -393,7 +597,7 @@ export default function Login() {
 
       {/* Botão voltar */}
       <div
-        onClick={() => router.push("/")}
+        onClick={() => router.push(ROUTES.landing)}
         style={{
           position: "fixed",
           top: "clamp(20px, 2.4vw, 46px)",
@@ -452,6 +656,24 @@ export default function Login() {
         >
           Entrar
         </h2>
+
+        {loginBanner ? (
+          <p
+            style={{
+              fontFamily: "'SF Pro Text', system-ui, sans-serif",
+              fontWeight: 500,
+              fontSize: "clamp(0.75rem, 1.2vw, 1.1rem)",
+              color: "#2d6a4f",
+              textAlign: "center",
+              margin: "8px 0 0",
+              padding: "10px 16px",
+              backgroundColor: "#d8f3dc",
+              borderRadius: "12px",
+            }}
+          >
+            {loginBanner}
+          </p>
+        ) : null}
 
         {/* Mensagem de erro */}
         <p
@@ -662,7 +884,7 @@ export default function Login() {
         >
           Não tem conta?{" "}
           <a
-            href="/register"
+            href={ROUTES.register}
             style={{
               color: "#535353",
               fontWeight: 500,

@@ -14,4 +14,12 @@ export const CarteiraGateway = {
       params: { id: prestador_id },
     });
   },
+
+  /** Grava JSON em `metodos_de_pagamento` na linha da carteira do utilizador (cliente ou prestador). */
+  async updateMetodosPorConta(owner_id: string, dados: string): Promise<void> {
+    await apiClient.patch<{ ok?: boolean }>('/carteira/atualizarMetodosPorConta', {
+      owner_id,
+      dados,
+    });
+  },
 };

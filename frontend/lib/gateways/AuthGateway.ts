@@ -19,4 +19,27 @@ export const AuthGateway = {
   async verificarEmail(email: string): Promise<{ existe: boolean }> {
     return apiClient.post<{ existe: boolean }>('/user/verificarEmail', { email });
   },
+
+  /** Recuperação de senha: envia código de 6 dígitos por e-mail (rota pública). */
+  async solicitarRecuperacaoSenha(email: string): Promise<void> {
+    await apiClient.post('/user/forgotPassword', { email });
+  },
+
+  /** Redefine a senha com o código recebido por e-mail. */
+  async redefinirSenhaComCodigo(payload: {
+    email: string;
+    codigo: string;
+    nova_senha: string;
+  }): Promise<void> {
+    await apiClient.post('/user/changeForgotPassword', payload);
+  },
+
+  /** Cadastro: envia código de 4 dígitos para o e-mail (antes de criar a conta). */
+  async enviarCodigoCadastro(email: string): Promise<void> {
+    await apiClient.post('/user/enviarCodigoCadastro', { email });
+  },
+
+  async confirmarCodigoCadastro(email: string, codigo: string): Promise<void> {
+    await apiClient.post('/user/confirmarCodigoCadastro', { email, codigo });
+  },
 };

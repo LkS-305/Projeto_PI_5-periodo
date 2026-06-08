@@ -1,9 +1,10 @@
 import { ITransacaoRepository } from '../../repositories/ITransacaoRepository';
 import { ICarteiraRepository } from '../../repositories/ICarteiraRepository';
+import { IServicoRepository } from '../../repositories/IServicoRepository';
 import { Transacao } from '../../entities/Transacao';
 import { MetodosPagamento } from '../../dtos/transacao';
 import { AppError, ResourceNotFoundError, ValidationError } from '../../errors/AppError';
-import { AsaasProvider } from '../../../infra/providers/AsaasProvider';
+import { AsaasProvider, AsaasBillingType } from '../../../infra/providers/AsaasProvider';
 
 // ─── Read-only use-cases (unchanged) ─────────────────────────────────────────
 
@@ -68,6 +69,19 @@ export class AcharPorPrestadorId {
 
 // ─── Asaas payment use-cases ─────────────────────────────────────────────────
 
+function billingTypeFromMetodo(m: MetodosPagamento): AsaasBillingType {
+  switch (m) {
+    case 'Pix':
+      return 'PIX';
+    case 'Boleto':
+      return 'BOLETO';
+    case 'Credito':
+      return 'UNDEFINED';
+    default:
+      throw new ValidationError('Método de pagamento inválido.');
+  }
+}
+
 export class IniciarPagamentoUseCase {
   constructor(
     private transacaoRepository: ITransacaoRepository,
@@ -85,6 +99,10 @@ export class IniciarPagamentoUseCase {
   }) {
     const valor = parseFloat(dados.valor);
     if (isNaN(valor) || valor <= 0) throw new ValidationError('Valor da transação inválido');
+    const emailTrim = (dados.email || '').trim();
+    if (!emailTrim) throw new ValidationError('Informe o e-mail do pagador.');
+    const nomeTrim = (dados.nome || '').trim();
+    if (nomeTrim.length < 2) throw new ValidationError('Informe o nome do pagador (pelo menos 2 caracteres).');
 
     // Ensure no duplicate pending transaction for the same service
     const existente = await this.transacaoRepository.findByServicoId(dados.servico_id);
@@ -92,18 +110,20 @@ export class IniciarPagamentoUseCase {
       throw new AppError('Já existe uma transação pendente para este serviço', 409);
     }
 
+    const billingType = billingTypeFromMetodo(dados.metodo_pagamento);
+
     // Get or create Asaas customer for the payer
     const customerId = await this.asaasProvider.criarOuBuscarCliente(
       dados.cpf,
-      dados.nome,
-      dados.email,
+      nomeTrim,
+      emailTrim,
     );
 
-    // Create Asaas charge and get Pix QR code
-    const cobranca = await this.asaasProvider.criarCobrancaPix(
+    const cobranca = await this.asaasProvider.criarCobranca(
       customerId,
       valor,
       `Pagamento pelo serviço ${dados.servico_id}`,
+      billingType,
     );
 
     // Record the transaction internally
@@ -118,13 +138,34 @@ export class IniciarPagamentoUseCase {
 
     const transacaoCriada = await this.transacaoRepository.create(transacao);
 
+    const pix =
+      billingType === 'PIX'
+        ? {
+            qrCodeImage: cobranca.pixQrCodeImage,
+            copyPaste:   cobranca.pixCopyPaste,
+            invoiceUrl:  cobranca.invoiceUrl,
+          }
+        : null;
+
+    const boleto =
+      billingType === 'BOLETO'
+        ? {
+            bankSlipUrl:         cobranca.bankSlipUrl,
+            identificationField: cobranca.identificationField,
+            invoiceUrl:        cobranca.invoiceUrl,
+          }
+        : null;
+
+    const faturaAsaas =
+      billingType === 'UNDEFINED'
+        ? { invoiceUrl: cobranca.invoiceUrl }
+        : null;
+
     return {
       transacao: transacaoCriada,
-      pix: {
-        qrCodeImage: cobranca.pixQrCodeImage,
-        copyPaste:   cobranca.pixCopyPaste,
-        invoiceUrl:  cobranca.invoiceUrl,
-      },
+      pix,
+      boleto,
+      faturaAsaas,
     };
   }
 }
@@ -182,6 +223,7 @@ export class ProcessarWebhookAsaasUseCase {
   constructor(
     private transacaoRepository: ITransacaoRepository,
     private carteiraRepository: ICarteiraRepository,
+    private servicoRepository: IServicoRepository,
   ) {}
 
   async executar(evento: string, asaasPaymentId: string): Promise<void> {
@@ -201,6 +243,14 @@ export class ProcessarWebhookAsaasUseCase {
         }
       }
       await this.transacaoRepository.update(transacao.id, { status: 'aprovada' });
+
+      const servico = await this.servicoRepository.findById(transacao.servico_id);
+      if (servico?.id && servico.status === 'aceito') {
+        await this.servicoRepository.updateStatus({
+          id: servico.id,
+          status: 'emAndamento',
+        });
+      }
     }
 
     if (evento === 'PAYMENT_REFUNDED' && transacao.status !== 'reembolsada') {

@@ -1,87 +1,115 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { IUserRepository } from '../../repositories/IUserRepository';
-import { User } from '../../entities/User';
-import { RegisterDto, LoginDto, ChangeForgotPasswordDto, ChangePasswordDto } from '../../dtos/user';
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { IUserRepository } from "../../repositories/IUserRepository";
+import { IUsuarioRepository } from "../../repositories/IUsuarioRepository";
+import { User } from "../../entities/User";
+import { Usuario } from "../../entities/Usuario";
+import {
+  RegisterDto,
+  LoginDto,
+  ChangeForgotPasswordDto,
+  ChangePasswordDto,
+} from "../../dtos/user";
 import {
   ResourceAlreadyExistsError,
   ResourceNotFoundError,
   UnauthorizedError,
   ValidationError,
-} from '../../errors/AppError';
-import { IMailProvider } from '../../dtos/mail';  
-import { validarUUID } from '../../utils/validate';
+} from "../../errors/AppError";
+import { IMailProvider } from "../../dtos/mail";
+import { IVerificacaoEmailCadastroRepository } from "../../repositories/IVerificacaoEmailCadastroRepository";
+import { validarUUID } from "../../utils/validate";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export class RegisterUseCase {
   constructor(
     private userRepository: IUserRepository,
+    private usuarioRepository: IUsuarioRepository,
   ) {}
 
-  async executar(dados: RegisterDto): Promise<{token: string, user: Omit<User, 'senha'> | null}> {
+  /** Nome inicial do perfil (tabela `usuarios`) até o utilizador completar o cadastro. */
+  private nomeProvisorioDoEmail(email: string): string {
+    const local = email.split("@")[0]?.trim() ?? "";
+    const base = local.length > 0 ? local : "Usuário";
+    return base.length > 200 ? base.slice(0, 200) : base;
+  }
+
+  async executar(
+    dados: RegisterDto,
+  ): Promise<{ token: string; user: Omit<User, "senha"> | null }> {
     if (!EMAIL_REGEX.test(dados.email)) {
-      throw new ValidationError('E-mail inválido.');
+      throw new ValidationError("E-mail inválido.");
     }
 
     const usuarioExiste = await this.userRepository.findByEmail(dados.email);
-    
+
     if (usuarioExiste) {
-      throw new ResourceAlreadyExistsError('Este e-mail já está cadastrado.');
+      throw new ResourceAlreadyExistsError("Este e-mail já está cadastrado.");
     }
     const senhaCriptografada = await bcrypt.hash(dados.senha, 10);
     const novoUser = new User({ ...dados, senha: senhaCriptografada });
     await this.userRepository.register(novoUser);
+
+    const perfilJaExiste = await this.usuarioRepository.findByUserId(
+      novoUser.id,
+    );
+    if (!perfilJaExiste) {
+      const perfil = new Usuario({
+        user_id: novoUser.id,
+        nome: this.nomeProvisorioDoEmail(dados.email),
+        telefone: undefined,
+      });
+      await this.usuarioRepository.create(perfil);
+    }
+
     const { senha, ...UsersemSenha } = novoUser;
     const token = jwt.sign(
-      { id: novoUser.id,
-        tipo: 'User'  },
-      process.env.JWT_SECRET || 'secret-key',
-      { expiresIn: '1d' },
+      { id: novoUser.id, tipo: "User" },
+      process.env.JWT_SECRET || "secret-key",
+      { expiresIn: "1d" },
     );
-    return { token, user: UsersemSenha as Omit<User, 'senha'>};
-
+    return { token, user: UsersemSenha as Omit<User, "senha"> };
   }
 }
 
 export class LoginUseCase {
-  constructor(
-    private userRepository: IUserRepository,
-  ) {}
+  constructor(private userRepository: IUserRepository) {}
 
-  async executar(dados: LoginDto): Promise<{ token: string; user: Omit<User, 'senha'> }> {
+  async executar(
+    dados: LoginDto,
+  ): Promise<{ token: string; user: Omit<User, "senha"> }> {
     const usuario = await this.userRepository.findByEmail(dados.email);
 
     if (!usuario) {
-      throw new UnauthorizedError('E-mail ou senha incorretos.');
+      throw new UnauthorizedError("E-mail ou senha incorretos.");
     }
 
     const senhaValida = await bcrypt.compare(dados.senha, usuario.senha);
     if (!senhaValida) {
-      throw new UnauthorizedError('E-mail ou senha incorretos.');
+      throw new UnauthorizedError("E-mail ou senha incorretos.");
     }
 
     const token = jwt.sign(
-      { id: usuario.id,
-        tipo: 'User' },
-      process.env.JWT_SECRET || 'secret-key',
-      { expiresIn: '1d' },
+      { id: usuario.id, tipo: "User" },
+      process.env.JWT_SECRET || "secret-key",
+      { expiresIn: "1d" },
     );
 
     const { senha, ...semSenha } = usuario;
-    return { token, user: semSenha as Omit<User, 'senha'> };
+    return { token, user: semSenha as Omit<User, "senha"> };
   }
 }
 
 export class DeletarUserUseCase {
-  constructor(private userRepository: IUserRepository){}
+  constructor(private userRepository: IUserRepository) {}
 
-  async executar(id: string): Promise<boolean>{
-    validarUUID(id, 'ID do user');
-    const user = await this.userRepository.findById(id)
+  async executar(id: string): Promise<boolean> {
+    validarUUID(id, "ID do user");
+    const user = await this.userRepository.findById(id);
 
     if (!user) {
-      throw new ResourceNotFoundError('User');
+      throw new ResourceNotFoundError("User");
     }
 
     await this.userRepository.delete(id);
@@ -92,11 +120,11 @@ export class DeletarUserUseCase {
 export class AcharPorEmail {
   constructor(private userRepository: IUserRepository) {}
 
-  async executar(email: string): Promise<User | null>{
+  async executar(email: string): Promise<User | null> {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
-      throw new ResourceNotFoundError('User');
+      throw new ResourceNotFoundError("User");
     }
     return user;
   }
@@ -107,7 +135,7 @@ export class VerificarEmailExiste {
 
   async executar(email: string): Promise<{ existe: boolean }> {
     if (!EMAIL_REGEX.test(email)) {
-      throw new ValidationError('E-mail inválido.');
+      throw new ValidationError("E-mail inválido.");
     }
     const user = await this.userRepository.findByEmail(email);
     return { existe: !!user };
@@ -117,14 +145,65 @@ export class VerificarEmailExiste {
 export class AcharPorId {
   constructor(private userRepository: IUserRepository) {}
 
-  async executar(id: string): Promise<User | null>{
-    validarUUID(id, 'ID do user');
+  async executar(id: string): Promise<User | null> {
+    validarUUID(id, "ID do user");
     const user = await this.userRepository.findById(id);
 
     if (!user) {
-      throw new ResourceNotFoundError('User');
+      throw new ResourceNotFoundError("User");
     }
     return user;
+  }
+}
+
+/** Envia código de 4 dígitos para verificação de e-mail antes de concluir o cadastro. */
+export class EnviarCodigoVerificacaoCadastroUseCase {
+  constructor(
+    private userRepository: IUserRepository,
+    private verificacaoRepo: IVerificacaoEmailCadastroRepository,
+    private mailProvider: IMailProvider,
+  ) {}
+
+  async executar(email: string): Promise<void> {
+    if (!EMAIL_REGEX.test(email)) {
+      throw new ValidationError("E-mail inválido.");
+    }
+    const trimmed = email.trim();
+    const user = await this.userRepository.findByEmail(trimmed);
+    if (user) {
+      throw new ResourceAlreadyExistsError("Este e-mail já está cadastrado.");
+    }
+    const codigo = Math.floor(1000 + Math.random() * 9000).toString();
+    const expira = new Date(Date.now() + 15 * 60 * 1000);
+    await this.verificacaoRepo.upsert(trimmed, codigo, expira);
+    await this.mailProvider.sendMail({
+      to: trimmed,
+      subject: "Código de verificação — DOMI",
+      body: `Seu código de verificação é: <b>${codigo}</b>. Ele expira em 15 minutos.`,
+    });
+  }
+}
+
+export class ConfirmarCodigoVerificacaoCadastroUseCase {
+  constructor(private verificacaoRepo: IVerificacaoEmailCadastroRepository) {}
+
+  async executar(email: string, codigo: string): Promise<void> {
+    if (!EMAIL_REGEX.test(email)) {
+      throw new ValidationError("E-mail inválido.");
+    }
+    const trimmed = email.trim();
+    const row = await this.verificacaoRepo.findByEmail(trimmed);
+    if (!row) {
+      throw new ValidationError("Solicite um novo código de verificação.");
+    }
+    if (new Date() > new Date(row.expira_em)) {
+      await this.verificacaoRepo.deleteByEmail(trimmed);
+      throw new ValidationError("O código expirou. Volte e solicite um novo.");
+    }
+    if (row.codigo !== codigo.trim()) {
+      throw new ValidationError("Código inválido.");
+    }
+    await this.verificacaoRepo.deleteByEmail(trimmed);
   }
 }
 
@@ -135,7 +214,8 @@ export class ForgotPassword {
   ) {}
 
   async executar(email: string) {
-    const usuario = await this.userRepository.findByEmail(email);
+    const trimmed = email.trim();
+    const usuario = await this.userRepository.findByEmail(trimmed);
     if (!usuario) return;
 
     const codigo = Math.floor(100000 + Math.random() * 900000).toString();
@@ -147,52 +227,40 @@ export class ForgotPassword {
       expiracao,
     );
 
-    // Envia o e-mail de fato
     await this.mailProvider.sendMail({
-      to: email,
-      subject: "Recuperação de Senha - Projeto PI",
-      body: `Seu código de recuperação é: <b>${codigo}</b>. Ele expira em 30 minutos.`,
+      to: trimmed,
+      subject: "Recuperação de senha — DOMI",
+      body: `Seu código de recuperação (6 dígitos) é: <b>${codigo}</b>. Ele expira em 30 minutos.`,
     });
   }
 }
 
 export class ChangeForgotPassword {
-  // Injetamos apenas o Repositório, pois o e-mail já foi enviado na etapa anterior
   constructor(private userRepository: IUserRepository) {}
 
   async executar(props: ChangeForgotPasswordDto): Promise<void> {
-    // 1. Busca o usuário pelo e-mail
-    const usuario = await this.userRepository.findByEmail(props.email);
+    const usuario = await this.userRepository.findByEmail(props.email.trim());
 
-    // 2. Validações de segurança
-    if (!usuario) {
-      throw new Error("Usuário não encontrado.");
+    if (
+      !usuario ||
+      !usuario.recovery_token ||
+      usuario.recovery_token !== props.codigo.trim()
+    ) {
+      throw new ValidationError("Código inválido ou e-mail incorreto.");
     }
 
-    if (!usuario.recovery_token || usuario.recovery_token !== props.codigo) {
-      throw new Error("Código de verificação inválido.");
-    }
-
-    // 3. Valida se o código expirou (comparando com a data atual do seu Kali)
     if (
       usuario.recovery_token_expires &&
-      new Date() > usuario.recovery_token_expires
+      new Date() > new Date(usuario.recovery_token_expires)
     ) {
-      throw new Error("O código de recuperação expirou. Solicite um novo.");
+      throw new ValidationError(
+        "O código de recuperação expirou. Solicite um novo.",
+      );
     }
 
-    // 4. Criptografa a nova senha antes de salvar
-    // Nunca salve a senha em texto limpo no Postgres!
-    const saltRounds = 10;
-    const senhaHashed = await bcrypt.hash(props.nova_senha, saltRounds);
-
-    // 5. Persistência dos dados
+    const senhaHashed = await bcrypt.hash(props.nova_senha, 10);
     await this.userRepository.changePassword(usuario.id, senhaHashed);
-
-    // 6. Limpeza (Segurança): invalida o código para que ele não possa ser usado de novo
     await this.userRepository.updateRecoveryToken(usuario.id, null, null);
-
-    console.log(`[AUTH] Senha alterada com sucesso para: ${props.email}`);
   }
 }
 

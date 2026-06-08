@@ -24,6 +24,14 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Códigos de verificação de e-mail antes do cadastro (fluxo multi-etapas no front)
+CREATE TABLE IF NOT EXISTS verificacao_email_cadastro (
+    email TEXT PRIMARY KEY,
+    codigo TEXT NOT NULL,
+    expira_em TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- 2. Tabela de Usuarios (perfis)
 CREATE TABLE IF NOT EXISTS usuarios (
     user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
@@ -82,7 +90,7 @@ CREATE TABLE IF NOT EXISTS servicos (
 CREATE TABLE IF NOT EXISTS avaliacoes (
     id TEXT PRIMARY KEY,
     servico_id TEXT REFERENCES servicos(id),
-    user_id TEXT REFERENCES usuarios(user_id),
+    usuario_id TEXT REFERENCES usuarios(user_id),
     prestador_id TEXT REFERENCES prestadores(user_id),
     listBy TEXT,
     avaliarBy TEXT,

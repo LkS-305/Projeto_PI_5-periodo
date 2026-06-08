@@ -5,6 +5,7 @@ import {
   CriarCarteiraUseCase,
   DeletarCarteiraUseCase,
   AtualizarMetodosDePagamentoUseCase,
+  AtualizarMetodosPorContaUseCase,
   AtualizarStatus,
   AtualizarSaldoUseCase,
   AcharPorUserId,
@@ -20,6 +21,8 @@ const criarCarteiraUseCase = new CriarCarteiraUseCase(carteiraRepo);
 const deletarCarteiraUseCase = new DeletarCarteiraUseCase(carteiraRepo);
 const atualizarMetodosDePagamentoUseCase =
   new AtualizarMetodosDePagamentoUseCase(carteiraRepo);
+const atualizarMetodosPorContaUseCase =
+  new AtualizarMetodosPorContaUseCase(carteiraRepo);
 const atualizarStatus = new AtualizarStatus(carteiraRepo);
 const atualizarSaldoUseCase = new AtualizarSaldoUseCase(carteiraRepo);
 const acharPorUserId = new AcharPorUserId(carteiraRepo);
@@ -29,6 +32,7 @@ const carteiraController = new CarteiraController(
   criarCarteiraUseCase,
   deletarCarteiraUseCase,
   atualizarMetodosDePagamentoUseCase,
+  atualizarMetodosPorContaUseCase,
   atualizarStatus,
   atualizarSaldoUseCase,
   acharPorUserId,
@@ -43,6 +47,9 @@ carteiraRouter.delete("/deletar-carteira", (req, res) =>
 );
 carteiraRouter.patch("/atualizarMetodosDePagamento", (req, res) =>
   carteiraController.updatePaymentMethods(req, res),
+);
+carteiraRouter.patch("/atualizarMetodosPorConta", (req, res) =>
+  carteiraController.updatePaymentMethodsByAccount(req, res),
 );
 carteiraRouter.patch("/atualizarStatus", (req, res) =>
   carteiraController.updateStatus(req, res),
